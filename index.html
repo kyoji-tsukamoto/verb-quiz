@@ -3,702 +3,1452 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>中学1年生 動詞テスト</title>
+<title>中学テスト総合</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0f1117;
-    --surface: #1a1d2e;
-    --surface2: #222538;
-    --accent: #6c63ff;
-    --accent2: #ff6584;
-    --success: #43e97b;
-    --error: #ff6584;
-    --text: #eeeef5;
-    --text-muted: #888aa8;
-    --border: #2e3150;
-    --radius: 14px;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Noto Sans JP', sans-serif;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 24px 16px 48px;
-  }
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background:
-      radial-gradient(ellipse 60% 40% at 20% 10%, rgba(108,99,255,0.12) 0%, transparent 60%),
-      radial-gradient(ellipse 40% 30% at 80% 80%, rgba(255,101,132,0.08) 0%, transparent 60%);
-    pointer-events: none;
-    z-index: 0;
-  }
-  .wrap { width: 100%; max-width: 680px; position: relative; z-index: 1; }
+:root {
+  --bg:#0d1117; --surface:#161b27; --surface2:#1e2435;
+  --accent:#38bdf8; --accent2:#f472b6;
+  --success:#4ade80; --error:#f87171;
+  --warn:#fbbf24;
+  --text:#e8eaf0; --text-muted:#7a8099; --border:#252d40; --radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;min-height:100dvh;display:flex;flex-direction:column;align-items:center;padding:0;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 15% 10%,rgba(56,189,248,.10) 0%,transparent 60%),radial-gradient(ellipse 40% 30% at 85% 85%,rgba(244,114,182,.07) 0%,transparent 60%);pointer-events:none;z-index:0;}
+.wrap{width:100%;max-width:680px;position:relative;z-index:1;display:flex;flex-direction:column;padding:0 16px;}
+.wrap.quiz-mode{height:100dvh;overflow:hidden;}
 
-  header { text-align: center; margin-bottom: 28px; }
-  .logo { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 10px; }
-  h1 { font-size: clamp(22px, 4vw, 30px); font-weight: 900; color: var(--text); line-height: 1.2; }
-  h1 span { color: var(--accent); }
+/* ===== SCREENS ===== */
+.screen{display:none;animation:fadeUp .4s ease;}
+.screen.active{display:block;}
+#quiz-screen.active{display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:0;}
 
-  /* Name screen */
-  #name-screen { animation: fadeUp 0.4s ease; }
-  .name-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 28px 24px; margin-bottom: 16px; }
-  .name-label { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
-  .name-input {
-    width: 100%; background: var(--surface2); border: 2px solid var(--border);
-    border-radius: var(--radius); padding: 14px 16px; color: var(--text);
-    font-size: 18px; font-family: 'Noto Sans JP', sans-serif;
-    outline: none; transition: border-color 0.18s; margin-bottom: 16px;
-  }
-  .name-input:focus { border-color: var(--accent); }
-  .name-btn {
-    width: 100%; background: var(--accent); color: #fff; border: none;
-    border-radius: var(--radius); padding: 14px; font-size: 16px;
-    font-weight: 700; font-family: 'Noto Sans JP', sans-serif;
-    cursor: pointer; transition: all 0.18s;
-  }
-  .name-btn:hover { background: #7c75ff; }
-  .name-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+/* ===== HEADER ===== */
+header{text-align:center;margin-bottom:8px;padding-top:14px;}
+.logo{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:3px;text-transform:uppercase;margin-bottom:6px;}
+h1{font-size:clamp(18px,3.5vw,24px);font-weight:900;line-height:1.2;}
+h1 span{color:var(--accent);}
+.subtitle{font-size:12px;color:var(--text-muted);margin-top:3px;}
 
-  /* Top nav */
-  .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-  .user-badge { background: var(--surface); border: 1px solid var(--border); border-radius: 99px; padding: 6px 14px; font-size: 13px; display: flex; align-items: center; gap: 6px; }
-  .user-badge span { color: var(--accent); font-weight: 700; }
-  .history-btn {
-    background: var(--surface); border: 1px solid var(--border); border-radius: 99px;
-    padding: 6px 14px; font-size: 13px; color: var(--text-muted);
-    cursor: pointer; transition: all 0.18s; font-family: 'Noto Sans JP', sans-serif;
-  }
-  .history-btn:hover { border-color: var(--accent); color: var(--accent); }
+/* ===== NAME SCREEN ===== */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px 24px;margin-bottom:16px;}
+.field-label{font-family:'Space Mono',monospace;font-size:11px;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;}
+.text-input{width:100%;background:var(--surface2);border:2px solid var(--border);border-radius:var(--radius);padding:14px 16px;color:var(--text);font-size:18px;font-family:'Noto Sans JP',sans-serif;outline:none;transition:border-color .18s;margin-bottom:16px;}
+.text-input:focus{border-color:var(--accent);}
+.primary-btn{width:100%;background:var(--accent);color:#0d1117;border:none;border-radius:var(--radius);padding:14px;font-size:16px;font-weight:900;font-family:'Noto Sans JP',sans-serif;cursor:pointer;transition:all .18s;}
+.primary-btn:hover{opacity:.85;transform:translateY(-1px);}
+.primary-btn:disabled{opacity:.3;cursor:not-allowed;transform:none;}
 
-  /* Category screen */
-  #category-screen { animation: fadeUp 0.4s ease; }
-  .section-label { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 14px; }
-  .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px; }
-  .cat-btn {
-    background: var(--surface); border: 2px solid var(--border); border-radius: var(--radius);
-    padding: 14px 16px; color: var(--text); font-family: 'Noto Sans JP', sans-serif;
-    font-size: 14px; cursor: pointer; transition: all 0.18s; text-align: left;
-    display: flex; align-items: center; gap: 10px;
-  }
-  .cat-btn:hover { border-color: var(--accent); background: var(--surface2); }
-  .cat-btn.selected { border-color: var(--accent); background: rgba(108,99,255,0.15); color: #fff; }
-  .cat-btn .icon { font-size: 20px; flex-shrink: 0; }
-  .cat-btn .info { display: flex; flex-direction: column; gap: 2px; }
-  .cat-btn .cat-name { font-weight: 700; font-size: 14px; }
-  .cat-btn .cat-count { font-size: 11px; color: var(--text-muted); font-family: 'Space Mono', monospace; }
-  .cat-btn.selected .cat-count { color: var(--accent); }
-  .all-btn {
-    background: var(--surface); border: 2px solid var(--border); border-radius: var(--radius);
-    padding: 14px 20px; color: var(--text); font-family: 'Noto Sans JP', sans-serif;
-    font-size: 14px; cursor: pointer; transition: all 0.18s; display: flex;
-    align-items: center; gap: 10px; width: 100%; margin-bottom: 24px; font-weight: 700;
-  }
-  .all-btn:hover { border-color: var(--accent); background: var(--surface2); }
-  .all-btn.selected { border-color: var(--accent); background: rgba(108,99,255,0.15); }
-  .start-btn {
-    width: 100%; background: var(--accent); color: #fff; border: none;
-    border-radius: var(--radius); padding: 16px; font-size: 16px; font-weight: 700;
-    font-family: 'Noto Sans JP', sans-serif; cursor: pointer; transition: all 0.18s; letter-spacing: 1px;
-  }
-  .start-btn:hover { background: #7c75ff; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(108,99,255,0.35); }
-  .start-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+/* ===== TOP NAV ===== */
+.top-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px;}
+.user-badge{background:var(--surface);border:1px solid var(--border);border-radius:99px;padding:6px 14px;font-size:13px;display:flex;align-items:center;gap:6px;}
+.user-badge span{color:var(--accent);font-weight:700;}
+.nav-btns{display:flex;gap:6px;flex-wrap:wrap;}
+.ghost-btn{background:var(--surface);border:1px solid var(--border);border-radius:99px;padding:6px 12px;font-size:12px;color:var(--text-muted);cursor:pointer;transition:all .18s;font-family:'Noto Sans JP',sans-serif;white-space:nowrap;}
+.ghost-btn:hover{border-color:var(--accent);color:var(--accent);}
+.ghost-btn.active-tab{border-color:var(--accent);color:var(--accent);background:rgba(56,189,248,.1);}
 
-  /* Quiz screen */
-  #quiz-screen { display: none; animation: fadeUp 0.4s ease; }
-  .progress-bar-wrap { background: var(--surface); border-radius: 99px; height: 6px; margin-bottom: 24px; overflow: hidden; }
-  .progress-bar { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 99px; transition: width 0.4s ease; }
-  .quiz-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-family: 'Space Mono', monospace; font-size: 12px; }
-  .q-counter { color: var(--text-muted); }
-  .score-badge { background: var(--surface); border: 1px solid var(--border); border-radius: 99px; padding: 4px 12px; display: flex; gap: 10px; }
-  .score-badge .correct { color: var(--success); }
-  .score-badge .wrong { color: var(--error); }
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 28px 24px; margin-bottom: 20px; }
-  .category-tag { display: inline-block; background: rgba(108,99,255,0.18); color: var(--accent); border-radius: 99px; padding: 3px 12px; font-size: 11px; font-family: 'Space Mono', monospace; letter-spacing: 1px; margin-bottom: 16px; }
-  .sentence { font-size: clamp(18px, 3.5vw, 24px); font-weight: 700; line-height: 1.7; color: var(--text); margin-bottom: 8px; }
-  .blank { display: inline-block; min-width: 90px; border-bottom: 3px solid var(--accent); padding: 0 4px; text-align: center; color: var(--accent); font-family: 'Space Mono', monospace; vertical-align: bottom; transition: all 0.2s; }
-  .meaning { color: var(--text-muted); font-size: 13px; margin-top: 10px; }
-  .meaning strong { color: var(--accent2); }
-  .input-row { display: flex; gap: 10px; margin-top: 20px; }
-  .answer-input { flex: 1; background: var(--surface2); border: 2px solid var(--border); border-radius: var(--radius); padding: 14px 16px; color: var(--text); font-size: 18px; font-family: 'Space Mono', monospace; outline: none; transition: border-color 0.18s; }
-  .answer-input:focus { border-color: var(--accent); }
-  .answer-input.correct-input { border-color: var(--success); background: rgba(67,233,123,0.07); }
-  .answer-input.wrong-input { border-color: var(--error); background: rgba(255,101,132,0.07); }
-  .submit-btn { background: var(--accent); color: #fff; border: none; border-radius: var(--radius); padding: 14px 24px; font-size: 15px; font-weight: 700; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; transition: all 0.18s; white-space: nowrap; }
-  .submit-btn:hover { background: #7c75ff; }
-  .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-  .feedback { border-radius: var(--radius); padding: 16px 20px; margin-bottom: 16px; display: none; animation: pop 0.25s cubic-bezier(0.34,1.56,0.64,1); }
-  .feedback.show { display: flex; align-items: flex-start; gap: 12px; }
-  .feedback.correct { background: rgba(67,233,123,0.1); border: 1px solid rgba(67,233,123,0.3); }
-  .feedback.wrong { background: rgba(255,101,132,0.1); border: 1px solid rgba(255,101,132,0.3); }
-  .feedback-icon { font-size: 22px; flex-shrink: 0; margin-top: 2px; }
-  .feedback-text { font-size: 14px; line-height: 1.6; }
-  .feedback-text .answer { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 16px; }
-  .feedback.correct .feedback-text .answer { color: var(--success); }
-  .feedback.wrong .feedback-text .answer { color: var(--error); }
-  .feedback-text .correct-answer { font-family: 'Space Mono', monospace; font-weight: 700; color: var(--success); }
-  .next-btn { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; color: var(--text); font-size: 15px; font-family: 'Noto Sans JP', sans-serif; font-weight: 700; cursor: pointer; transition: all 0.18s; display: none; }
-  .next-btn:hover { background: var(--accent); border-color: var(--accent); }
-  .next-btn.show { display: block; animation: fadeUp 0.25s ease; }
+/* ===== HOME SCREEN ===== */
+#home-screen{padding-bottom:32px;}
+.test-cards{display:flex;flex-direction:column;gap:14px;margin-top:8px;}
+.test-card{background:var(--surface);border:2px solid var(--border);border-radius:20px;padding:24px 22px;cursor:pointer;transition:all .18s;}
+.test-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 24px rgba(56,189,248,.15);}
+.test-card-icon{font-size:32px;margin-bottom:10px;}
+.test-card-title{font-size:18px;font-weight:900;margin-bottom:4px;}
+.test-card-sub{font-size:13px;color:var(--text-muted);}
 
-  /* Result screen */
-  #result-screen { display: none; text-align: center; animation: fadeUp 0.5s ease; }
-  .result-circle { width: 140px; height: 140px; border-radius: 50%; border: 6px solid var(--accent); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 24px auto; background: rgba(108,99,255,0.1); }
-  .result-score { font-family: 'Space Mono', monospace; font-size: 42px; font-weight: 700; color: var(--accent); }
-  .result-total { font-size: 13px; color: var(--text-muted); }
-  .result-msg { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
-  .result-sub { font-size: 14px; color: var(--text-muted); margin-bottom: 32px; }
-  .result-stats { display: flex; gap: 12px; justify-content: center; margin-bottom: 32px; }
-  .stat-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 24px; text-align: center; flex: 1; }
-  .stat-num { font-family: 'Space Mono', monospace; font-size: 28px; font-weight: 700; }
-  .stat-num.c { color: var(--success); }
-  .stat-num.w { color: var(--error); }
-  .stat-label { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
-  .missed-section { text-align: left; margin-bottom: 20px; }
-  .missed-title { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
-  .missed-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; margin-bottom: 8px; font-size: 13px; display: flex; gap: 12px; align-items: flex-start; }
-  .missed-verb { font-family: 'Space Mono', monospace; color: var(--error); font-weight: 700; min-width: 80px; }
-  .missed-sentence { color: var(--text-muted); line-height: 1.5; }
-  .missed-sentence strong { color: var(--success); font-family: 'Space Mono', monospace; }
-  .save-status { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; min-height: 20px; }
-  .btn-row { display: flex; gap: 10px; }
-  .retry-btn, .back-btn { flex: 1; border-radius: var(--radius); padding: 14px; font-size: 15px; font-weight: 700; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; transition: all 0.18s; border: none; }
-  .retry-btn { background: var(--accent); color: #fff; }
-  .retry-btn:hover { background: #7c75ff; }
-  .back-btn { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
-  .back-btn:hover { background: var(--surface2); }
+/* ===== CATEGORY SCREEN ===== */
+#category-screen{padding-bottom:20px;}
+.back-link{display:flex;align-items:center;gap:6px;color:var(--text-muted);font-size:13px;cursor:pointer;margin-bottom:16px;}
+.back-link:hover{color:var(--accent);}
+.section-label{font-family:'Space Mono',monospace;font-size:11px;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;}
+.cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.cat-btn{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:14px 16px;color:var(--text);font-family:'Noto Sans JP',sans-serif;font-size:13px;cursor:pointer;transition:all .18s;text-align:left;display:flex;align-items:center;gap:10px;}
+.cat-btn:hover{border-color:var(--accent);background:var(--surface2);}
+.cat-btn.selected{border-color:var(--accent);background:rgba(56,189,248,.12);}
+.cat-btn .icon{font-size:18px;flex-shrink:0;}
+.cat-btn .cat-name{font-weight:700;font-size:13px;}
+.cat-btn .cat-count{font-size:11px;color:var(--text-muted);font-family:'Space Mono',monospace;}
+.cat-btn.selected .cat-count{color:var(--accent);}
+.all-btn{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:14px 20px;color:var(--text);font-family:'Noto Sans JP',sans-serif;font-size:14px;cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:10px;width:100%;margin-bottom:16px;font-weight:700;}
+.all-btn:hover{border-color:var(--accent);background:var(--surface2);}
+.all-btn.selected{border-color:var(--accent);background:rgba(56,189,248,.12);}
+.start-btn{width:100%;background:var(--accent);color:#0d1117;border:none;border-radius:var(--radius);padding:16px;font-size:16px;font-weight:900;font-family:'Noto Sans JP',sans-serif;cursor:pointer;transition:all .18s;}
+.start-btn:hover{opacity:.85;transform:translateY(-1px);box-shadow:0 8px 24px rgba(56,189,248,.25);}
+.start-btn:disabled{opacity:.3;cursor:not-allowed;transform:none;box-shadow:none;}
 
-  /* History screen */
-  #history-screen { display: none; animation: fadeUp 0.4s ease; }
-  .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-  .history-header h2 { font-size: 18px; font-weight: 900; }
-  .close-btn { background: var(--surface); border: 1px solid var(--border); border-radius: 99px; padding: 6px 14px; font-size: 13px; color: var(--text-muted); cursor: pointer; font-family: 'Noto Sans JP', sans-serif; transition: all 0.18s; }
-  .close-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .history-summary { display: flex; gap: 10px; margin-bottom: 20px; }
-  .summary-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; text-align: center; flex: 1; }
-  .summary-num { font-family: 'Space Mono', monospace; font-size: 24px; font-weight: 700; color: var(--accent); }
-  .summary-label { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
-  .history-empty { text-align: center; color: var(--text-muted); padding: 40px 0; font-size: 14px; }
-  .history-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 10px; animation: fadeUp 0.3s ease; }
-  .history-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-  .history-meta { flex: 1; }
-  .history-date { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
-  .history-cats { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
-  .history-cat-tag { background: rgba(108,99,255,0.15); color: var(--accent); border-radius: 99px; padding: 2px 10px; font-size: 11px; }
-  .history-score-col { text-align: right; }
-  .history-pct { font-family: 'Space Mono', monospace; font-size: 28px; font-weight: 700; }
-  .history-pct.high { color: var(--success); }
-  .history-pct.mid { color: #ffd166; }
-  .history-pct.low { color: var(--error); }
-  .history-counts { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-  .history-missed { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
-  .history-missed-label { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--text-muted); letter-spacing: 1px; margin-bottom: 6px; }
-  .history-missed-words { display: flex; flex-wrap: wrap; gap: 5px; }
-  .missed-word-tag { background: rgba(255,101,132,0.12); color: var(--error); border-radius: 6px; padding: 2px 8px; font-size: 12px; font-family: 'Space Mono', monospace; }
-  .loading-text { text-align: center; color: var(--text-muted); padding: 24px; font-size: 13px; }
+/* ===== QUIZ SCREEN ===== */
+.progress-bar-wrap{background:var(--surface);border-radius:99px;height:5px;margin-bottom:6px;overflow:hidden;flex-shrink:0;}
+.progress-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:99px;transition:width .4s ease;}
+.timer-count{font-family:'Space Mono',monospace;font-size:11px;color:var(--text-muted);text-align:right;margin-bottom:4px;flex-shrink:0;}
+.timer-wrap{height:6px;background:var(--surface2);border-radius:99px;margin-bottom:6px;overflow:hidden;flex-shrink:0;}
+.timer-bar{height:100%;width:100%;border-radius:99px;transition:width .1s linear,background .5s;background:var(--success);}
+.timer-bar.warn{background:var(--warn);}
+.timer-bar.danger{background:var(--error);}
+.quiz-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-family:'Space Mono',monospace;font-size:12px;flex-shrink:0;}
+.q-counter{color:var(--text-muted);}
+.score-badge{background:var(--surface);border:1px solid var(--border);border-radius:99px;padding:4px 12px;display:flex;gap:10px;}
+.score-badge .c{color:var(--success);}
+.score-badge .w{color:var(--error);}
 
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-  @keyframes pop { 0% { transform: scale(0.95); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+/* verb card */
+.verb-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px 20px 12px;margin-bottom:8px;text-align:center;flex-shrink:0;}
+.group-tag{display:inline-block;background:rgba(56,189,248,.15);color:var(--accent);border-radius:99px;padding:2px 10px;font-size:10px;font-family:'Space Mono',monospace;letter-spacing:1px;margin-bottom:6px;}
+.verb-display{font-family:'Space Mono',monospace;font-size:clamp(28px,7vw,44px);font-weight:700;color:var(--text);letter-spacing:2px;margin-bottom:6px;}
+.speak-btn{display:inline-flex;align-items:center;gap:5px;background:rgba(56,189,248,.12);border:1.5px solid rgba(56,189,248,.35);border-radius:99px;padding:5px 14px;color:var(--accent);font-size:12px;font-family:'Noto Sans JP',sans-serif;font-weight:700;cursor:pointer;transition:all .18s;margin-bottom:6px;}
+.speak-btn:hover{background:rgba(56,189,248,.22);transform:scale(1.04);}
+.speak-btn.speaking{background:rgba(56,189,248,.28);animation:pulse .6s ease infinite alternate;}
+.verb-sentence{font-size:12px;color:var(--text-muted);font-style:italic;}
+
+/* question card (疑問文テスト) */
+.question-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px 20px 12px;margin-bottom:8px;flex-shrink:0;}
+.question-label{font-family:'Space Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:1px;margin-bottom:8px;display:inline-block;}
+.question-jp{font-size:15px;font-weight:700;color:var(--text);margin-bottom:10px;line-height:1.5;}
+.question-en{font-size:16px;font-family:'Space Mono',monospace;color:var(--text);line-height:1.7;}
+.question-blank{display:inline-block;min-width:70px;border-bottom:3px solid var(--accent);text-align:center;color:var(--accent);font-family:'Space Mono',monospace;font-weight:700;vertical-align:bottom;padding:0 4px;}
+
+/* choices */
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;flex:1;min-height:0;}
+.choice-btn{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:8px 10px 6px;color:var(--text);font-family:'Noto Sans JP',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .15s;text-align:center;position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;}
+.choice-btn:hover:not(:disabled){border-color:var(--accent);background:rgba(56,189,248,.08);transform:translateY(-2px);}
+.choice-btn:disabled{cursor:not-allowed;}
+.choice-btn:focus,.choice-btn:focus-visible{outline:none;box-shadow:none;}
+  .choice-btn{-webkit-tap-highlight-color:transparent;user-select:none;}
+.choice-btn:active{transform:none;}
+.choice-btn.correct{border-color:var(--success);background:rgba(74,222,128,.13);color:var(--success);animation:pop .3s cubic-bezier(.34,1.56,.64,1);}
+.choice-btn.wrong{border-color:var(--error);background:rgba(248,113,113,.10);color:var(--error);}
+.choice-btn.show-correct{border-color:var(--success);background:rgba(74,222,128,.08);color:var(--success);}
+.choice-label{font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);position:absolute;top:7px;left:11px;}
+.choice-btn.correct .choice-label,.choice-btn.show-correct .choice-label{color:var(--success);}
+.choice-btn.wrong .choice-label{color:var(--error);}
+
+.bottom-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-shrink:0;min-height:48px;}
+.bottom-row .feedback{flex:1;border-radius:var(--radius);padding:10px 14px;}
+.bottom-row .feedback.show{display:flex;align-items:center;gap:10px;}
+.feedback{border-radius:var(--radius);padding:0;margin-bottom:0;display:none;animation:pop .25s cubic-bezier(.34,1.56,.64,1);flex-shrink:0;}
+.feedback.correct{background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.3);}
+.feedback.wrong{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);}
+.fb-icon{font-size:18px;flex-shrink:0;}
+.fb-text{font-size:13px;line-height:1.4;}
+.fb-ans{font-weight:700;}
+.feedback.correct .fb-ans{color:var(--success);}
+.feedback.wrong .fb-ans{color:var(--error);}
+.fb-correct{font-weight:700;color:var(--success);}
+.next-btn{display:none!important;}
+
+/* result */
+#result-screen{text-align:center;padding-bottom:32px;}
+.result-circle{width:130px;height:130px;border-radius:50%;border:6px solid var(--accent);display:flex;flex-direction:column;align-items:center;justify-content:center;margin:20px auto;background:rgba(56,189,248,.08);}
+.result-pct{font-family:'Space Mono',monospace;font-size:40px;font-weight:700;color:var(--accent);}
+.result-fraction{font-size:13px;color:var(--text-muted);}
+.result-msg{font-size:20px;font-weight:700;margin-bottom:8px;}
+.result-sub{font-size:14px;color:var(--text-muted);margin-bottom:24px;}
+.result-stats{display:flex;gap:12px;justify-content:center;margin-bottom:24px;}
+.stat-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 20px;text-align:center;flex:1;}
+.stat-num{font-family:'Space Mono',monospace;font-size:26px;font-weight:700;}
+.stat-num.c{color:var(--success);}
+.stat-num.w{color:var(--error);}
+.stat-label{font-size:12px;color:var(--text-muted);margin-top:4px;}
+.missed-section{text-align:left;margin-bottom:20px;}
+.missed-title{font-family:'Space Mono',monospace;font-size:11px;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;}
+.missed-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:7px;font-size:13px;display:flex;gap:12px;align-items:center;}
+.missed-verb{font-family:'Space Mono',monospace;color:var(--error);font-weight:700;min-width:80px;}
+.missed-meaning{color:var(--text-muted);}
+.save-status{font-size:13px;color:var(--text-muted);margin-bottom:16px;min-height:18px;}
+.btn-row{display:flex;flex-direction:column;gap:10px;}
+.btn-row-top{display:flex;gap:10px;}
+.retry-btn{flex:1;background:var(--accent);color:#0d1117;border:none;border-radius:var(--radius);padding:14px;font-size:15px;font-weight:900;font-family:'Noto Sans JP',sans-serif;cursor:pointer;transition:all .18s;}
+.retry-btn:hover{opacity:.85;}
+.retry-missed-btn{flex:1;background:var(--error);color:#fff;border:none;border-radius:var(--radius);padding:14px;font-size:15px;font-weight:900;font-family:'Noto Sans JP',sans-serif;cursor:pointer;transition:all .18s;}
+.retry-missed-btn:hover{opacity:.85;}
+.retry-missed-btn:disabled{opacity:.3;cursor:not-allowed;}
+.back-home-btn{width:100%;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:var(--radius);padding:14px;font-size:15px;font-weight:700;font-family:'Noto Sans JP',sans-serif;cursor:pointer;transition:all .18s;}
+.back-home-btn:hover{background:var(--surface2);}
+
+/* ===== HISTORY SCREEN ===== */
+#history-screen{padding-bottom:32px;}
+.history-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+.history-header h2{font-size:18px;font-weight:900;}
+.history-summary{display:flex;gap:10px;margin-bottom:20px;}
+.summary-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;flex:1;}
+.summary-num{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:var(--accent);}
+.summary-label{font-size:11px;color:var(--text-muted);margin-top:4px;}
+.history-empty{text-align:center;color:var(--text-muted);padding:40px 0;font-size:14px;}
+.history-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:10px;}
+.history-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
+.history-date{font-family:'Space Mono',monospace;font-size:11px;color:var(--text-muted);margin-bottom:6px;}
+.history-cats{display:flex;flex-wrap:wrap;gap:4px;}
+.h-cat-tag{background:rgba(56,189,248,.12);color:var(--accent);border-radius:99px;padding:2px 10px;font-size:11px;}
+.h-test-tag{border-radius:99px;padding:2px 10px;font-size:11px;font-weight:700;}
+.h-test-tag.verb{background:rgba(56,189,248,.15);color:var(--accent);}
+.h-test-tag.q{background:rgba(244,114,182,.15);color:var(--accent2);}
+.history-pct{font-family:'Space Mono',monospace;font-size:26px;font-weight:700;}
+.history-pct.high{color:var(--success);}
+.history-pct.mid{color:var(--warn);}
+.history-pct.low{color:var(--error);}
+.history-counts{font-size:12px;color:var(--text-muted);margin-top:2px;}
+.history-missed{margin-top:8px;padding-top:8px;border-top:1px solid var(--border);}
+.h-missed-label{font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:1px;margin-bottom:5px;}
+.h-missed-words{display:flex;flex-wrap:wrap;gap:5px;}
+.missed-tag{background:rgba(248,113,113,.12);color:var(--error);border-radius:6px;padding:2px 8px;font-size:12px;font-family:'Space Mono',monospace;}
+
+/* ===== RANKING SCREEN ===== */
+#ranking-screen{padding-bottom:32px;}
+.rank-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;margin-bottom:10px;display:flex;align-items:center;gap:14px;}
+.rank-num{font-family:'Space Mono',monospace;font-size:18px;font-weight:700;min-width:36px;text-align:center;}
+.rank-num.r1{color:var(--warn);font-size:22px;}
+.rank-num.r2{color:#94a3b8;font-size:20px;}
+.rank-num.r3{color:#cd7c2f;font-size:20px;}
+.rank-verb{font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:var(--text);min-width:100px;cursor:pointer;}
+.rank-meaning{font-size:13px;color:var(--text-muted);flex:1;}
+.rank-bar-wrap{display:flex;flex-direction:column;align-items:flex-end;gap:4px;min-width:72px;}
+.rank-miss{font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:var(--error);}
+.rank-miss-label{font-size:10px;color:var(--text-muted);}
+.rank-bar-bg{width:72px;height:6px;background:var(--surface2);border-radius:99px;overflow:hidden;}
+.rank-bar{height:100%;background:linear-gradient(90deg,var(--error),var(--accent2));border-radius:99px;}
+
+/* ===== CALENDAR SCREEN ===== */
+#calendar-screen{padding-bottom:32px;}
+.cal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.cal-header h2{font-size:18px;font-weight:900;}
+.cal-nav{display:flex;align-items:center;gap:12px;}
+.cal-nav-btn{background:var(--surface);border:1px solid var(--border);border-radius:99px;padding:6px 14px;font-size:13px;color:var(--text-muted);cursor:pointer;transition:all .18s;font-family:'Noto Sans JP',sans-serif;}
+.cal-nav-btn:hover{border-color:var(--accent);color:var(--accent);}
+.cal-month{font-family:'Space Mono',monospace;font-size:15px;font-weight:700;min-width:120px;text-align:center;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:16px;}
+.cal-dow{text-align:center;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-muted);padding:4px 0;}
+.cal-dow.sun{color:var(--error);}
+.cal-dow.sat{color:var(--accent);}
+.cal-day{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:6px 4px;min-height:52px;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:2px;}
+.cal-day:hover{border-color:var(--accent);}
+.cal-day.empty{background:transparent;border-color:transparent;cursor:default;}
+.cal-day.today{border-color:var(--accent);background:rgba(56,189,248,.08);}
+.cal-day.has-record{border-color:rgba(74,222,128,.4);}
+.cal-day-num{font-family:'Space Mono',monospace;font-size:12px;font-weight:700;}
+.cal-day.sunday .cal-day-num{color:var(--error);}
+.cal-day.saturday .cal-day-num{color:var(--accent);}
+.cal-dots{display:flex;gap:2px;flex-wrap:wrap;justify-content:center;}
+.cal-dot{width:6px;height:6px;border-radius:50%;}
+.cal-dot.verb{background:var(--accent);}
+.cal-dot.q{background:var(--accent2);}
+
+/* day detail modal */
+.day-detail{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:12px;animation:fadeUp .3s ease;}
+.day-detail-title{font-family:'Space Mono',monospace;font-size:12px;color:var(--text-muted);margin-bottom:12px;}
+.day-record{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--surface2);border-radius:10px;margin-bottom:8px;}
+.day-record-icon{font-size:20px;}
+.day-record-info{flex:1;}
+.day-record-test{font-size:13px;font-weight:700;margin-bottom:2px;}
+.day-record-test.verb{color:var(--accent);}
+.day-record-test.q{color:var(--accent2);}
+.day-record-detail{font-size:12px;color:var(--text-muted);}
+.day-record-score{font-family:'Space Mono',monospace;font-size:20px;font-weight:700;}
+.day-record-score.high{color:var(--success);}
+.day-record-score.mid{color:var(--warn);}
+.day-record-score.low{color:var(--error);}
+
+.subject-tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.subject-tab{background:var(--surface);border:2px solid var(--border);border-radius:99px;padding:8px 16px;color:var(--text-muted);font-size:13px;font-family:'Noto Sans JP',sans-serif;font-weight:700;cursor:pointer;transition:all .18s;}
+.subject-tab:hover{border-color:var(--accent);color:var(--accent);}
+.subject-tab.active{border-color:var(--accent);background:rgba(56,189,248,.12);color:var(--accent);}
+.cal-dot.geo{background:#4ade80;}
+.cal-dot.history{background:#fb923c;}
+.cal-dot.physics{background:#a78bfa;}
+.cal-dot.biology{background:#34d399;}
+.cal-dot.earth{background:#60a5fa;}
+.day-record-test.geo{color:#4ade80;}
+.day-record-test.history{color:#fb923c;}
+.day-record-test.physics{color:#a78bfa;}
+.day-record-test.biology{color:#34d399;}
+.day-record-test.earth{color:#60a5fa;}
+.h-test-tag.geo{background:rgba(74,222,128,.15);color:#4ade80;}
+.h-test-tag.history{background:rgba(251,146,60,.15);color:#fb923c;}
+.h-test-tag.physics{background:rgba(167,139,250,.15);color:#a78bfa;}
+.h-test-tag.biology{background:rgba(52,211,153,.15);color:#34d399;}
+.h-test-tag.earth{background:rgba(96,165,250,.15);color:#60a5fa;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+@keyframes pop{0%{transform:scale(.92);opacity:0;}100%{transform:scale(1);opacity:1;}}
+@keyframes pulse{from{opacity:.7;}to{opacity:1;}}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <div class="logo">中学1年生 英語</div>
-    <h1>動詞<span>暗記</span>テスト</h1>
-  </header>
+<div class="wrap" id="main-wrap">
+<header>
+  <div class="logo">中学英語</div>
+  <h1 id="main-title">中学<span>テスト</span></h1>
+  <div class="subtitle" id="main-sub">英語・社会・理科 テストを選ぼう</div>
+</header>
 
-  <!-- Name Screen -->
-  <div id="name-screen">
-    <div class="name-card">
-      <div class="name-label">あなたの名前を入力してください</div>
-      <input class="name-input" id="name-input" type="text" placeholder="例：山田 太郎" maxlength="20"
-        onkeydown="if(event.key==='Enter')confirmName()"
-        oninput="document.getElementById('name-confirm-btn').disabled=!this.value.trim()">
-      <button class="name-btn" id="name-confirm-btn" onclick="confirmName()" disabled>はじめる →</button>
-    </div>
-  </div>
-
-  <!-- Top Nav -->
-  <div class="top-nav" id="top-nav" style="display:none">
-    <div class="user-badge">👤 <span id="nav-username"></span></div>
-    <button class="history-btn" onclick="showHistory()">📋 履歴を見る</button>
-  </div>
-
-  <!-- Category Screen -->
-  <div id="category-screen" style="display:none">
-    <div class="section-label">カテゴリを選ぶ</div>
-    <button class="all-btn" id="btn-all" onclick="toggleAll()">
-      <span>🌟</span> すべての動詞（100語）
-    </button>
-    <div class="cat-grid" id="cat-grid"></div>
-    <button class="start-btn" id="start-btn" onclick="startQuiz()" disabled>テストを始める →</button>
-  </div>
-
-  <!-- Quiz Screen -->
-  <div id="quiz-screen">
-    <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar"></div></div>
-    <div class="quiz-meta">
-      <div class="q-counter" id="q-counter">1 / 20</div>
-      <div class="score-badge">
-        <span class="correct">✓ <span id="score-correct">0</span></span>
-        <span class="wrong">✗ <span id="score-wrong">0</span></span>
-      </div>
-    </div>
-    <div class="card">
-      <div class="category-tag" id="q-cat">移動・動作</div>
-      <div class="sentence" id="q-sentence"></div>
-      <div class="meaning" id="q-meaning"></div>
-    </div>
-    <div class="feedback" id="feedback">
-      <div class="feedback-icon" id="fb-icon"></div>
-      <div class="feedback-text" id="fb-text"></div>
-    </div>
-    <div class="input-row">
-      <input class="answer-input" id="answer-input" type="text" placeholder="動詞を入力..." autocomplete="off" autocorrect="off" spellcheck="false" onkeydown="handleKey(event)">
-      <button class="submit-btn" id="submit-btn" onclick="submitAnswer()">答える</button>
-    </div>
-    <button class="next-btn" id="next-btn" onclick="nextQuestion()">次の問題 →</button>
-  </div>
-
-  <!-- Result Screen -->
-  <div id="result-screen">
-    <div class="result-msg" id="result-msg"></div>
-    <div class="result-circle">
-      <div class="result-score" id="result-score"></div>
-      <div class="result-total" id="result-total"></div>
-    </div>
-    <div class="result-sub" id="result-sub"></div>
-    <div class="result-stats">
-      <div class="stat-box"><div class="stat-num c" id="r-correct">0</div><div class="stat-label">正解</div></div>
-      <div class="stat-box"><div class="stat-num w" id="r-wrong">0</div><div class="stat-label">不正解</div></div>
-    </div>
-    <div class="missed-section" id="missed-section"></div>
-    <div class="save-status" id="save-status"></div>
-    <div class="btn-row">
-      <button class="retry-btn" onclick="retryQuiz()">もう一度</button>
-      <button class="back-btn" onclick="backToCategory()">カテゴリ選択に戻る</button>
-    </div>
-  </div>
-
-  <!-- History Screen -->
-  <div id="history-screen">
-    <div class="history-header">
-      <h2>📋 テスト履歴</h2>
-      <button class="close-btn" onclick="closeHistory()">✕ 閉じる</button>
-    </div>
-    <div id="history-summary" class="history-summary" style="display:none"></div>
-    <div id="history-list"></div>
+<!-- Name Screen -->
+<div class="screen active" id="name-screen">
+  <div class="card">
+    <div class="field-label">あなたの名前を入力してください</div>
+    <input class="text-input" id="name-input" type="text" placeholder="例：山田 太郎" maxlength="20"
+      onkeydown="if(event.key==='Enter')confirmName()"
+      oninput="document.getElementById('name-btn').disabled=!this.value.trim()">
+    <button class="primary-btn" id="name-btn" onclick="confirmName()" disabled>はじめる →</button>
   </div>
 </div>
 
+<!-- Top Nav -->
+<div class="top-nav" id="top-nav" style="display:none">
+  <div class="user-badge">👤 <span id="nav-user"></span></div>
+  <div class="nav-btns">
+    <button class="ghost-btn" onclick="goHome()">🏠 ホーム</button>
+    <button class="ghost-btn" id="nav-history" onclick="showHistory()">📋 履歴</button>
+    <button class="ghost-btn" id="nav-ranking" onclick="showRanking()">🏅 苦手</button>
+    <button class="ghost-btn" id="nav-calendar" onclick="showCalendar()">📅 カレンダー</button>
+  </div>
+</div>
+
+<!-- Home Screen -->
+<div class="screen" id="home-screen">
+  <div class="subject-tabs">
+    <button class="subject-tab active" onclick="switchSubject('english')">🇬🇧 英語</button>
+    <button class="subject-tab" onclick="switchSubject('social')">🗾 社会</button>
+    <button class="subject-tab" onclick="switchSubject('science')">🔬 理科</button>
+  </div>
+  <div class="test-cards" id="test-cards-english">
+    <div class="test-card" onclick="startTestFlow('verb')">
+      <div class="test-card-icon">📝</div>
+      <div class="test-card-title">動詞 126語テスト</div>
+      <div class="test-card-sub">英単語を見て、正しい日本語の意味を4択で選ぼう</div>
+    </div>
+    <div class="test-card" onclick="startTestFlow('q')">
+      <div class="test-card-icon">❓</div>
+      <div class="test-card-title">疑問文テスト</div>
+      <div class="test-card-sub">日本語を見て、英語の疑問文の空欄に入る語を4択で選ぼう</div>
+    </div>
+  </div>
+  <div class="test-cards" id="test-cards-social" style="display:none">
+    <div class="test-card" onclick="startTestFlow('geo')">
+      <div class="test-card-icon">🗾</div>
+      <div class="test-card-title">地理テスト</div>
+      <div class="test-card-sub">都道府県・世界地図・地形を4択で答えよう</div>
+    </div>
+    <div class="test-card" onclick="startTestFlow('history')">
+      <div class="test-card-icon">📜</div>
+      <div class="test-card-title">歴史テスト</div>
+      <div class="test-card-sub">年号・人物・出来事を4択で答えよう</div>
+    </div>
+  </div>
+  <div class="test-cards" id="test-cards-science" style="display:none">
+    <div class="test-card" onclick="startTestFlow('physics')">
+      <div class="test-card-icon">💡</div>
+      <div class="test-card-title">物理テスト</div>
+      <div class="test-card-sub">光・音・力について4択で答えよう</div>
+    </div>
+    <div class="test-card" onclick="startTestFlow('biology')">
+      <div class="test-card-icon">🌿</div>
+      <div class="test-card-title">生物テスト</div>
+      <div class="test-card-sub">植物・動物・細胞について4択で答えよう</div>
+    </div>
+    <div class="test-card" onclick="startTestFlow('earth')">
+      <div class="test-card-icon">🌏</div>
+      <div class="test-card-title">地学テスト</div>
+      <div class="test-card-sub">天気・地層・天体について4択で答えよう</div>
+    </div>
+  </div>
+</div>
+
+<!-- Category Screen -->
+<div class="screen" id="category-screen">
+  <div class="back-link" onclick="goHome()">← ホームに戻る</div>
+  <div class="section-label" id="cat-label">グループを選ぶ</div>
+  <button class="all-btn" id="btn-all" onclick="toggleAll()"><span>🌟</span> <span id="all-btn-text">全部まとめて</span></button>
+  <div class="cat-grid" id="cat-grid"></div>
+  <button class="start-btn" id="start-btn" onclick="startQuiz()" disabled>テストを始める →</button>
+</div>
+
+<!-- Quiz Screen -->
+<div class="screen" id="quiz-screen">
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+  <div class="timer-count" id="timer-count">10</div>
+  <div class="timer-wrap"><div class="timer-bar" id="timer-bar"></div></div>
+  <div class="quiz-meta">
+    <div class="q-counter" id="q-counter">1 / 18</div>
+    <div class="score-badge">
+      <span class="c">✓ <span id="score-c">0</span></span>
+      <span class="w">✗ <span id="score-w">0</span></span>
+    </div>
+  </div>
+  <!-- verb card -->
+  <div class="verb-card" id="verb-card">
+    <div class="group-tag" id="q-group">グループ1</div>
+    <div class="verb-display" id="q-verb">go</div>
+    <button class="speak-btn" id="speak-btn" onclick="speakVerb()">🔊 発音を聞く</button>
+    <div class="verb-sentence" id="q-sentence"></div>
+  </div>
+  <!-- question card -->
+  <div class="question-card" id="question-card" style="display:none">
+    <span class="question-label" id="question-label">疑問文テスト</span>
+    <div class="question-jp" id="q-jp"></div>
+    <div class="question-en" id="q-en" style="display:none"></div>
+  </div>
+  <div class="choices" id="choices"></div>
+  <div class="bottom-row">
+    <div class="feedback" id="feedback">
+      <div class="fb-icon" id="fb-icon"></div>
+      <div class="fb-text" id="fb-text"></div>
+    </div>
+    <button class="next-btn" id="next-btn" onclick="nextQuestion()">次へ →</button>
+  </div>
+</div>
+
+<!-- Result Screen -->
+<div class="screen" id="result-screen">
+  <div class="result-msg" id="result-msg"></div>
+  <div class="result-circle">
+    <div class="result-pct" id="result-pct"></div>
+    <div class="result-fraction" id="result-fraction"></div>
+  </div>
+  <div class="result-sub" id="result-sub"></div>
+  <div class="result-stats">
+    <div class="stat-box"><div class="stat-num c" id="r-c">0</div><div class="stat-label">正解</div></div>
+    <div class="stat-box"><div class="stat-num w" id="r-w">0</div><div class="stat-label">不正解</div></div>
+  </div>
+  <div class="missed-section" id="missed-section"></div>
+  <div class="save-status" id="save-status"></div>
+  <div class="btn-row">
+    <div class="btn-row-top">
+      <button class="retry-btn" onclick="retryQuiz(false)">最初から</button>
+      <button class="retry-missed-btn" id="retry-missed-btn" onclick="retryQuiz(true)">間違いだけ</button>
+    </div>
+    <button class="back-home-btn" onclick="goHome()">ホームに戻る</button>
+  </div>
+</div>
+
+<!-- History Screen -->
+<div class="screen" id="history-screen">
+  <div class="history-header">
+    <h2>📋 テスト履歴</h2>
+    <button class="ghost-btn" onclick="goHome()">✕ 閉じる</button>
+  </div>
+  <div id="history-summary" class="history-summary" style="display:none"></div>
+  <div id="history-list"></div>
+</div>
+
+<!-- Ranking Screen -->
+<div class="screen" id="ranking-screen">
+  <div class="history-header">
+    <h2>🏅 苦手単語ランキング</h2>
+    <button class="ghost-btn" onclick="goHome()">✕ 閉じる</button>
+  </div>
+  <div id="ranking-summary" class="history-summary" style="display:none"></div>
+  <div id="ranking-list"></div>
+</div>
+
+<!-- Calendar Screen -->
+<div class="screen" id="calendar-screen">
+  <div class="cal-header">
+    <h2>📅 カレンダー</h2>
+    <div class="cal-nav">
+      <button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button>
+      <div class="cal-month" id="cal-month-label"></div>
+      <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
+    </div>
+  </div>
+  <div class="cal-grid" id="cal-grid"></div>
+  <div id="day-detail-area"></div>
+</div>
+
+</div><!-- /wrap -->
+
 <script>
-const ALL_VERBS = [
-  { verb: "am", sentence: "I ___ a student.", meaning: "私は学生です。", category: "be動詞", alt: ["am"] },
-  { verb: "go", sentence: "I ___ to school.", meaning: "私は学校へ行く。", category: "移動・動作" },
-  { verb: "come", sentence: "___ here, please.", meaning: "ここに来てください。", category: "移動・動作" },
-  { verb: "run", sentence: "I ___ every day.", meaning: "私は毎日走る。", category: "移動・動作" },
-  { verb: "walk", sentence: "I ___ to school.", meaning: "私は学校まで歩く。", category: "移動・動作" },
-  { verb: "swim", sentence: "I ___ in the pool.", meaning: "私はプールで泳ぐ。", category: "移動・動作" },
-  { verb: "ride", sentence: "I ___ a bike.", meaning: "私は自転車に乗る。", category: "移動・動作" },
-  { verb: "drive", sentence: "My dad ___ a car.", meaning: "私のお父さんは車を運転する。", category: "移動・動作" },
-  { verb: "fly", sentence: "Birds ___ high.", meaning: "鳥は高く飛ぶ。", category: "移動・動作" },
-  { verb: "jump", sentence: "I ___ rope.", meaning: "私は縄跳びをする。", category: "移動・動作" },
-  { verb: "sit", sentence: "___ down, please.", meaning: "座ってください。", category: "移動・動作" },
-  { verb: "stand", sentence: "___ up!", meaning: "立って！", category: "移動・動作" },
-  { verb: "stop", sentence: "___ here.", meaning: "ここで止まれ。", category: "移動・動作" },
-  { verb: "wake", sentence: "I ___ up early.", meaning: "私は早く起きる。", category: "移動・動作" },
-  { verb: "sleep", sentence: "I ___ at ten.", meaning: "私は10時に寝る。", category: "移動・動作" },
-  { verb: "get", sentence: "I ___ up at seven.", meaning: "私は7時に起きる。", category: "移動・動作" },
-  { verb: "move", sentence: "___ to the right.", meaning: "右に動いて。", category: "移動・動作" },
-  { verb: "climb", sentence: "I ___ the mountain.", meaning: "私は山を登る。", category: "移動・動作" },
-  { verb: "fall", sentence: "Leaves ___ in autumn.", meaning: "葉は秋に落ちる。", category: "移動・動作" },
-  { verb: "turn", sentence: "___ left here.", meaning: "ここで左に曲がって。", category: "移動・動作" },
-  { verb: "return", sentence: "I ___ home early.", meaning: "私は早く家に帰る。", category: "移動・動作" },
-  { verb: "eat", sentence: "I ___ rice every day.", meaning: "私は毎日ご飯を食べる。", category: "日常生活" },
-  { verb: "drink", sentence: "I ___ water.", meaning: "私は水を飲む。", category: "日常生活" },
-  { verb: "cook", sentence: "I ___ dinner.", meaning: "私は夕食を作る。", category: "日常生活" },
-  { verb: "wash", sentence: "I ___ my hands.", meaning: "私は手を洗う。", category: "日常生活" },
-  { verb: "clean", sentence: "I ___ my room.", meaning: "私は部屋を掃除する。", category: "日常生活" },
-  { verb: "make", sentence: "I ___ lunch.", meaning: "私は昼食を作る。", category: "日常生活" },
-  { verb: "use", sentence: "I ___ a computer.", meaning: "私はコンピュータを使う。", category: "日常生活" },
-  { verb: "open", sentence: "___ the window.", meaning: "窓を開けて。", category: "日常生活" },
-  { verb: "close", sentence: "___ the door.", meaning: "ドアを閉めて。", category: "日常生活" },
-  { verb: "buy", sentence: "I ___ a book.", meaning: "私は本を買う。", category: "日常生活" },
-  { verb: "sell", sentence: "He ___ flowers.", meaning: "彼は花を売る。", category: "日常生活" },
-  { verb: "give", sentence: "I ___ her a gift.", meaning: "私は彼女にプレゼントをあげる。", category: "日常生活" },
-  { verb: "take", sentence: "___ this, please.", meaning: "これを受け取ってください。", category: "日常生活" },
-  { verb: "bring", sentence: "___ your bag.", meaning: "バッグを持ってくる。", category: "日常生活" },
-  { verb: "wear", sentence: "I ___ a uniform.", meaning: "私は制服を着る。", category: "日常生活" },
-  { verb: "put", sentence: "___ it on the desk.", meaning: "机の上に置いて。", category: "日常生活" },
-  { verb: "carry", sentence: "I ___ my bag.", meaning: "私はバッグを運ぶ。", category: "日常生活" },
-  { verb: "cut", sentence: "___ the paper.", meaning: "紙を切って。", category: "日常生活" },
-  { verb: "break", sentence: "Don't ___ it.", meaning: "それを壊さないで。", category: "日常生活" },
-  { verb: "fix", sentence: "He ___ my bike.", meaning: "彼は私の自転車を直す。", category: "日常生活" },
-  { verb: "play", sentence: "I ___ soccer.", meaning: "私はサッカーをする。", category: "日常生活" },
-  { verb: "watch", sentence: "I ___ TV at night.", meaning: "私は夜にテレビを見る。", category: "日常生活" },
-  { verb: "say", sentence: "What do you ___?", meaning: "何と言いますか？", category: "コミュニケーション" },
-  { verb: "speak", sentence: "I ___ Japanese.", meaning: "私は日本語を話す。", category: "コミュニケーション" },
-  { verb: "talk", sentence: "I ___ with friends.", meaning: "私は友達と話す。", category: "コミュニケーション" },
-  { verb: "tell", sentence: "___ me your name.", meaning: "名前を教えて。", category: "コミュニケーション" },
-  { verb: "ask", sentence: "I ___ a question.", meaning: "私は質問する。", category: "コミュニケーション" },
-  { verb: "answer", sentence: "___ this question.", meaning: "この質問に答えて。", category: "コミュニケーション" },
-  { verb: "call", sentence: "___ me later.", meaning: "あとで電話して。", category: "コミュニケーション" },
-  { verb: "listen", sentence: "I ___ to music.", meaning: "私は音楽を聴く。", category: "コミュニケーション" },
-  { verb: "meet", sentence: "Nice to ___ you.", meaning: "はじめまして。", category: "コミュニケーション" },
-  { verb: "visit", sentence: "I ___ my grandma.", meaning: "私はおばあちゃんを訪ねる。", category: "コミュニケーション" },
-  { verb: "join", sentence: "___ our team!", meaning: "私たちのチームに参加して！", category: "コミュニケーション" },
-  { verb: "invite", sentence: "I ___ my friends.", meaning: "私は友達を招待する。", category: "コミュニケーション" },
-  { verb: "send", sentence: "I ___ a message.", meaning: "私はメッセージを送る。", category: "コミュニケーション" },
-  { verb: "receive", sentence: "I ___ a letter.", meaning: "私は手紙を受け取る。", category: "コミュニケーション" },
-  { verb: "thank", sentence: "I ___ my teacher.", meaning: "私は先生に感謝する。", category: "コミュニケーション" },
-  { verb: "show", sentence: "___ me your photo.", meaning: "写真を見せて。", category: "コミュニケーション" },
-  { verb: "read", sentence: "I ___ books.", meaning: "私は本を読む。", category: "コミュニケーション" },
-  { verb: "write", sentence: "I ___ a letter.", meaning: "私は手紙を書く。", category: "コミュニケーション" },
-  { verb: "study", sentence: "I ___ English.", meaning: "私は英語を勉強する。", category: "学習・創作" },
-  { verb: "learn", sentence: "I ___ new words.", meaning: "私は新しい単語を学ぶ。", category: "学習・創作" },
-  { verb: "teach", sentence: "She ___ math.", meaning: "彼女は数学を教える。", category: "学習・創作" },
-  { verb: "practice", sentence: "I ___ piano.", meaning: "私はピアノを練習する。", category: "学習・創作" },
-  { verb: "draw", sentence: "I ___ a picture.", meaning: "私は絵を描く。", category: "学習・創作" },
-  { verb: "paint", sentence: "I ___ a picture.", meaning: "私は絵の具で絵を描く。", category: "学習・創作" },
-  { verb: "count", sentence: "___ to ten.", meaning: "10まで数えて。", category: "学習・創作" },
-  { verb: "check", sentence: "___ your answers.", meaning: "答えを確認して。", category: "学習・創作" },
-  { verb: "finish", sentence: "I ___ my homework.", meaning: "私は宿題を終える。", category: "学習・創作" },
-  { verb: "start", sentence: "Let's ___!", meaning: "始めよう！", category: "学習・創作" },
-  { verb: "try", sentence: "___ your best!", meaning: "全力を尽くして！", category: "学習・創作" },
-  { verb: "help", sentence: "___ me, please.", meaning: "助けてください。", category: "学習・創作" },
-  { verb: "like", sentence: "I ___ music.", meaning: "私は音楽が好きだ。", category: "気持ち・思考" },
-  { verb: "love", sentence: "I ___ cats.", meaning: "私は猫が大好きだ。", category: "気持ち・思考" },
-  { verb: "enjoy", sentence: "I ___ tennis.", meaning: "私はテニスを楽しむ。", category: "気持ち・思考" },
-  { verb: "want", sentence: "I ___ a new bag.", meaning: "私は新しいバッグが欲しい。", category: "気持ち・思考" },
-  { verb: "need", sentence: "I ___ help.", meaning: "私は助けが必要だ。", category: "気持ち・思考" },
-  { verb: "hope", sentence: "I ___ so.", meaning: "私はそう望む。", category: "気持ち・思考" },
-  { verb: "think", sentence: "I ___ so.", meaning: "私はそう思う。", category: "気持ち・思考" },
-  { verb: "know", sentence: "I ___ him.", meaning: "私は彼を知っている。", category: "気持ち・思考" },
-  { verb: "forget", sentence: "Don't ___ it.", meaning: "それを忘れないで。", category: "気持ち・思考" },
-  { verb: "remember", sentence: "I ___ you.", meaning: "私はあなたを覚えている。", category: "気持ち・思考" },
-  { verb: "feel", sentence: "I ___ happy.", meaning: "私は嬉しい。", category: "気持ち・思考" },
-  { verb: "live", sentence: "I ___ in Tokyo.", meaning: "私は東京に住んでいる。", category: "気持ち・思考" },
-  { verb: "have", sentence: "I ___ a dog.", meaning: "私は犬を飼っている。", category: "気持ち・思考" },
-  { verb: "wish", sentence: "I ___ for peace.", meaning: "私は平和を願う。", category: "気持ち・思考" },
-  { verb: "see", sentence: "I ___ a bird.", meaning: "私は鳥が見える。", category: "知覚・状態" },
-  { verb: "look", sentence: "You ___ tired.", meaning: "あなたは疲れているように見える。", category: "知覚・状態" },
-  { verb: "hear", sentence: "I ___ a sound.", meaning: "私は音が聞こえる。", category: "知覚・状態" },
-  { verb: "smell", sentence: "It ___ good.", meaning: "それはいい匂いがする。", category: "知覚・状態" },
-  { verb: "taste", sentence: "It ___ sweet.", meaning: "それは甘い味がする。", category: "知覚・状態" },
-  { verb: "sound", sentence: "That ___ fun!", meaning: "それは楽しそう！", category: "知覚・状態" },
-  { verb: "rain", sentence: "It ___ today.", meaning: "今日は雨が降る。", category: "知覚・状態" },
-  { verb: "snow", sentence: "It ___ in winter.", meaning: "冬に雪が降る。", category: "知覚・状態" },
-  { verb: "shine", sentence: "The sun ___.", meaning: "太陽が輝く。", category: "知覚・状態" },
-  { verb: "grow", sentence: "Flowers ___ fast.", meaning: "花は速く育つ。", category: "知覚・状態" },
-  { verb: "change", sentence: "Things ___.", meaning: "物事は変わる。", category: "知覚・状態" },
-  { verb: "become", sentence: "I ___ stronger.", meaning: "私はより強くなる。", category: "知覚・状態" },
-  { verb: "exist", sentence: "Stars ___ far away.", meaning: "星は遠くに存在する。", category: "知覚・状態" },
+// ════════════════════════════════════
+// DATA
+// ════════════════════════════════════
+const ALL_VERBS=[
+  {verb:"agree",group:"グループ1",meaning:"同意する",sentence:"I agree with you."},
+  {verb:"answer",group:"グループ1",meaning:"答える",sentence:"Answer the question."},
+  {verb:"arrive",group:"グループ1",meaning:"到着する",sentence:"We arrive at school."},
+  {verb:"ask",group:"グループ1",meaning:"尋ねる",sentence:"I ask a question."},
+  {verb:"be",group:"グループ1",meaning:"〜である",sentence:"I am a student."},
+  {verb:"become",group:"グループ1",meaning:"〜になる",sentence:"I become stronger."},
+  {verb:"begin",group:"グループ1",meaning:"始める",sentence:"Let's begin now."},
+  {verb:"borrow",group:"グループ1",meaning:"借りる",sentence:"I borrow a book."},
+  {verb:"break",group:"グループ1",meaning:"壊す",sentence:"Don't break it."},
+  {verb:"bring",group:"グループ1",meaning:"持ってくる",sentence:"Bring your bag."},
+  {verb:"build",group:"グループ1",meaning:"建てる",sentence:"They build a house."},
+  {verb:"buy",group:"グループ1",meaning:"買う",sentence:"I buy a book."},
+  {verb:"call",group:"グループ1",meaning:"電話する・呼ぶ",sentence:"Call me later."},
+  {verb:"carry",group:"グループ1",meaning:"運ぶ",sentence:"I carry my bag."},
+  {verb:"catch",group:"グループ1",meaning:"捕まえる",sentence:"I catch the ball."},
+  {verb:"change",group:"グループ1",meaning:"変える・変わる",sentence:"Things change."},
+  {verb:"choose",group:"グループ1",meaning:"選ぶ",sentence:"Choose your answer."},
+  {verb:"clean",group:"グループ1",meaning:"掃除する",sentence:"I clean my room."},
+  {verb:"close",group:"グループ2",meaning:"閉める",sentence:"Close the door."},
+  {verb:"cook",group:"グループ2",meaning:"料理する",sentence:"I cook dinner."},
+  {verb:"cry",group:"グループ2",meaning:"泣く",sentence:"Don't cry."},
+  {verb:"cut",group:"グループ2",meaning:"切る",sentence:"Cut the paper."},
+  {verb:"decide",group:"グループ2",meaning:"決める",sentence:"I decide to study."},
+  {verb:"die",group:"グループ2",meaning:"死ぬ",sentence:"Flowers die in winter."},
+  {verb:"do",group:"グループ2",meaning:"する",sentence:"I do my homework."},
+  {verb:"draw",group:"グループ2",meaning:"描く",sentence:"I draw a picture."},
+  {verb:"drink",group:"グループ2",meaning:"飲む",sentence:"I drink water."},
+  {verb:"drive",group:"グループ2",meaning:"運転する",sentence:"My dad drives a car."},
+  {verb:"eat",group:"グループ2",meaning:"食べる",sentence:"I eat rice."},
+  {verb:"enjoy",group:"グループ2",meaning:"楽しむ",sentence:"I enjoy tennis."},
+  {verb:"explain",group:"グループ2",meaning:"説明する",sentence:"Please explain it."},
+  {verb:"fall",group:"グループ2",meaning:"落ちる",sentence:"Leaves fall in autumn."},
+  {verb:"feel",group:"グループ2",meaning:"感じる",sentence:"I feel happy."},
+  {verb:"find",group:"グループ2",meaning:"見つける",sentence:"I find my key."},
+  {verb:"finish",group:"グループ2",meaning:"終える",sentence:"I finish my homework."},
+  {verb:"fly",group:"グループ2",meaning:"飛ぶ",sentence:"Birds fly high."},
+  {verb:"forget",group:"グループ3",meaning:"忘れる",sentence:"Don't forget it."},
+  {verb:"get",group:"グループ3",meaning:"得る・なる",sentence:"I get up at seven."},
+  {verb:"give",group:"グループ3",meaning:"あげる",sentence:"I give her a gift."},
+  {verb:"go",group:"グループ3",meaning:"行く",sentence:"I go to school."},
+  {verb:"grow",group:"グループ3",meaning:"育つ・成長する",sentence:"Flowers grow fast."},
+  {verb:"happen",group:"グループ3",meaning:"起こる",sentence:"What did happen?"},
+  {verb:"have",group:"グループ3",meaning:"持っている",sentence:"I have a dog."},
+  {verb:"hear",group:"グループ3",meaning:"聞こえる",sentence:"I hear a sound."},
+  {verb:"help",group:"グループ3",meaning:"助ける",sentence:"Help me, please."},
+  {verb:"hit",group:"グループ3",meaning:"打つ・当たる",sentence:"He hits the ball."},
+  {verb:"hold",group:"グループ3",meaning:"持つ・開催する",sentence:"Hold my hand."},
+  {verb:"hope",group:"グループ3",meaning:"望む",sentence:"I hope so."},
+  {verb:"hurry",group:"グループ3",meaning:"急ぐ",sentence:"Hurry up!"},
+  {verb:"introduce",group:"グループ3",meaning:"紹介する",sentence:"Let me introduce myself."},
+  {verb:"invent",group:"グループ3",meaning:"発明する",sentence:"He invents things."},
+  {verb:"invite",group:"グループ3",meaning:"招待する",sentence:"I invite my friends."},
+  {verb:"join",group:"グループ3",meaning:"参加する",sentence:"Join our team!"},
+  {verb:"keep",group:"グループ3",meaning:"保つ・続ける",sentence:"Keep trying!"},
+  {verb:"kill",group:"グループ4",meaning:"殺す",sentence:"Don't kill insects."},
+  {verb:"know",group:"グループ4",meaning:"知っている",sentence:"I know him."},
+  {verb:"learn",group:"グループ4",meaning:"学ぶ",sentence:"I learn English."},
+  {verb:"leave",group:"グループ4",meaning:"去る・出発する",sentence:"I leave home at seven."},
+  {verb:"lend",group:"グループ4",meaning:"貸す",sentence:"Lend me your pen."},
+  {verb:"like",group:"グループ4",meaning:"好きだ",sentence:"I like music."},
+  {verb:"listen",group:"グループ4",meaning:"聴く",sentence:"I listen to music."},
+  {verb:"live",group:"グループ4",meaning:"住んでいる",sentence:"I live in Tokyo."},
+  {verb:"look",group:"グループ4",meaning:"見る・見える",sentence:"You look tired."},
+  {verb:"lose",group:"グループ4",meaning:"失う・負ける",sentence:"Don't lose your key."},
+  {verb:"love",group:"グループ4",meaning:"大好きだ",sentence:"I love cats."},
+  {verb:"make",group:"グループ4",meaning:"作る",sentence:"I make lunch."},
+  {verb:"mean",group:"グループ4",meaning:"意味する",sentence:"What does it mean?"},
+  {verb:"meet",group:"グループ4",meaning:"会う",sentence:"Nice to meet you."},
+  {verb:"miss",group:"グループ4",meaning:"逃す・恋しく思う",sentence:"I miss my friends."},
+  {verb:"move",group:"グループ4",meaning:"動く・引っ越す",sentence:"Move to the right."},
+  {verb:"name",group:"グループ4",meaning:"名前をつける",sentence:"They name the dog Bob."},
+  {verb:"need",group:"グループ5",meaning:"必要だ",sentence:"I need help."},
+  {verb:"open",group:"グループ5",meaning:"開ける",sentence:"Open the window."},
+  {verb:"paint",group:"グループ5",meaning:"絵の具で描く",sentence:"I paint a picture."},
+  {verb:"plan",group:"グループ5",meaning:"計画する",sentence:"I plan to study."},
+  {verb:"play",group:"グループ5",meaning:"遊ぶ・演奏する",sentence:"I play soccer."},
+  {verb:"practice",group:"グループ5",meaning:"練習する",sentence:"I practice piano."},
+  {verb:"put",group:"グループ5",meaning:"置く",sentence:"Put it on the desk."},
+  {verb:"read",group:"グループ5",meaning:"読む",sentence:"I read books."},
+  {verb:"receive",group:"グループ5",meaning:"受け取る",sentence:"I receive a letter."},
+  {verb:"remember",group:"グループ5",meaning:"覚えている",sentence:"I remember you."},
+  {verb:"return",group:"グループ5",meaning:"戻る",sentence:"I return home early."},
+  {verb:"ride",group:"グループ5",meaning:"乗る",sentence:"I ride a bike."},
+  {verb:"run",group:"グループ5",meaning:"走る",sentence:"I run every day."},
+  {verb:"save",group:"グループ5",meaning:"救う・貯める",sentence:"Save your money."},
+  {verb:"say",group:"グループ5",meaning:"言う",sentence:"What do you say?"},
+  {verb:"see",group:"グループ5",meaning:"見える・会う",sentence:"I see a bird."},
+  {verb:"sell",group:"グループ5",meaning:"売る",sentence:"He sells flowers."},
+  {verb:"send",group:"グループ6",meaning:"送る",sentence:"I send a message."},
+  {verb:"show",group:"グループ6",meaning:"見せる",sentence:"Show me your photo."},
+  {verb:"sing",group:"グループ6",meaning:"歌う",sentence:"I sing a song."},
+  {verb:"sit",group:"グループ6",meaning:"座る",sentence:"Sit down, please."},
+  {verb:"sleep",group:"グループ6",meaning:"眠る",sentence:"I sleep at ten."},
+  {verb:"smell",group:"グループ6",meaning:"匂いがする",sentence:"It smells good."},
+  {verb:"sound",group:"グループ6",meaning:"〜に聞こえる",sentence:"That sounds fun!"},
+  {verb:"speak",group:"グループ6",meaning:"話す",sentence:"I speak Japanese."},
+  {verb:"spend",group:"グループ6",meaning:"過ごす・使う",sentence:"I spend time studying."},
+  {verb:"stand",group:"グループ6",meaning:"立つ",sentence:"Stand up!"},
+  {verb:"start",group:"グループ6",meaning:"始める",sentence:"Let's start!"},
+  {verb:"stay",group:"グループ6",meaning:"滞在する・留まる",sentence:"Stay here."},
+  {verb:"stop",group:"グループ6",meaning:"止まる・やめる",sentence:"Stop here."},
+  {verb:"study",group:"グループ6",meaning:"勉強する",sentence:"I study English."},
+  {verb:"swim",group:"グループ6",meaning:"泳ぐ",sentence:"I swim in the pool."},
+  {verb:"take",group:"グループ7",meaning:"取る・持っていく",sentence:"Take this, please."},
+  {verb:"talk",group:"グループ7",meaning:"話す",sentence:"I talk with friends."},
+  {verb:"taste",group:"グループ7",meaning:"味がする",sentence:"It tastes sweet."},
+  {verb:"teach",group:"グループ7",meaning:"教える",sentence:"She teaches math."},
+  {verb:"tell",group:"グループ7",meaning:"伝える",sentence:"Tell me your name."},
+  {verb:"think",group:"グループ7",meaning:"思う",sentence:"I think so."},
+  {verb:"touch",group:"グループ7",meaning:"触る",sentence:"Don't touch it."},
+  {verb:"try",group:"グループ7",meaning:"試みる",sentence:"Try your best!"},
+  {verb:"turn",group:"グループ7",meaning:"曲がる・回る",sentence:"Turn left here."},
+  {verb:"understand",group:"グループ7",meaning:"理解する",sentence:"I understand it."},
+  {verb:"use",group:"グループ7",meaning:"使う",sentence:"I use a computer."},
+  {verb:"visit",group:"グループ7",meaning:"訪れる",sentence:"I visit my grandma."},
+  {verb:"wait",group:"グループ7",meaning:"待つ",sentence:"Wait a moment."},
+  {verb:"walk",group:"グループ7",meaning:"歩く",sentence:"I walk to school."},
+  {verb:"want",group:"グループ7",meaning:"欲しい・したい",sentence:"I want a new bag."},
+  {verb:"watch",group:"グループ7",meaning:"見る（テレビ等）",sentence:"I watch TV at night."},
+  {verb:"wear",group:"グループ7",meaning:"着る",sentence:"I wear a uniform."},
+  {verb:"win",group:"グループ7",meaning:"勝つ",sentence:"We win the game!"},
+  {verb:"work",group:"グループ7",meaning:"働く・機能する",sentence:"I work hard."},
+  {verb:"worry",group:"グループ7",meaning:"心配する",sentence:"Don't worry!"},
+  {verb:"write",group:"グループ7",meaning:"書く",sentence:"I write a letter."},
 ];
 
-const CATEGORIES = [
-  { name: "be動詞", icon: "🔵" },
-  { name: "移動・動作", icon: "🏃" },
-  { name: "日常生活", icon: "🏠" },
-  { name: "コミュニケーション", icon: "💬" },
-  { name: "学習・創作", icon: "📚" },
-  { name: "気持ち・思考", icon: "💭" },
-  { name: "知覚・状態", icon: "👁️" },
+const VERB_GROUPS=[
+  {name:"グループ1",icon:"①",range:"agree〜clean（18語）"},
+  {name:"グループ2",icon:"②",range:"close〜fly（18語）"},
+  {name:"グループ3",icon:"③",range:"forget〜keep（19語）"},
+  {name:"グループ4",icon:"④",range:"kill〜name（18語）"},
+  {name:"グループ5",icon:"⑤",range:"need〜sell（18語）"},
+  {name:"グループ6",icon:"⑥",range:"send〜swim（18語）"},
+  {name:"グループ7",icon:"⑦",range:"take〜write（17語）"},
 ];
 
-let currentUser = '';
-let selectedCategories = new Set();
-let allSelected = false;
-let questions = [];
-let currentIndex = 0;
-let correctCount = 0;
-let wrongCount = 0;
-let answered = false;
-let missedVerbs = [];
-let quizCategories = [];
+// 疑問文問題（Do/Does/Are/Is）
+const ALL_QUESTIONS=[
+  // Do you
+  {answer:"Do",jp:"あなたはサッカーをしますか？",en:"___ you play soccer?",category:"Do/Does"},
+  {answer:"Do",jp:"あなたは音楽が好きですか？",en:"___ you like music?",category:"Do/Does"},
+  {answer:"Do",jp:"あなたは英語を勉強しますか？",en:"___ you study English?",category:"Do/Does"},
+  {answer:"Do",jp:"あなたは朝食を食べますか？",en:"___ you eat breakfast?",category:"Do/Does"},
+  {answer:"Do",jp:"あなたは東京に住んでいますか？",en:"___ you live in Tokyo?",category:"Do/Does"},
+  {answer:"Do",jp:"あなたは犬を飼っていますか？",en:"___ you have a dog?",category:"Do/Does"},
+  {answer:"Do",jp:"あなたは学校まで歩きますか？",en:"___ you walk to school?",category:"Do/Does"},
+  {answer:"Do",jp:"あなたは夜にテレビを見ますか？",en:"___ you watch TV at night?",category:"Do/Does"},
+  {answer:"Do",jp:"あなたは牛乳を飲みますか？",en:"___ you drink milk?",category:"Do/Does"},
+  {answer:"Do",jp:"あなたは本を読みますか？",en:"___ you read books?",category:"Do/Does"},
+  {answer:"Do",jp:"あなたはお母さんを手伝いますか？",en:"___ you help your mother?",category:"Do/Does"},
+  {answer:"Do",jp:"あなたは夏に泳ぎますか？",en:"___ you swim in summer?",category:"Do/Does"},
+  {answer:"Do",jp:"あなたはコンピュータを使いますか？",en:"___ you use a computer?",category:"Do/Does"},
+  {answer:"Do",jp:"あなたは彼を知っていますか？",en:"___ you know him?",category:"Do/Does"},
+  {answer:"Do",jp:"あなたは新しいバッグが欲しいですか？",en:"___ you want a new bag?",category:"Do/Does"},
+  {answer:"Do",jp:"あなたはテニスを楽しみますか？",en:"___ you enjoy tennis?",category:"Do/Does"},
+  {answer:"Do",jp:"あなたは手紙を書きますか？",en:"___ you write letters?",category:"Do/Does"},
+  {answer:"Do",jp:"あなたは夕食を作りますか？",en:"___ you cook dinner?",category:"Do/Does"},
+  {answer:"Do",jp:"あなたは毎日走りますか？",en:"___ you run every day?",category:"Do/Does"},
+  {answer:"Do",jp:"あなたは日本語を話しますか？",en:"___ you speak Japanese?",category:"Do/Does"},
+  // Does he/she
+  {answer:"Does",jp:"彼は野球をしますか？",en:"___ he play baseball?",category:"Do/Does"},
+  {answer:"Does",jp:"彼女は猫が好きですか？",en:"___ she like cats?",category:"Do/Does"},
+  {answer:"Does",jp:"彼は数学を勉強しますか？",en:"___ he study math?",category:"Do/Does"},
+  {answer:"Does",jp:"彼女は野菜を食べますか？",en:"___ she eat vegetables?",category:"Do/Does"},
+  {answer:"Does",jp:"彼はこの近くに住んでいますか？",en:"___ he live near here?",category:"Do/Does"},
+  {answer:"Does",jp:"彼女は自転車を持っていますか？",en:"___ she have a bike?",category:"Do/Does"},
+  {answer:"Does",jp:"彼は学校まで歩きますか？",en:"___ he walk to school?",category:"Do/Does"},
+  {answer:"Does",jp:"彼女はテレビを見ますか？",en:"___ she watch TV?",category:"Do/Does"},
+  {answer:"Does",jp:"彼はコーヒーを飲みますか？",en:"___ he drink coffee?",category:"Do/Does"},
+  {answer:"Does",jp:"彼女は漫画を読みますか？",en:"___ she read manga?",category:"Do/Does"},
+  {answer:"Does",jp:"彼はお父さんを手伝いますか？",en:"___ he help his father?",category:"Do/Does"},
+  {answer:"Does",jp:"彼女は上手に泳ぎますか？",en:"___ she swim well?",category:"Do/Does"},
+  {answer:"Does",jp:"彼はコンピュータを使いますか？",en:"___ he use a computer?",category:"Do/Does"},
+  {answer:"Does",jp:"彼女はあなたを知っていますか？",en:"___ she know you?",category:"Do/Does"},
+  {answer:"Does",jp:"彼は新しい電話が欲しいですか？",en:"___ he want a new phone?",category:"Do/Does"},
+  {answer:"Does",jp:"彼女はダンスを楽しみますか？",en:"___ she enjoy dancing?",category:"Do/Does"},
+  {answer:"Does",jp:"彼は詩を書きますか？",en:"___ he write poems?",category:"Do/Does"},
+  {answer:"Does",jp:"彼女は料理が上手ですか？",en:"___ she cook well?",category:"Do/Does"},
+  {answer:"Does",jp:"彼は速く走りますか？",en:"___ he run fast?",category:"Do/Does"},
+  {answer:"Does",jp:"彼女は英語を話しますか？",en:"___ she speak English?",category:"Do/Does"},
+  // Are you
+  {answer:"Are",jp:"あなたは学生ですか？",en:"___ you a student?",category:"Be動詞"},
+  {answer:"Are",jp:"あなたは東京出身ですか？",en:"___ you from Tokyo?",category:"Be動詞"},
+  {answer:"Are",jp:"あなたは疲れていますか？",en:"___ you tired?",category:"Be動詞"},
+  {answer:"Are",jp:"あなたは幸せですか？",en:"___ you happy?",category:"Be動詞"},
+  {answer:"Are",jp:"あなたは今日ひまですか？",en:"___ you free today?",category:"Be動詞"},
+  {answer:"Are",jp:"あなたはスポーツが得意ですか？",en:"___ you good at sports?",category:"Be動詞"},
+  {answer:"Are",jp:"あなたはサッカー部ですか？",en:"___ you in the soccer club?",category:"Be動詞"},
+  {answer:"Are",jp:"あなたはお腹が空いていますか？",en:"___ you hungry?",category:"Be動詞"},
+  {answer:"Are",jp:"あなたは準備ができていますか？",en:"___ you ready?",category:"Be動詞"},
+  {answer:"Are",jp:"あなたは大丈夫ですか？",en:"___ you OK?",category:"Be動詞"},
+  {answer:"Are",jp:"あなたは日本出身ですか？",en:"___ you from Japan?",category:"Be動詞"},
+  {answer:"Are",jp:"あなたは先生ですか？",en:"___ you a teacher?",category:"Be動詞"},
+  {answer:"Are",jp:"あなたは今忙しいですか？",en:"___ you busy now?",category:"Be動詞"},
+  {answer:"Are",jp:"あなたは英語が得意ですか？",en:"___ you good at English?",category:"Be動詞"},
+  {answer:"Are",jp:"あなたは美術部ですか？",en:"___ you in the art club?",category:"Be動詞"},
+  {answer:"Are",jp:"あなたは寒いですか？",en:"___ you cold?",category:"Be動詞"},
+  {answer:"Are",jp:"あなたは怒っていますか？",en:"___ you angry?",category:"Be動詞"},
+  {answer:"Are",jp:"あなたは12歳ですか？",en:"___ you twelve years old?",category:"Be動詞"},
+  {answer:"Are",jp:"あなたは新入生ですか？",en:"___ you a new student?",category:"Be動詞"},
+  {answer:"Are",jp:"あなたは音楽に興味がありますか？",en:"___ you interested in music?",category:"Be動詞"},
+  // Is he/she
+  {answer:"Is",jp:"彼は学生ですか？",en:"___ he a student?",category:"Be動詞"},
+  {answer:"Is",jp:"彼女は大阪出身ですか？",en:"___ she from Osaka?",category:"Be動詞"},
+  {answer:"Is",jp:"彼は疲れていますか？",en:"___ he tired?",category:"Be動詞"},
+  {answer:"Is",jp:"彼女は幸せですか？",en:"___ she happy?",category:"Be動詞"},
+  {answer:"Is",jp:"彼は今日ひまですか？",en:"___ he free today?",category:"Be動詞"},
+  {answer:"Is",jp:"彼女はスポーツが得意ですか？",en:"___ she good at sports?",category:"Be動詞"},
+  {answer:"Is",jp:"彼はサッカー部ですか？",en:"___ he in the soccer club?",category:"Be動詞"},
+  {answer:"Is",jp:"彼女はお腹が空いていますか？",en:"___ she hungry?",category:"Be動詞"},
+  {answer:"Is",jp:"彼は準備ができていますか？",en:"___ he ready?",category:"Be動詞"},
+  {answer:"Is",jp:"彼女は大丈夫ですか？",en:"___ she OK?",category:"Be動詞"},
+  {answer:"Is",jp:"彼は日本出身ですか？",en:"___ he from Japan?",category:"Be動詞"},
+  {answer:"Is",jp:"彼女は先生ですか？",en:"___ she a teacher?",category:"Be動詞"},
+  {answer:"Is",jp:"彼は今忙しいですか？",en:"___ he busy now?",category:"Be動詞"},
+  {answer:"Is",jp:"彼女は英語が得意ですか？",en:"___ she good at English?",category:"Be動詞"},
+  {answer:"Is",jp:"彼は美術部ですか？",en:"___ he in the art club?",category:"Be動詞"},
+  {answer:"Is",jp:"彼女は寒いですか？",en:"___ she cold?",category:"Be動詞"},
+  {answer:"Is",jp:"彼は怒っていますか？",en:"___ he angry?",category:"Be動詞"},
+  {answer:"Is",jp:"彼女は12歳ですか？",en:"___ she twelve years old?",category:"Be動詞"},
+  {answer:"Is",jp:"彼は新入生ですか？",en:"___ he a new student?",category:"Be動詞"},
+  {answer:"Is",jp:"彼女は音楽に興味がありますか？",en:"___ she interested in music?",category:"Be動詞"},
+];
 
-function show(id) { document.getElementById(id).style.display = 'block'; }
-function hide(id) { document.getElementById(id).style.display = 'none'; }
+const Q_CATEGORIES=[
+  {name:"疑問文（全種類）",icon:"①",key:"all"},
+];
 
-// ── Name ──
-function confirmName() {
-  const name = document.getElementById('name-input').value.trim();
-  if (!name) return;
-  currentUser = name;
-  hide('name-screen');
-  document.getElementById('top-nav').style.display = 'flex';
-  document.getElementById('nav-username').textContent = name;
-  buildCategoryGrid();
-  show('category-screen');
+const LABELS=['A','B','C','D'];
+const Q_CHOICES=['Do','Does','Are','Is'];
+
+// ════════════════════════════════════
+// STATE
+// ════════════════════════════════════
+let currentUser='';
+let currentTestType=''; // 'verb' | 'q'
+let selectedGroups=new Set();
+let allSelected=false;
+let questions=[],currentIndex=0,correctCount=0,wrongCount=0;
+let answered=false,missedVerbs=[],quizGroups=[];
+let timerInterval=null,timerRemaining=10;
+const TIMER_SEC=10;
+let calYear=new Date().getFullYear();
+let calMonth=new Date().getMonth();
+
+// ════════════════════════════════════
+// SCREEN MANAGEMENT
+// ════════════════════════════════════
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el=document.getElementById(id);
+  if(el)el.classList.add('active');
+  const wrap=document.getElementById('main-wrap');
+  wrap.classList.toggle('quiz-mode',id==='quiz-screen');
 }
 
-// ── Categories ──
-function buildCategoryGrid() {
-  const grid = document.getElementById('cat-grid');
-  if (grid.children.length > 0) return;
-  CATEGORIES.forEach(cat => {
-    const count = ALL_VERBS.filter(v => v.category === cat.name).length;
-    const btn = document.createElement('button');
-    btn.className = 'cat-btn';
-    btn.id = 'cat-' + cat.name;
-    btn.innerHTML = `<span class="icon">${cat.icon}</span><div class="info"><div class="cat-name">${cat.name}</div><div class="cat-count">${count}語</div></div>`;
-    btn.onclick = () => toggleCat(cat.name);
+function goHome(){
+  clearTimer();
+  showScreen('home-screen');
+  setNavActive('');
+}
+
+function setNavActive(key){
+  document.querySelectorAll('.ghost-btn').forEach(b=>b.classList.remove('active-tab'));
+  if(key){
+    const m={'history':'nav-history','ranking':'nav-ranking','calendar':'nav-calendar'};
+    if(m[key])document.getElementById(m[key]).classList.add('active-tab');
+  }
+}
+
+// ════════════════════════════════════
+// NAME
+// ════════════════════════════════════
+function confirmName(){
+  const name=document.getElementById('name-input').value.trim();
+  if(!name)return;
+  currentUser=name;
+  document.getElementById('name-screen').classList.remove('active');
+  document.getElementById('top-nav').style.display='flex';
+  document.getElementById('nav-user').textContent=name;
+  showScreen('home-screen');
+}
+
+// ════════════════════════════════════
+// TEST FLOW
+// ════════════════════════════════════
+function startTestFlow(type){
+  currentTestType=type;selectedGroups.clear();allSelected=false;
+  const directTypes=['q','geo','history','physics','biology','earth'];
+  if(directTypes.includes(type)){
+    const meta=TEST_META[type]||{};quizGroups=[meta.label||type];
+    if(type==='q'){questions=shuffle(ALL_QUESTIONS).slice(0,20);}
+    else{questions=shuffle(SOCIAL_SCIENCE_DATA[type]||[]).slice(0,20).map(d=>({_type:'ss',question:d.q,answer:d.a,choices:d.choices,group:meta.label||type}));}
+    currentIndex=0;correctCount=0;wrongCount=0;missedVerbs=[];
+    showScreen('quiz-screen');showQuestion();
+  }else{buildCategoryGrid(type);showScreen('category-screen');}
+}
+
+function buildCategoryGrid(type){
+  const grid=document.getElementById('cat-grid');
+  grid.innerHTML='';
+  const groups=type==='verb'?VERB_GROUPS:Q_CATEGORIES;
+  const allText=type==='verb'?'全126語まとめて':'疑問文（全種類）から20問';
+  document.getElementById('all-btn-text').textContent=allText;
+  document.getElementById('btn-all').classList.remove('selected');
+  document.getElementById('start-btn').disabled=true;
+
+  groups.forEach(g=>{
+    const count=type==='verb'
+      ?ALL_VERBS.filter(v=>v.group===g.name).length
+      :20;
+    const btn=document.createElement('button');
+    btn.className='cat-btn';
+    btn.id='cat-'+g.name;
+    btn.innerHTML=`<span class="icon">${g.icon}</span><div class="info"><div class="cat-name">${g.name}</div><div class="cat-count">${count}問</div></div>`;
+    btn.onclick=()=>toggleGroup(g.name,type);
     grid.appendChild(btn);
   });
 }
 
-function toggleAll() {
-  allSelected = !allSelected;
-  document.getElementById('btn-all').classList.toggle('selected', allSelected);
-  if (allSelected) {
-    selectedCategories = new Set(CATEGORIES.map(c => c.name));
-    CATEGORIES.forEach(c => document.getElementById('cat-' + c.name).classList.add('selected'));
-  } else {
-    selectedCategories.clear();
-    CATEGORIES.forEach(c => document.getElementById('cat-' + c.name).classList.remove('selected'));
+function toggleAll(){
+  const type=currentTestType;
+  const groups=type==='verb'?VERB_GROUPS:Q_CATEGORIES;
+  allSelected=!allSelected;
+  document.getElementById('btn-all').classList.toggle('selected',allSelected);
+  if(allSelected){
+    selectedGroups=new Set(groups.map(g=>g.name));
+    groups.forEach(g=>document.getElementById('cat-'+g.name).classList.add('selected'));
+  }else{
+    selectedGroups.clear();
+    groups.forEach(g=>document.getElementById('cat-'+g.name).classList.remove('selected'));
   }
-  updateStartBtn();
+  document.getElementById('start-btn').disabled=selectedGroups.size===0;
 }
 
-function toggleCat(name) {
-  const btn = document.getElementById('cat-' + name);
-  if (selectedCategories.has(name)) { selectedCategories.delete(name); btn.classList.remove('selected'); }
-  else { selectedCategories.add(name); btn.classList.add('selected'); }
-  allSelected = selectedCategories.size === CATEGORIES.length;
-  document.getElementById('btn-all').classList.toggle('selected', allSelected);
-  updateStartBtn();
+function toggleGroup(name,type){
+  const groups=type==='verb'?VERB_GROUPS:Q_CATEGORIES;
+  const btn=document.getElementById('cat-'+name);
+  if(selectedGroups.has(name)){selectedGroups.delete(name);btn.classList.remove('selected');}
+  else{selectedGroups.add(name);btn.classList.add('selected');}
+  allSelected=selectedGroups.size===groups.length;
+  document.getElementById('btn-all').classList.toggle('selected',allSelected);
+  document.getElementById('start-btn').disabled=selectedGroups.size===0;
 }
 
-function updateStartBtn() {
-  document.getElementById('start-btn').disabled = selectedCategories.size === 0;
-}
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
-function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
+function startQuiz(){
+  if(currentTestType==='verb'){
+    questions=shuffle(ALL_VERBS.filter(v=>selectedGroups.has(v.group)));
+    quizGroups=[...selectedGroups];
+  }else{
+    // allの場合は全問からランダム20問
+    questions=shuffle(ALL_QUESTIONS).slice(0,20);
+    quizGroups=['疑問文（全種類）'];
   }
-  return a;
-}
-
-// ── Quiz ──
-function startQuiz() {
-  questions = shuffle(ALL_VERBS.filter(v => selectedCategories.has(v.category)));
-  quizCategories = [...selectedCategories];
-  currentIndex = 0; correctCount = 0; wrongCount = 0; missedVerbs = [];
-  hide('category-screen');
-  show('quiz-screen');
+  currentIndex=0;correctCount=0;wrongCount=0;missedVerbs=[];
+  showScreen('quiz-screen');
   showQuestion();
 }
 
-function showQuestion() {
-  answered = false;
-  const q = questions[currentIndex];
-  const total = questions.length;
-  document.getElementById('progress-bar').style.width = (currentIndex / total * 100) + '%';
-  document.getElementById('q-counter').textContent = (currentIndex + 1) + ' / ' + total;
-  document.getElementById('score-correct').textContent = correctCount;
-  document.getElementById('score-wrong').textContent = wrongCount;
-  document.getElementById('q-cat').textContent = q.category;
-  document.getElementById('q-sentence').innerHTML = q.sentence.replace('___', '<span class="blank" id="blank-span">　　　</span>');
-  document.getElementById('q-meaning').innerHTML = '意味のヒント：<strong>' + q.meaning + '</strong>';
-  const input = document.getElementById('answer-input');
-  input.value = ''; input.className = 'answer-input'; input.disabled = false; input.focus();
-  document.getElementById('submit-btn').disabled = false;
-  document.getElementById('feedback').className = 'feedback';
-  document.getElementById('next-btn').className = 'next-btn';
+// ════════════════════════════════════
+// QUIZ
+// ════════════════════════════════════
+function showQuestion(){
+  answered=false;
+  const q=questions[currentIndex];
+  const total=questions.length;
+  document.getElementById('progress-bar').style.width=(currentIndex/total*100)+'%';
+  document.getElementById('q-counter').textContent=(currentIndex+1)+' / '+total;
+  document.getElementById('score-c').textContent=correctCount;
+  document.getElementById('score-w').textContent=wrongCount;
+
+  if(currentTestType==='verb'){
+    document.getElementById('verb-card').style.display='';
+    document.getElementById('question-card').style.display='none';
+    document.getElementById('q-group').textContent=q.group;
+    document.getElementById('q-verb').textContent=q.verb;
+    document.getElementById('q-sentence').textContent=q.sentence;
+    buildVerbChoices(q);
+    setTimeout(()=>speakVerb(),300);
+  }else if(currentTestType==='q'){
+    document.getElementById('verb-card').style.display='none';
+    document.getElementById('question-card').style.display='';
+    document.getElementById('question-label').textContent='疑問文テスト';
+    document.getElementById('q-jp').textContent=q.jp;
+    document.getElementById('q-en').style.display='';
+    document.getElementById('q-en').innerHTML=q.en.replace('___','<span class="question-blank">___</span>');
+    buildQChoices(q);
+    setTimeout(()=>speakJP(q.jp),300);
+  }else{
+    document.getElementById('verb-card').style.display='none';
+    document.getElementById('question-card').style.display='';
+    const meta=TEST_META[currentTestType]||{};
+    document.getElementById('question-label').textContent=meta.label||currentTestType;
+    document.getElementById('q-jp').textContent=q.question;
+    document.getElementById('q-en').style.display='none';
+    buildSSChoices(q);
+    setTimeout(()=>speakJP(q.question),300);
+  }
+
+  document.getElementById('feedback').className='feedback';
+  document.getElementById('next-btn').className='next-btn';
+  startTimer();
+  setTimeout(()=>{
+    document.querySelectorAll('.choice-btn').forEach(b=>b.blur());
+    if(document.activeElement&&document.activeElement!==document.body)document.activeElement.blur();
+    document.body.focus();
+  },150);
 }
 
-function handleKey(e) {
-  if (e.key === 'Enter') { if (!answered) submitAnswer(); else nextQuestion(); }
+function buildVerbChoices(q){
+  const wrongs=shuffle(ALL_VERBS.filter(v=>v.verb!==q.verb)).slice(0,3).map(v=>v.meaning);
+  const choices=shuffle([{meaning:q.meaning,correct:true},...wrongs.map(m=>({meaning:m,correct:false}))]);
+  renderChoices(choices,q.meaning);
 }
 
-function submitAnswer() {
-  if (answered) return;
-  const input = document.getElementById('answer-input');
-  const userAnswer = input.value.trim().toLowerCase();
-  if (!userAnswer) return;
-  answered = true;
-  const q = questions[currentIndex];
-  const correct = q.verb.toLowerCase();
-  const isCorrect = userAnswer === correct || (q.alt && q.alt.includes(userAnswer));
-  const blank = document.getElementById('blank-span');
-  const feedback = document.getElementById('feedback');
-  if (isCorrect) {
+function buildQChoices(q){
+  const choices=shuffle(Q_CHOICES.map(w=>({meaning:w,correct:w===q.answer})));
+  renderChoicesRaw(choices,q.answer);
+}
+function buildSSChoices(q){
+  const choices=shuffle(q.choices.map(c=>({meaning:c,correct:c===q.answer})));
+  renderChoices(choices,q.answer);
+}
+
+function renderChoices(choices,correctMeaning){
+  const el=document.getElementById('choices');
+  el.innerHTML='';
+  choices.forEach((c,i)=>{
+    const btn=document.createElement('button');
+    btn.className='choice-btn';
+    btn.innerHTML=`<span class="choice-label">${LABELS[i]}</span>${c.meaning}`;
+    btn.dataset.correct=c.correct;
+    btn.setAttribute('tabindex','-1');
+    btn.onmousedown=(e)=>e.preventDefault();
+    btn.onclick=(e)=>{e.currentTarget.blur();selectChoice(btn,c.correct,correctMeaning,choices,el.children);};
+    el.appendChild(btn);
+  });
+}
+
+function renderChoicesRaw(choices,correctAnswer){
+  const el=document.getElementById('choices');
+  el.innerHTML='';
+  choices.forEach((c,i)=>{
+    const btn=document.createElement('button');
+    btn.className='choice-btn';
+    btn.style.fontFamily="'Space Mono',monospace";
+    btn.style.fontSize='22px';
+    btn.innerHTML=`<span class="choice-label">${LABELS[i]}</span>${c.meaning}`;
+    btn.dataset.correct=c.correct;
+    btn.setAttribute('tabindex','-1');
+    btn.onmousedown=(e)=>e.preventDefault();
+    btn.onclick=(e)=>{e.currentTarget.blur();selectChoice(btn,c.correct,correctAnswer,choices,el.children);};
+    el.appendChild(btn);
+  });
+}
+
+function selectChoice(selectedBtn,isCorrect,correctAnswer,choices,allBtns){
+  if(answered)return;
+  clearTimer();
+  selectedBtn.blur();
+  answered=true;
+  Array.from(allBtns).forEach((btn,i)=>{btn.disabled=true;if(choices[i].correct)btn.classList.add('show-correct');});
+  const fb=document.getElementById('feedback');
+  const q=questions[currentIndex];
+  if(isCorrect){
     correctCount++;
-    input.className = 'answer-input correct-input';
-    if (blank) { blank.textContent = correct; blank.style.color = 'var(--success)'; blank.style.borderBottomColor = 'var(--success)'; }
-    feedback.className = 'feedback correct show';
-    document.getElementById('fb-icon').textContent = '✅';
-    document.getElementById('fb-text').innerHTML = `<span class="answer">${correct}</span>　正解！`;
-  } else {
+    playPinpon();
+    selectedBtn.classList.remove('show-correct');
+    selectedBtn.classList.add('correct');
+    fb.className='feedback correct show';
+    document.getElementById('fb-icon').textContent='✅';
+    document.getElementById('fb-text').innerHTML=`<span class="fb-ans">${correctAnswer}</span>　正解！`;
+  }else{
     wrongCount++;
-    input.className = 'answer-input wrong-input';
-    if (blank) { blank.textContent = correct; blank.style.color = 'var(--success)'; blank.style.borderBottomColor = 'var(--success)'; }
-    feedback.className = 'feedback wrong show';
-    document.getElementById('fb-icon').textContent = '❌';
-    document.getElementById('fb-text').innerHTML = `あなたの答え：<span class="answer">${userAnswer}</span><br>正解：<span class="correct-answer">${correct}</span>`;
+    playBuzzer();
+    selectedBtn.classList.add('wrong');
+    fb.className='feedback wrong show';
+    document.getElementById('fb-icon').textContent='❌';
+    document.getElementById('fb-text').innerHTML=`正解：<span class="fb-correct">${correctAnswer}</span>`;
     missedVerbs.push(q);
   }
-  document.getElementById('submit-btn').disabled = true;
-  input.disabled = true;
-  document.getElementById('score-correct').textContent = correctCount;
-  document.getElementById('score-wrong').textContent = wrongCount;
-  const nextBtn = document.getElementById('next-btn');
-  nextBtn.textContent = currentIndex + 1 < questions.length ? '次の問題 →' : '結果を見る →';
-  nextBtn.className = 'next-btn show';
+  document.getElementById('score-c').textContent=correctCount;
+  document.getElementById('score-w').textContent=wrongCount;
+  // 疑問文テスト：正解英文を読み上げてから次へ
+  if(currentTestType==='q'){
+    const fullEn=questions[currentIndex].en.replace('___', questions[currentIndex].answer);
+    speakEN(fullEn, ()=>setTimeout(()=>nextQuestion(), 400));
+  } else {
+    setTimeout(()=>nextQuestion(),1200);
+  }
 }
 
-function nextQuestion() {
+function nextQuestion(){
+  clearTimer();
   currentIndex++;
-  if (currentIndex >= questions.length) showResult();
+  if(currentIndex>=questions.length)showResult();
   else showQuestion();
 }
 
-// ── Result + Save ──
-async function showResult() {
-  hide('quiz-screen');
-  show('result-screen');
-  const total = questions.length;
-  const pct = Math.round(correctCount / total * 100);
-  let msg, sub;
-  if (pct === 100) { msg = '🏆 パーフェクト！'; sub = '全問正解！すばらしい！'; }
-  else if (pct >= 80) { msg = '🎉 よくできました！'; sub = `${pct}点！もう少しで満点！`; }
-  else if (pct >= 60) { msg = '📖 がんばりました！'; sub = `${pct}点。苦手な動詞を復習しよう！`; }
-  else { msg = '💪 練習が必要！'; sub = `${pct}点。もう一度チャレンジしよう！`; }
-  document.getElementById('result-msg').textContent = msg;
-  document.getElementById('result-score').textContent = pct + '%';
-  document.getElementById('result-total').textContent = correctCount + ' / ' + total + '問正解';
-  document.getElementById('result-sub').textContent = sub;
-  document.getElementById('r-correct').textContent = correctCount;
-  document.getElementById('r-wrong').textContent = wrongCount;
-  const ms = document.getElementById('missed-section');
-  if (missedVerbs.length > 0) {
-    let html = '<div class="missed-title">間違えた動詞</div>';
-    missedVerbs.forEach(v => {
-      html += `<div class="missed-item"><span class="missed-verb">${v.verb}</span><span class="missed-sentence">${v.sentence.replace('___', `<strong>${v.verb}</strong>`)}</span></div>`;
-    });
-    ms.innerHTML = html;
-  } else { ms.innerHTML = ''; }
-
-  await saveHistory(pct, total);
+// ════════════════════════════════════
+// TIMER
+// ════════════════════════════════════
+function startTimer(){
+  clearTimer();
+  timerRemaining=TIMER_SEC;
+  updateTimerUI(TIMER_SEC);
+  timerInterval=setInterval(()=>{
+    timerRemaining-=0.1;
+    updateTimerUI(timerRemaining);
+    if(timerRemaining<=0){clearTimer();timeUp();}
+  },100);
 }
-
-async function saveHistory(pct, total) {
-  const status = document.getElementById('save-status');
-  status.textContent = '💾 履歴を保存中...';
-  const now = new Date();
-  const dateStr = now.toLocaleDateString('ja-JP', {year:'numeric',month:'2-digit',day:'2-digit'})
-    + ' ' + now.toLocaleTimeString('ja-JP', {hour:'2-digit',minute:'2-digit'});
-  const record = {
-    date: dateStr,
-    timestamp: now.getTime(),
-    categories: quizCategories,
-    score: pct,
-    correct: correctCount,
-    total,
-    missed: missedVerbs.map(v => v.verb),
-  };
-  try {
-    const key = 'verb-history:' + currentUser;
-    let history = [];
-    try {
-      const res = await window.storage.get(key, true);
-      if (res && res.value) history = JSON.parse(res.value);
-    } catch(e) { history = []; }
-    history.unshift(record);
-    if (history.length > 50) history = history.slice(0, 50);
-    await window.storage.set(key, JSON.stringify(history), true);
-    status.textContent = '✅ 履歴を保存しました';
-  } catch(e) {
-    status.textContent = '⚠️ 保存できませんでした（オフライン時は記録されません）';
+function clearTimer(){if(timerInterval){clearInterval(timerInterval);timerInterval=null;}}
+function updateTimerUI(sec){
+  const bar=document.getElementById('timer-bar');
+  const count=document.getElementById('timer-count');
+  if(!bar||!count)return;
+  bar.style.width=Math.max(0,sec/TIMER_SEC*100)+'%';
+  count.textContent=Math.ceil(sec);
+  bar.className='timer-bar'+(sec<=3?' danger':sec<=6?' warn':'');
+  count.style.color=sec<=3?'var(--error)':sec<=6?'var(--warn)':'var(--text-muted)';
+}
+function timeUp(){
+  if(answered)return;
+  answered=true;
+  wrongCount++;
+  const q=questions[currentIndex];
+  missedVerbs.push(q);
+  Array.from(document.querySelectorAll('.choice-btn')).forEach(btn=>{
+    btn.disabled=true;
+    if(btn.dataset.correct==='true')btn.classList.add('show-correct');
+  });
+  const fb=document.getElementById('feedback');
+  fb.className='feedback wrong show';
+  playBuzzer();
+  document.getElementById('fb-icon').textContent='⏱️';
+  const ans=currentTestType==='verb'?q.meaning:q.answer;
+  document.getElementById('fb-text').innerHTML=`時間切れ！正解：<span class="fb-correct">${ans}</span>`;
+  document.getElementById('score-w').textContent=wrongCount;
+  if(currentTestType==='q'){
+    const fullEn=questions[currentIndex].en.replace('___', questions[currentIndex].answer);
+    speakEN(fullEn, ()=>setTimeout(()=>nextQuestion(), 400));
+  } else {
+    setTimeout(()=>nextQuestion(),2000);
   }
 }
 
-// ── History ──
-async function showHistory() {
-  hide('category-screen');
-  show('history-screen');
-  const list = document.getElementById('history-list');
-  const summaryEl = document.getElementById('history-summary');
-  list.innerHTML = '<div class="loading-text">📂 履歴を読み込み中...</div>';
-  summaryEl.style.display = 'none';
+// ════════════════════════════════════
+// SPEAK
+// ════════════════════════════════════
+// ════════════════════════════════════
+// 効果音
+// ════════════════════════════════════
+let _audioCtx=null;
+function getAudioCtx(){
+  if(!_audioCtx)_audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  return _audioCtx;
+}
 
-  try {
-    const key = 'verb-history:' + currentUser;
-    let history = [];
-    try {
-      const res = await window.storage.get(key, true);
-      if (res && res.value) history = JSON.parse(res.value);
-    } catch(e) { history = []; }
+function playPinpon(){
+  try{
+    const ctx=getAudioCtx();
+    // ピンポン：高め→さらに高め の2音
+    const notes=[880,1320];
+    notes.forEach((freq,i)=>{
+      const osc=ctx.createOscillator();
+      const gain=ctx.createGain();
+      osc.connect(gain);gain.connect(ctx.destination);
+      osc.type='sine';
+      osc.frequency.setValueAtTime(freq,ctx.currentTime+i*0.18);
+      gain.gain.setValueAtTime(0,ctx.currentTime+i*0.18);
+      gain.gain.linearRampToValueAtTime(0.4,ctx.currentTime+i*0.18+0.01);
+      gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+i*0.18+0.18);
+      osc.start(ctx.currentTime+i*0.18);
+      osc.stop(ctx.currentTime+i*0.18+0.18);
+    });
+  }catch(e){}
+}
 
-    if (history.length === 0) {
-      list.innerHTML = '<div class="history-empty">📭 まだ履歴がありません。<br>テストを受けると自動で記録されます！</div>';
-      return;
-    }
+function playBuzzer(){
+  try{
+    const ctx=getAudioCtx();
+    // ⑤ 速め3音下降（テンポよく歯切れよい）
+    [[440,0],[330,0.13],[220,0.26]].forEach(([freq,offset])=>{
+      const osc=ctx.createOscillator();
+      const gain=ctx.createGain();
+      osc.connect(gain);gain.connect(ctx.destination);
+      osc.type='triangle';
+      osc.frequency.setValueAtTime(freq,ctx.currentTime+offset);
+      gain.gain.setValueAtTime(0,ctx.currentTime+offset);
+      gain.gain.linearRampToValueAtTime(0.28,ctx.currentTime+offset+0.01);
+      gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+offset+0.11);
+      osc.start(ctx.currentTime+offset);
+      osc.stop(ctx.currentTime+offset+0.12);
+    });
+  }catch(e){}
+}
 
-    // Summary stats
-    const avgScore = Math.round(history.reduce((s, r) => s + r.score, 0) / history.length);
-    const best = Math.max(...history.map(r => r.score));
-    summaryEl.style.display = 'flex';
-    summaryEl.innerHTML = `
-      <div class="summary-box"><div class="summary-num">${history.length}</div><div class="summary-label">回受験</div></div>
-      <div class="summary-box"><div class="summary-num">${avgScore}%</div><div class="summary-label">平均スコア</div></div>
-      <div class="summary-box"><div class="summary-num">${best}%</div><div class="summary-label">最高スコア</div></div>
-    `;
+function speakVerb(){
+  const verb=document.getElementById('q-verb').textContent;
+  if(!verb||!window.speechSynthesis)return;
+  window.speechSynthesis.cancel();
+  const btn=document.getElementById('speak-btn');
+  if(btn)btn.classList.add('speaking');
+  const utt=new SpeechSynthesisUtterance(verb);
+  utt.lang='en-US';utt.rate=0.85;utt.pitch=1;
+  utt.onend=()=>{if(btn)btn.classList.remove('speaking');};
+  utt.onerror=()=>{if(btn)btn.classList.remove('speaking');};
+  window.speechSynthesis.speak(utt);
+}
 
-    list.innerHTML = '';
-    history.forEach(r => {
-      const pctClass = r.score >= 80 ? 'high' : r.score >= 60 ? 'mid' : 'low';
-      const catsHtml = (r.categories || []).map(c => `<span class="history-cat-tag">${c}</span>`).join('');
-      const missedHtml = r.missed && r.missed.length > 0
-        ? `<div class="history-missed">
-             <div class="history-missed-label">間違えた単語</div>
-             <div class="history-missed-words">${r.missed.map(w => `<span class="missed-word-tag">${w}</span>`).join('')}</div>
-           </div>` : '';
-      const item = document.createElement('div');
-      item.className = 'history-item';
-      item.innerHTML = `
-        <div class="history-top">
-          <div class="history-meta">
-            <div class="history-date">🕐 ${r.date}</div>
-            <div class="history-cats">${catsHtml}</div>
-          </div>
-          <div class="history-score-col">
-            <div class="history-pct ${pctClass}">${r.score}%</div>
-            <div class="history-counts">✓${r.correct} ✗${r.total - r.correct} / ${r.total}問</div>
-          </div>
-        </div>
-        ${missedHtml}
-      `;
+function speakJP(text){
+  if(!text||!window.speechSynthesis)return;
+  window.speechSynthesis.cancel();
+  const utt=new SpeechSynthesisUtterance(text);
+  utt.lang='ja-JP';utt.rate=0.9;utt.pitch=1;
+  window.speechSynthesis.speak(utt);
+}
+
+function speakEN(text,callback){
+  if(!text||!window.speechSynthesis){if(callback)callback();return;}
+  window.speechSynthesis.cancel();
+  const utt=new SpeechSynthesisUtterance(text);
+  utt.lang='en-US';utt.rate=0.85;utt.pitch=1;
+  utt.onend=()=>{if(callback)callback();};
+  utt.onerror=()=>{if(callback)callback();};
+  window.speechSynthesis.speak(utt);
+}
+
+// ════════════════════════════════════
+// RESULT
+// ════════════════════════════════════
+function showResult(){
+  showScreen('result-screen');
+  const total=questions.length,pct=Math.round(correctCount/total*100);
+  let msg,sub;
+  if(pct===100){msg='🏆 パーフェクト！';sub='全問正解！すばらしい！';}
+  else if(pct>=80){msg='🎉 よくできました！';sub=`${pct}点！もう少しで満点！`;}
+  else if(pct>=60){msg='📖 がんばりました！';sub=`${pct}点。苦手を復習しよう！`;}
+  else{msg='💪 練習が必要！';sub=`${pct}点。もう一度チャレンジ！`;}
+  document.getElementById('result-msg').textContent=msg;
+  document.getElementById('result-pct').textContent=pct+'%';
+  document.getElementById('result-fraction').textContent=correctCount+' / '+total+'問正解';
+  document.getElementById('result-sub').textContent=sub;
+  document.getElementById('r-c').textContent=correctCount;
+  document.getElementById('r-w').textContent=wrongCount;
+  const ms=document.getElementById('missed-section');
+  if(missedVerbs.length>0){
+    const label=currentTestType==='verb'?'間違えた動詞':'間違えた問題';
+    let html=`<div class="missed-title">${label}</div>`;
+    missedVerbs.forEach(v=>{
+      const key=currentTestType==='verb'?v.verb:(v._type==='ss'?v.answer:v.answer);
+      const sub2=currentTestType==='verb'?v.meaning:(v._type==='ss'?v.question:v.jp);
+      html+=`<div class="missed-item"><span class="missed-verb">${key}</span><span class="missed-meaning">${sub2}</span></div>`;
+    });
+    ms.innerHTML=html;
+  }else{ms.innerHTML='';}
+  // 間違いがなければボタンをグレーアウト
+  const missedBtn=document.getElementById('retry-missed-btn');
+  if(missedBtn)missedBtn.disabled=missedVerbs.length===0;
+  saveHistory(pct,total);
+}
+
+function retryQuiz(missedOnly){
+  if(missedOnly && missedVerbs.length>0){
+    // 間違えた問題だけで再テスト
+    questions=shuffle([...missedVerbs]);
+    missedVerbs=[];currentIndex=0;correctCount=0;wrongCount=0;
+    showScreen('quiz-screen');showQuestion();
+  }else{
+    // 最初からカテゴリ選択なしで同じ問題セットで再スタート
+    startTestFlow(currentTestType);
+  }
+}
+
+// ════════════════════════════════════
+// HISTORY (unified)
+// ════════════════════════════════════
+function getHistory(){
+  try{
+    const ex=localStorage.getItem('eng-history:'+currentUser);
+    return ex?JSON.parse(ex):[];
+  }catch(e){return[];}
+}
+
+function saveHistory(pct,total){
+  const status=document.getElementById('save-status');
+  const now=new Date();
+  const dateStr=now.toLocaleDateString('ja-JP',{year:'numeric',month:'2-digit',day:'2-digit'})+' '+now.toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
+  const dateKey=now.toLocaleDateString('ja-JP',{year:'numeric',month:'2-digit',day:'2-digit'});
+  const record={date:dateStr,dateKey,timestamp:now.getTime(),testType:currentTestType,groups:quizGroups,score:pct,correct:correctCount,total,missed:missedVerbs.map(v=>currentTestType==='verb'?v.verb:(v._type==='ss'?v.answer:v.answer))};
+  try{
+    let history=getHistory();
+    history.unshift(record);
+    if(history.length>100)history=history.slice(0,100);
+    localStorage.setItem('eng-history:'+currentUser,JSON.stringify(history));
+    updateMissCount(history);
+    status.textContent='✅ 履歴を保存しました';
+  }catch(e){status.textContent='⚠️ 保存できませんでした';}
+}
+
+function updateMissCount(history){
+  const counts={};
+  history.filter(r=>r.testType==='verb').forEach(r=>{(r.missed||[]).forEach(v=>{counts[v]=(counts[v]||0)+1;});});
+  try{localStorage.setItem('verb-misscounts:'+currentUser,JSON.stringify(counts));}catch(e){}
+}
+
+function showHistory(){
+  showScreen('history-screen');setNavActive('history');
+  const list=document.getElementById('history-list');
+  const summEl=document.getElementById('history-summary');
+  summEl.style.display='none';
+  const history=getHistory();
+  if(history.length===0){list.innerHTML='<div class="history-empty">📭 まだ履歴がありません。</div>';return;}
+  const avg=Math.round(history.reduce((s,r)=>s+r.score,0)/history.length);
+  const best=Math.max(...history.map(r=>r.score));
+  summEl.style.display='flex';
+  summEl.innerHTML=`<div class="summary-box"><div class="summary-num">${history.length}</div><div class="summary-label">回受験</div></div><div class="summary-box"><div class="summary-num">${avg}%</div><div class="summary-label">平均</div></div><div class="summary-box"><div class="summary-num">${best}%</div><div class="summary-label">最高</div></div>`;
+  list.innerHTML='';
+  history.forEach(r=>{
+    const pc=r.score>=80?'high':r.score>=60?'mid':'low';
+    const _tlmap={verb:'動詞126語',q:'疑問文',geo:'地理',history:'歴史',physics:'物理',biology:'生物',earth:'地学'};
+    const testLabel=_tlmap[r.testType]||r.testType;
+    const testClass=r.testType;
+    const cats=(r.groups||[]).map(g=>`<span class="h-cat-tag">${g}</span>`).join('');
+    const mis=r.missed&&r.missed.length>0?`<div class="history-missed"><div class="h-missed-label">間違い</div><div class="h-missed-words">${r.missed.map(w=>`<span class="missed-tag">${w}</span>`).join('')}</div></div>`:'';
+    const item=document.createElement('div');item.className='history-item';
+    item.innerHTML=`<div class="history-top"><div><div class="history-date">🕐 ${r.date}</div><div class="history-cats"><span class="h-test-tag ${testClass}">${testLabel}</span>${cats}</div></div><div style="text-align:right"><div class="history-pct ${pc}">${r.score}%</div><div class="history-counts">✓${r.correct} ✗${r.total-r.correct} / ${r.total}問</div></div></div>${mis}`;
+    list.appendChild(item);
+  });
+}
+
+// ════════════════════════════════════
+// RANKING
+// ════════════════════════════════════
+function showRanking(){
+  showScreen('ranking-screen');setNavActive('ranking');
+  const list=document.getElementById('ranking-list');
+  const summEl=document.getElementById('ranking-summary');
+  summEl.style.display='none';
+  try{
+    let counts={};
+    const ex=localStorage.getItem('verb-misscounts:'+currentUser);
+    if(ex)counts=JSON.parse(ex);
+    const ranked=ALL_VERBS.map(v=>({verb:v.verb,meaning:v.meaning,miss:counts[v.verb]||0})).filter(v=>v.miss>0).sort((a,b)=>b.miss-a.miss);
+    if(ranked.length===0){list.innerHTML='<div class="history-empty">📭 まだデータがありません。</div>';return;}
+    const maxMiss=ranked[0].miss;
+    summEl.style.display='flex';
+    summEl.innerHTML=`<div class="summary-box"><div class="summary-num">${ranked.length}</div><div class="summary-label">苦手単語数</div></div><div class="summary-box"><div class="summary-num">${ranked.reduce((s,v)=>s+v.miss,0)}</div><div class="summary-label">総ミス数</div></div><div class="summary-box"><div class="summary-num">${ranked[0].verb}</div><div class="summary-label">最も苦手</div></div>`;
+    list.innerHTML='';
+    ranked.forEach((v,i)=>{
+      const nc=i===0?'r1':i===1?'r2':i===2?'r3':'';
+      const nl=i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}`;
+      const bp=Math.round(v.miss/maxMiss*100);
+      const item=document.createElement('div');item.className='rank-item';
+      item.innerHTML=`<div class="rank-num ${nc}">${nl}</div><div style="flex:1"><div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><span class="rank-verb">${v.verb}</span><span class="rank-meaning">${v.meaning}</span></div></div><div class="rank-bar-wrap"><div class="rank-miss">${v.miss}回</div><div class="rank-miss-label">ミス</div><div class="rank-bar-bg"><div class="rank-bar" style="width:${bp}%"></div></div></div>`;
+      item.querySelector('.rank-verb').onclick=()=>{if(window.speechSynthesis){window.speechSynthesis.cancel();window.speechSynthesis.speak(Object.assign(new SpeechSynthesisUtterance(v.verb),{lang:'en-US',rate:.85}));}};
       list.appendChild(item);
     });
-  } catch(e) {
-    list.innerHTML = '<div class="history-empty">⚠️ 履歴の読み込みに失敗しました。</div>';
+  }catch(e){list.innerHTML='<div class="history-empty">⚠️ 読み込みに失敗しました。</div>';}
+}
+
+// ════════════════════════════════════
+// CALENDAR
+// ════════════════════════════════════
+function showCalendar(){
+  showScreen('calendar-screen');setNavActive('calendar');
+  renderCalendar();
+}
+
+function changeMonth(delta){
+  calMonth+=delta;
+  if(calMonth<0){calMonth=11;calYear--;}
+  if(calMonth>11){calMonth=0;calYear++;}
+  renderCalendar();
+  document.getElementById('day-detail-area').innerHTML='';
+}
+
+function renderCalendar(){
+  const history=getHistory();
+  // dateKeyごとにグループ化
+  const byDate={};
+  history.forEach(r=>{
+    if(!byDate[r.dateKey]){const o={};ALL_TEST_TYPES.forEach(t=>o[t]=[]);byDate[r.dateKey]=o;}
+    if(byDate[r.dateKey][r.testType])byDate[r.dateKey][r.testType].push(r);
+  });
+
+  const label=`${calYear}年 ${calMonth+1}月`;
+  document.getElementById('cal-month-label').textContent=label;
+
+  const grid=document.getElementById('cal-grid');
+  grid.innerHTML='';
+  const dows=['日','月','火','水','木','金','土'];
+  dows.forEach((d,i)=>{
+    const el=document.createElement('div');
+    el.className='cal-dow'+(i===0?' sun':i===6?' sat':'');
+    el.textContent=d;
+    grid.appendChild(el);
+  });
+
+  const firstDay=new Date(calYear,calMonth,1).getDay();
+  const lastDate=new Date(calYear,calMonth+1,0).getDate();
+  const today=new Date();
+
+  for(let i=0;i<firstDay;i++){
+    const el=document.createElement('div');el.className='cal-day empty';grid.appendChild(el);
+  }
+
+  for(let d=1;d<=lastDate;d++){
+    const dateKey=`${calYear}/${String(calMonth+1).padStart(2,'0')}/${String(d).padStart(2,'0')}`;
+    const rec=byDate[dateKey];
+    const isToday=today.getFullYear()===calYear&&today.getMonth()===calMonth&&today.getDate()===d;
+    const dow=new Date(calYear,calMonth,d).getDay();
+    const el=document.createElement('div');
+    el.className='cal-day'+(isToday?' today':'')+(rec?' has-record':'')+(dow===0?' sunday':dow===6?' saturday':'');
+    let dotsHtml='';
+    if(rec){ALL_TEST_TYPES.forEach(t=>{if(rec[t]&&rec[t].length>0)dotsHtml+=`<div class="cal-dot ${t}"></div>`;});}
+    el.innerHTML=`<div class="cal-day-num">${d}</div><div class="cal-dots">${dotsHtml}</div>`;
+    el.onclick=()=>showDayDetail(dateKey,rec,d);
+    grid.appendChild(el);
   }
 }
 
-function closeHistory() {
-  hide('history-screen');
-  show('category-screen');
+function showDayDetail(dateKey,rec,d){
+  const area=document.getElementById('day-detail-area');
+  if(!rec||!ALL_TEST_TYPES.some(t=>rec[t]&&rec[t].length>0)){
+    area.innerHTML=`<div class="day-detail"><div class="day-detail-title">${calYear}年${calMonth+1}月${d}日</div><div style="color:var(--text-muted);font-size:13px;">この日の記録はありません。</div></div>`;
+    return;
+  }
+  let html=`<div class="day-detail"><div class="day-detail-title">📅 ${calYear}年${calMonth+1}月${d}日の記録</div>`;
+  const _allRecs=[];ALL_TEST_TYPES.forEach(t=>{if(rec&&rec[t])_allRecs.push(...rec[t]);});
+  _allRecs.sort((a,b)=>a.timestamp-b.timestamp).forEach(r=>{
+    const pc=r.score>=80?'high':r.score>=60?'mid':'low';
+    const _dlmap={verb:'動詞126語テスト',q:'疑問文テスト',geo:'地理テスト',history:'歴史テスト',physics:'物理テスト',biology:'生物テスト',earth:'地学テスト'};
+    const _dimap={verb:'📝',q:'❓',geo:'🗾',history:'📜',physics:'💡',biology:'🌿',earth:'🌏'};
+    const testLabel=_dlmap[r.testType]||r.testType;
+    const testClass=r.testType;
+    const time=r.date.split(' ')[1]||'';
+    const groups=(r.groups||[]).join('・');
+    html+=`<div class="day-record"><div class="day-record-icon">${_dimap[r.testType]||'📌'}</div><div class="day-record-info"><div class="day-record-test ${testClass}">${testLabel}</div><div class="day-record-detail">${time}　${groups}　✓${r.correct} ✗${r.total-r.correct} / ${r.total}問</div></div><div class="day-record-score ${pc}">${r.score}%</div></div>`;
+  });
+  html+='</div>';
+  area.innerHTML=html;
+  area.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
-function retryQuiz() {
-  hide('result-screen');
-  startQuiz();
-}
+// ════════════════════════════════════
+// 社会・理科 問題データ
+// ════════════════════════════════════
+const ALL_GEO=[
+  {q:"日本で一番面積が大きい都道府県はどこ？",a:"北海道",choices:["北海道","岩手県","長野県","新潟県"]},
+  {q:"日本で一番人口が多い都市はどこ？",a:"東京",choices:["東京","大阪","名古屋","横浜"]},
+  {q:"日本最長の川はどれ？",a:"信濃川",choices:["信濃川","利根川","石狩川","天塩川"]},
+  {q:"日本最大の湖はどれ？",a:"琵琶湖",choices:["琵琶湖","霞ヶ浦","サロマ湖","猪苗代湖"]},
+  {q:"日本最高峰の山はどれ？",a:"富士山",choices:["富士山","北岳","奥穂高岳","槍ヶ岳"]},
+  {q:"本州・四国・九州・北海道のうち最も小さい島はどれ？",a:"四国",choices:["四国","九州","本州","北海道"]},
+  {q:"アジア州の中で人口が最も多い国はどこ？",a:"中国",choices:["中国","インド","インドネシア","日本"]},
+  {q:"世界最長の川はどれ？",a:"ナイル川",choices:["ナイル川","アマゾン川","ミシシッピ川","長江"]},
+  {q:"世界最大の砂漠はどれ？",a:"サハラ砂漠",choices:["サハラ砂漠","ゴビ砂漠","アラビア砂漠","タクラマカン砂漠"]},
+  {q:"オーストラリアの首都はどこ？",a:"キャンベラ",choices:["キャンベラ","シドニー","メルボルン","ブリスベン"]},
+  {q:"日本の首都はどこ？",a:"東京",choices:["東京","大阪","京都","名古屋"]},
+  {q:"赤道が通る大陸はどれ？",a:"アフリカ大陸",choices:["アフリカ大陸","ユーラシア大陸","南アメリカ大陸","北アメリカ大陸"]},
+  {q:"日本列島のうち最も北にある島はどれ？",a:"北海道",choices:["北海道","本州","択捉島","与那国島"]},
+  {q:"関東地方に含まれる都県の数は？",a:"7",choices:["7","6","8","5"]},
+  {q:"九州地方に含まれる県の数は？",a:"7",choices:["7","6","8","9"]},
+  {q:"世界で最も高い山はどれ？",a:"エベレスト",choices:["エベレスト","K2","カンチェンジュンガ","ローツェ"]},
+  {q:"日本海に面していない都道府県はどれ？",a:"東京都",choices:["東京都","新潟県","石川県","鳥取県"]},
+  {q:"太平洋に面している都道府県はどれ？",a:"高知県",choices:["高知県","奈良県","滋賀県","群馬県"]},
+  {q:"ヨーロッパ州の国はどれ？",a:"フランス",choices:["フランス","エジプト","ブラジル","カナダ"]},
+  {q:"南アメリカ大陸を流れる世界最大流域の川はどれ？",a:"アマゾン川",choices:["アマゾン川","ラプラタ川","オリノコ川","パラグアイ川"]},
+];
 
-function backToCategory() {
-  hide('result-screen');
-  show('category-screen');
+const ALL_HISTORY=[
+  {q:"日本で初めて仏教が伝わったとされる年は？",a:"538年",choices:["538年","645年","710年","794年"]},
+  {q:"大化の改新が起きた年は？",a:"645年",choices:["645年","538年","710年","784年"]},
+  {q:"奈良に都が置かれた年は？",a:"710年",choices:["710年","794年","645年","593年"]},
+  {q:"平安京（京都）に都が移された年は？",a:"794年",choices:["794年","710年","1192年","1338年"]},
+  {q:"源頼朝が鎌倉幕府を開いた年は？",a:"1192年",choices:["1192年","1338年","1603年","1185年"]},
+  {q:"足利尊氏が室町幕府を開いた年は？",a:"1338年",choices:["1338年","1192年","1603年","1467年"]},
+  {q:"応仁の乱が起きた年は？",a:"1467年",choices:["1467年","1338年","1603年","1543年"]},
+  {q:"鉄砲が日本に伝わった年は？",a:"1543年",choices:["1543年","1467年","1600年","1549年"]},
+  {q:"関ヶ原の戦いが起きた年は？",a:"1600年",choices:["1600年","1603年","1615年","1543年"]},
+  {q:"徳川家康が江戸幕府を開いた年は？",a:"1603年",choices:["1603年","1600年","1615年","1868年"]},
+  {q:"明治維新が起きた年は？",a:"1868年",choices:["1868年","1854年","1889年","1945年"]},
+  {q:"聖徳太子が活躍した時代はどれ？",a:"飛鳥時代",choices:["飛鳥時代","奈良時代","平安時代","鎌倉時代"]},
+  {q:"卑弥呼が治めた国の名前は？",a:"邪馬台国",choices:["邪馬台国","大和国","出雲国","筑紫国"]},
+  {q:"日本最古の歌集はどれ？",a:"万葉集",choices:["万葉集","古今和歌集","源氏物語","枕草子"]},
+  {q:"江戸幕府を開いた人物は誰？",a:"徳川家康",choices:["徳川家康","豊臣秀吉","織田信長","足利尊氏"]},
+  {q:"全国統一を果たしたが江戸幕府は開かなかった人物は？",a:"豊臣秀吉",choices:["豊臣秀吉","徳川家康","織田信長","武田信玄"]},
+  {q:"桶狭間の戦いで活躍した武将は？",a:"織田信長",choices:["織田信長","豊臣秀吉","徳川家康","今川義元"]},
+  {q:"日本書紀が編纂されたのはいつ？",a:"720年",choices:["720年","712年","794年","645年"]},
+  {q:"元寇（蒙古襲来）が起きたのはいつ？",a:"1274年",choices:["1274年","1192年","1338年","1467年"]},
+  {q:"ペリーが来航した年は？",a:"1853年",choices:["1853年","1868年","1854年","1840年"]},
+];
+
+const ALL_PHYSICS=[
+  {q:"光が水中から空気中に出るとき、境界面で曲がる現象を何という？",a:"屈折",choices:["屈折","反射","全反射","干渉"]},
+  {q:"音が伝わる速さは空気中でおよそ何m/s？",a:"340m/s",choices:["340m/s","150m/s","1500m/s","3000m/s"]},
+  {q:"光の速さはおよそ何m/s？",a:"3億m/s",choices:["3億m/s","34万m/s","3万m/s","3000m/s"]},
+  {q:"物体にはたらく重力の大きさのことを何という？",a:"重さ（重力）",choices:["重さ（重力）","質量","密度","浮力"]},
+  {q:"ばねののびは力に比例するという法則を何という？",a:"フックの法則",choices:["フックの法則","慣性の法則","作用反作用の法則","万有引力の法則"]},
+  {q:"凸レンズで光を集める点を何という？",a:"焦点",choices:["焦点","主点","中心点","交点"]},
+  {q:"鏡で光が反射するとき、入射角と反射角の関係は？",a:"等しい",choices:["等しい","入射角が大きい","反射角が大きい","関係ない"]},
+  {q:"物体の動きにくさを表す量を何という？",a:"慣性",choices:["慣性","質量","密度","重力"]},
+  {q:"音の高低を決めるのはどれ？",a:"振動数",choices:["振動数","振幅","波長","速さ"]},
+  {q:"音の大小（音量）を決めるのはどれ？",a:"振幅",choices:["振幅","振動数","波長","速さ"]},
+  {q:"力の単位はどれ？",a:"ニュートン（N）",choices:["ニュートン（N）","キログラム（kg）","パスカル（Pa）","ジュール（J）"]},
+  {q:"水面に浮かぶ物体にはたらく上向きの力を何という？",a:"浮力",choices:["浮力","重力","弾性力","摩擦力"]},
+  {q:"光が鏡に当たって返ってくる現象を何という？",a:"反射",choices:["反射","屈折","吸収","散乱"]},
+  {q:"質量が同じとき、月面での重さは地球での重さの約何分の1？",a:"6分の1",choices:["6分の1","2分の1","3分の1","4分の1"]},
+  {q:"真空中では音は伝わる？",a:"伝わらない",choices:["伝わらない","伝わる","速く伝わる","遅く伝わる"]},
+  {q:"1Nは何gの物体にはたらく重力？",a:"約100g",choices:["約100g","約1g","約1000g","約10g"]},
+  {q:"光が空気中から水中に入るとき、折れ曲がる方向は？",a:"水面に近づく方向",choices:["水面に近づく方向","水面から遠ざかる方向","変わらない","まっすぐ進む"]},
+  {q:"糸でつないだおもりが左右に振れる運動を何という？",a:"振り子運動",choices:["振り子運動","等速直線運動","自由落下","円運動"]},
+  {q:"2力がつりあうための条件に含まれないものはどれ？",a:"同じ向き",choices:["同じ向き","大きさが等しい","一直線上にある","向きが反対"]},
+  {q:"単位面積あたりにはたらく力を何という？",a:"圧力",choices:["圧力","重力","浮力","張力"]},
+];
+
+const ALL_BIOLOGY=[
+  {q:"植物が光を使って有機物をつくる働きを何という？",a:"光合成",choices:["光合成","呼吸","蒸散","発酵"]},
+  {q:"植物が葉の気孔から水を蒸発させる働きを何という？",a:"蒸散",choices:["蒸散","光合成","呼吸","吸水"]},
+  {q:"細胞の中で光合成が行われる場所はどこ？",a:"葉緑体",choices:["葉緑体","細胞核","ミトコンドリア","液胞"]},
+  {q:"植物の細胞にあって動物の細胞にないものはどれ？",a:"細胞壁",choices:["細胞壁","細胞膜","細胞核","細胞質"]},
+  {q:"生物の設計図にあたる情報が入った細胞内の構造体はどれ？",a:"核",choices:["核","ミトコンドリア","葉緑体","液胞"]},
+  {q:"根から吸い上げた水や養分を運ぶ管を何という？",a:"道管",choices:["道管","師管","維管束","気孔"]},
+  {q:"光合成で作られた栄養分を運ぶ管を何という？",a:"師管",choices:["師管","道管","維管束","気孔"]},
+  {q:"背骨のある動物を何という？",a:"脊椎動物",choices:["脊椎動物","無脊椎動物","節足動物","軟体動物"]},
+  {q:"魚類・両生類・は虫類・鳥類・哺乳類のうち、体温が変わる変温動物はどれ？",a:"魚類",choices:["魚類","鳥類","哺乳類","ウサギ"]},
+  {q:"花粉が柱頭につくことを何という？",a:"受粉",choices:["受粉","受精","発芽","結実"]},
+  {q:"種子をつくらず胞子で増える植物はどれ？",a:"シダ植物",choices:["シダ植物","被子植物","裸子植物","双子葉類"]},
+  {q:"光合成の原料（材料）として使われるものはどれ？",a:"二酸化炭素と水",choices:["二酸化炭素と水","酸素と水","窒素と水","二酸化炭素と酸素"]},
+  {q:"昆虫類が属するグループはどれ？",a:"節足動物",choices:["節足動物","軟体動物","環形動物","棘皮動物"]},
+  {q:"細胞分裂のとき、最初に変化が見られる構造体はどれ？",a:"核",choices:["核","細胞膜","液胞","葉緑体"]},
+  {q:"植物の根の先端近くにある細かい毛を何という？",a:"根毛",choices:["根毛","気孔","維管束","道管"]},
+  {q:"被子植物と裸子植物の違いは？",a:"種子が果実に包まれているか",choices:["種子が果実に包まれているか","光合成をするかしないか","葉の形","根の形"]},
+  {q:"動物が酸素を使って栄養分を分解しエネルギーを得る働きを何という？",a:"呼吸",choices:["呼吸","光合成","蒸散","消化"]},
+  {q:"タコやイカが属するグループはどれ？",a:"軟体動物",choices:["軟体動物","節足動物","棘皮動物","環形動物"]},
+  {q:"植物の茎の断面で、外側に近い管はどれ？",a:"師管",choices:["師管","道管","気孔","根毛"]},
+  {q:"子葉が1枚の植物を何という？",a:"単子葉類",choices:["単子葉類","双子葉類","裸子植物","シダ植物"]},
+];
+
+const ALL_EARTH=[
+  {q:"大気中で最も多く含まれる気体はどれ？",a:"窒素",choices:["窒素","酸素","二酸化炭素","アルゴン"]},
+  {q:"雲ができる高さまで空気が上昇するとき何が起きる？",a:"気温が下がる",choices:["気温が下がる","気温が上がる","湿度が下がる","気圧が上がる"]},
+  {q:"低気圧の中心では風はどちら向きに吹き込む？",a:"反時計回り",choices:["反時計回り","時計回り","中心から外へ","上から下へ"]},
+  {q:"天気記号「◎」は何の天気？",a:"雪",choices:["雪","雨","くもり","快晴"]},
+  {q:"地層が水平方向に押し縮められてできた波状の地形を何という？",a:"しゅう曲",choices:["しゅう曲","断層","侵食","堆積"]},
+  {q:"地層がずれてできた地形を何という？",a:"断層",choices:["断層","しゅう曲","侵食","隆起"]},
+  {q:"地震の揺れが最初に始まる場所を何という？",a:"震源",choices:["震源","震央","震度","マグニチュード"]},
+  {q:"地震の揺れの大きさを表すのはどれ？",a:"震度",choices:["震度","マグニチュード","震源","震央"]},
+  {q:"地球が1日に1回自転する向きはどれ（北極から見て）？",a:"反時計回り",choices:["反時計回り","時計回り","東から西","変わらない"]},
+  {q:"太陽・月・地球が一直線に並んで月が地球の影に入る現象を何という？",a:"月食",choices:["月食","日食","日没","満月"]},
+  {q:"月が太陽と地球の間に入って太陽が隠れる現象を何という？",a:"日食",choices:["日食","月食","日の出","新月"]},
+  {q:"火山の噴火で出てくる固体のかけらを何という？",a:"火山弾・火山灰",choices:["火山弾・火山灰","溶岩","マグマ","地熱"]},
+  {q:"大陸が移動するという考えを何という？",a:"大陸移動説",choices:["大陸移動説","プレート理論","地球収縮説","地殻変動説"]},
+  {q:"天気が西から東へ変わる理由は？",a:"偏西風の影響",choices:["偏西風の影響","貿易風の影響","海流の影響","地球の自転"]},
+  {q:"積乱雲（入道雲）が発達したときに起きやすい天気は？",a:"雷雨",choices:["雷雨","霧","雪","快晴"]},
+  {q:"地層の中に含まれる生物の遺骸や痕跡を何という？",a:"化石",choices:["化石","鉱物","岩石","地層"]},
+  {q:"北半球では夏至の日、太陽はどの方向から出る？",a:"北東",choices:["北東","真東","南東","真南"]},
+  {q:"地球の赤道半径はおよそ何km？",a:"6400km",choices:["6400km","1700km","12800km","3200km"]},
+  {q:"花こう岩は何岩の仲間？",a:"深成岩",choices:["深成岩","火山岩","堆積岩","変成岩"]},
+  {q:"海底で起きた地震で海水が大きく盛り上がる現象を何という？",a:"津波",choices:["津波","高潮","洪水","土石流"]},
+];
+
+const SOCIAL_SCIENCE_DATA={
+  geo:ALL_GEO, history:ALL_HISTORY,
+  physics:ALL_PHYSICS, biology:ALL_BIOLOGY, earth:ALL_EARTH
+};
+
+const TEST_META={
+  verb:{label:'動詞126語テスト',icon:'📝',color:'var(--accent)'},
+  q:{label:'疑問文テスト',icon:'❓',color:'var(--accent2)'},
+  geo:{label:'地理テスト',icon:'🗾',color:'#4ade80'},
+  history:{label:'歴史テスト',icon:'📜',color:'#fb923c'},
+  physics:{label:'物理テスト',icon:'💡',color:'#a78bfa'},
+  biology:{label:'生物テスト',icon:'🌿',color:'#34d399'},
+  earth:{label:'地学テスト',icon:'🌏',color:'#60a5fa'},
+};
+const ALL_TEST_TYPES=['verb','q','geo','history','physics','biology','earth'];
+
+// 教科タブ切り替え
+function switchSubject(sub){
+  document.querySelectorAll('.subject-tab').forEach(b=>b.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  ['english','social','science'].forEach(s=>{
+    document.getElementById('test-cards-'+s).style.display=s===sub?'':'none';
+  });
 }
 </script>
 </body>
