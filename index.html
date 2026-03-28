@@ -1021,6 +1021,30 @@ function getAudioCtx(){
   return _audioCtx;
 }
 
+function playFanfare(){
+  try{
+    const c=getAudioCtx();
+    const G4=392,A4=440,B4=494,C5=524;
+    // ⑤ ソー(G4+B4, 0.36s) ソ(G4+B4, 0.18s) ラーー(A4+C5, 1.1s) 三角波
+    function t(freq,startT,dur,vol){
+      const o=c.createOscillator(),g=c.createGain();
+      o.connect(g);g.connect(c.destination);
+      o.type='triangle';
+      o.frequency.setValueAtTime(freq,c.currentTime+startT);
+      g.gain.setValueAtTime(0,c.currentTime+startT);
+      g.gain.linearRampToValueAtTime(vol,c.currentTime+startT+0.015);
+      g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+startT+dur);
+      o.start(c.currentTime+startT);o.stop(c.currentTime+startT+dur+0.01);
+    }
+    // ソー
+    t(G4,0,   0.36,0.45); t(B4,0,   0.36,0.35);
+    // ソ
+    t(G4,0.40,0.18,0.45); t(B4,0.40,0.18,0.35);
+    // ラーー（長め）
+    t(A4,0.62,1.1, 0.50); t(C5,0.62,1.1, 0.38);
+  }catch(e){}
+}
+
 function playPinpon(){
   try{
     const ctx=getAudioCtx();
@@ -1098,7 +1122,7 @@ function showResult(){
   showScreen('result-screen');
   const total=questions.length,pct=Math.round(correctCount/total*100);
   let msg,sub;
-  if(pct===100){msg='🏆 パーフェクト！';sub='全問正解！すばらしい！';}
+  if(pct===100){msg='🏆 パーフェクト！';sub='全問正解！すばらしい！';setTimeout(()=>playFanfare(),200);}
   else if(pct>=80){msg='🎉 よくできました！';sub=`${pct}点！もう少しで満点！`;}
   else if(pct>=60){msg='📖 がんばりました！';sub=`${pct}点。苦手を復習しよう！`;}
   else{msg='💪 練習が必要！';sub=`${pct}点。もう一度チャレンジ！`;}
