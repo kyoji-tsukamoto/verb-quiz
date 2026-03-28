@@ -1033,7 +1033,7 @@ function playPinpon(){
       osc.type='sine';
       osc.frequency.setValueAtTime(freq,ctx.currentTime+i*0.18);
       gain.gain.setValueAtTime(0,ctx.currentTime+i*0.18);
-      gain.gain.linearRampToValueAtTime(0.4,ctx.currentTime+i*0.18+0.01);
+      gain.gain.linearRampToValueAtTime(0.7,ctx.currentTime+i*0.18+0.01);
       gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+i*0.18+0.18);
       osc.start(ctx.currentTime+i*0.18);
       osc.stop(ctx.currentTime+i*0.18+0.18);
@@ -1052,7 +1052,7 @@ function playBuzzer(){
       osc.type='triangle';
       osc.frequency.setValueAtTime(freq,ctx.currentTime+offset);
       gain.gain.setValueAtTime(0,ctx.currentTime+offset);
-      gain.gain.linearRampToValueAtTime(0.28,ctx.currentTime+offset+0.01);
+      gain.gain.linearRampToValueAtTime(0.6,ctx.currentTime+offset+0.01);
       gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+offset+0.11);
       osc.start(ctx.currentTime+offset);
       osc.stop(ctx.currentTime+offset+0.12);
