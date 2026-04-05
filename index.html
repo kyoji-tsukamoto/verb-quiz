@@ -252,6 +252,7 @@ h1 span{color:var(--accent);}
 .subject-tab{background:var(--surface);border:2px solid var(--border);border-radius:99px;padding:8px 16px;color:var(--text-muted);font-size:13px;font-family:'Noto Sans JP',sans-serif;font-weight:700;cursor:pointer;transition:all .18s;}
 .subject-tab:hover{border-color:var(--accent);color:var(--accent);}
 .subject-tab.active{border-color:var(--accent);background:rgba(56,189,248,.12);color:var(--accent);}
+.cal-dot.can{background:#fb923c;}
 .cal-dot.geo{background:#4ade80;}
 .cal-dot.history{background:#fb923c;}
 .cal-dot.physics{background:#a78bfa;}
@@ -262,11 +263,53 @@ h1 span{color:var(--accent);}
 .day-record-test.physics{color:#a78bfa;}
 .day-record-test.biology{color:#34d399;}
 .day-record-test.earth{color:#60a5fa;}
+.h-test-tag.can{background:rgba(251,146,60,.15);color:#fb923c;}
 .h-test-tag.geo{background:rgba(74,222,128,.15);color:#4ade80;}
 .h-test-tag.history{background:rgba(251,146,60,.15);color:#fb923c;}
 .h-test-tag.physics{background:rgba(167,139,250,.15);color:#a78bfa;}
 .h-test-tag.biology{background:rgba(52,211,153,.15);color:#34d399;}
 .h-test-tag.earth{background:rgba(96,165,250,.15);color:#60a5fa;}
+/* ===== ROUTINE ===== */
+  .routine-banner{background:linear-gradient(135deg,rgba(251,191,36,.15),rgba(251,146,60,.10));border:2px solid rgba(251,191,36,.4);border-radius:16px;padding:18px 20px;margin-bottom:14px;cursor:pointer;transition:all .18s;}
+  .routine-banner:hover{border-color:var(--warn);transform:translateY(-2px);box-shadow:0 8px 24px rgba(251,191,36,.2);}
+  .routine-banner-top{display:flex;align-items:center;gap:12px;margin-bottom:6px;}
+  .routine-icon{font-size:28px;}
+  .routine-title{font-size:18px;font-weight:900;color:var(--warn);}
+  .routine-sub{font-size:13px;color:var(--text-muted);}
+  .routine-start-btn{width:100%;background:var(--warn);color:#0d1117;border:none;border-radius:var(--radius);padding:14px;font-size:16px;font-weight:900;font-family:'Noto Sans JP',sans-serif;cursor:pointer;transition:all .18s;margin-top:10px;}
+  .routine-start-btn:hover{opacity:.85;}
+  .routine-start-btn:disabled{opacity:.35;cursor:not-allowed;}
+  .routine-tag{display:inline-block;background:rgba(251,191,36,.2);color:var(--warn);border-radius:99px;padding:2px 10px;font-size:11px;font-family:'Space Mono',monospace;margin-right:4px;}
+  /* teacher */
+  #teacher-screen{padding-bottom:40px;}
+  .teacher-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+  .teacher-header h2{font-size:18px;font-weight:900;}
+  .date-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;}
+  .date-tab{background:var(--surface);border:2px solid var(--border);border-radius:99px;padding:6px 14px;font-size:12px;font-family:'Space Mono',monospace;cursor:pointer;transition:all .18s;color:var(--text-muted);}
+  .date-tab:hover{border-color:var(--warn);}
+  .date-tab.active{border-color:var(--warn);background:rgba(251,191,36,.12);color:var(--warn);}
+  .question-pool{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;}
+  .pool-section{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+  .pool-section-header{padding:10px 14px;font-weight:700;font-size:13px;display:flex;align-items:center;gap:8px;cursor:pointer;background:var(--surface2);}
+  .pool-section-body{padding:10px 14px;display:flex;flex-direction:column;gap:6px;}
+  .pool-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;background:var(--bg);border:1px solid var(--border);cursor:pointer;transition:all .15s;}
+  .pool-item:hover{border-color:var(--warn);}
+  .pool-item.selected{border-color:var(--warn);background:rgba(251,191,36,.08);}
+  .pool-item-num{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:var(--warn);min-width:28px;}
+  .pool-item-text{flex:1;font-size:13px;}
+  .pool-item-badge{font-size:10px;color:var(--text-muted);font-family:'Space Mono',monospace;}
+  .order-input{width:44px;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:4px 6px;color:var(--text);font-size:13px;font-family:'Space Mono',monospace;text-align:center;}
+  .teacher-save-btn{width:100%;background:var(--warn);color:#0d1117;border:none;border-radius:var(--radius);padding:14px;font-size:16px;font-weight:900;font-family:'Noto Sans JP',sans-serif;cursor:pointer;transition:all .18s;margin-bottom:10px;}
+  .teacher-save-btn:hover{opacity:.85;}
+  /* routine result */
+  #routine-result-screen{text-align:center;padding-bottom:40px;}
+  .routine-hist-item{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 18px;margin-bottom:10px;display:flex;align-items:center;gap:14px;}
+  .rh-date{font-family:'Space Mono',monospace;font-size:12px;color:var(--text-muted);margin-bottom:3px;}
+  .rh-info{flex:1;}
+  .rh-detail{font-size:13px;color:var(--text-muted);}
+  .rh-score{font-family:'Space Mono',monospace;font-size:24px;font-weight:700;}
+  /* routine history screen */
+  #routine-history-screen{padding-bottom:40px;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
 @keyframes pop{0%{transform:scale(.92);opacity:0;}100%{transform:scale(1);opacity:1;}}
 @keyframes pulse{from{opacity:.7;}to{opacity:1;}}
@@ -299,11 +342,23 @@ h1 span{color:var(--accent);}
     <button class="ghost-btn" id="nav-history" onclick="showHistory()">📋 履歴</button>
     <button class="ghost-btn" id="nav-ranking" onclick="showRanking()">🏅 苦手</button>
     <button class="ghost-btn" id="nav-calendar" onclick="showCalendar()">📅 カレンダー</button>
+    <button class="ghost-btn" id="nav-routine-hist" onclick="showRoutineHistory()">🔄 ルーティーン履歴</button>
+    <button class="ghost-btn" onclick="showTeacherLogin()">👨‍🏫 先生</button>
   </div>
 </div>
 
 <!-- Home Screen -->
 <div class="screen" id="home-screen">
+  <div class="routine-banner" id="routine-banner" onclick="startRoutine()" style="display:none">
+    <div class="routine-banner-top">
+      <div class="routine-icon">🔄</div>
+      <div>
+        <div class="routine-title">今日のルーティーン</div>
+        <div class="routine-sub" id="routine-banner-sub">問題を読み込み中...</div>
+      </div>
+    </div>
+    <button class="routine-start-btn" id="routine-start-btn">▶ 開始する</button>
+  </div>
   <div class="subject-tabs">
     <button class="subject-tab active" onclick="switchSubject('english')">🇬🇧 英語</button>
     <button class="subject-tab" onclick="switchSubject('social')">🗾 社会</button>
@@ -319,6 +374,11 @@ h1 span{color:var(--accent);}
       <div class="test-card-icon">❓</div>
       <div class="test-card-title">疑問文テスト</div>
       <div class="test-card-sub">日本語を見て、英語の疑問文の空欄に入る語を4択で選ぼう</div>
+    </div>
+    <div class="test-card" onclick="startTestFlow('can')">
+      <div class="test-card-icon">💪</div>
+      <div class="test-card-title">Can構文テスト</div>
+      <div class="test-card-sub">肯定文・疑問文・否定文の空欄にCan/cannotを4択で選ぼう</div>
     </div>
   </div>
   <div class="test-cards" id="test-cards-social" style="display:none">
@@ -417,6 +477,66 @@ h1 span{color:var(--accent);}
     </div>
     <button class="back-home-btn" onclick="goHome()">ホームに戻る</button>
   </div>
+</div>
+
+<!-- Teacher Login -->
+<div class="screen" id="teacher-login-screen">
+  <div class="history-header">
+    <h2>👨‍🏫 先生ログイン</h2>
+    <button class="ghost-btn" onclick="goHome()">✕ 閉じる</button>
+  </div>
+  <div class="card">
+    <div class="field-label">パスワードを入力してください</div>
+    <input class="text-input" id="teacher-pw-input" type="password" placeholder="パスワード" maxlength="20"
+      onkeydown="if(event.key==='Enter')teacherLogin()"
+      oninput="document.getElementById('teacher-login-btn').disabled=!this.value.trim()">
+    <div id="teacher-pw-error" style="color:var(--error);font-size:13px;margin-bottom:10px;min-height:18px;"></div>
+    <button class="primary-btn" id="teacher-login-btn" onclick="teacherLogin()" disabled>ログイン</button>
+  </div>
+</div>
+
+<!-- Teacher Admin -->
+<div class="screen" id="teacher-screen">
+  <div class="teacher-header">
+    <h2>👨‍🏫 先生管理画面</h2>
+    <button class="ghost-btn" onclick="goHome()">✕ 閉じる</button>
+  </div>
+  <div class="section-label">日付を選ぶ</div>
+  <div class="date-tabs" id="teacher-date-tabs"></div>
+  <div class="section-label">出題する問題を選んで順番を設定</div>
+  <div class="question-pool" id="question-pool"></div>
+  <button class="teacher-save-btn" onclick="saveRoutineSettings()">💾 保存する</button>
+  <div id="teacher-save-status" style="text-align:center;font-size:13px;color:var(--text-muted);min-height:18px;"></div>
+</div>
+
+<!-- Routine Result -->
+<div class="screen" id="routine-result-screen">
+  <div class="result-msg" id="routine-result-msg"></div>
+  <div class="result-circle">
+    <div class="result-pct" id="routine-result-pct"></div>
+    <div class="result-fraction" id="routine-result-fraction"></div>
+  </div>
+  <div class="result-sub" id="routine-result-sub"></div>
+  <div class="result-stats">
+    <div class="stat-box"><div class="stat-num c" id="routine-r-c">0</div><div class="stat-label">正解</div></div>
+    <div class="stat-box"><div class="stat-num w" id="routine-r-w">0</div><div class="stat-label">不正解</div></div>
+  </div>
+  <div class="missed-section" id="routine-missed-section"></div>
+  <div style="margin-top:8px;font-size:13px;color:var(--text-muted);text-align:center;" id="routine-save-status"></div>
+  <div class="btn-row" style="margin-top:16px;">
+    <button class="retry-btn" onclick="startRoutine()">もう一度</button>
+    <button class="back-home-btn" onclick="goHome()">ホームに戻る</button>
+  </div>
+</div>
+
+<!-- Routine History -->
+<div class="screen" id="routine-history-screen">
+  <div class="history-header">
+    <h2>🔄 ルーティーン履歴</h2>
+    <button class="ghost-btn" onclick="goHome()">✕ 閉じる</button>
+  </div>
+  <div id="routine-history-summary" class="history-summary" style="display:none"></div>
+  <div id="routine-history-list"></div>
 </div>
 
 <!-- History Screen -->
@@ -741,6 +861,7 @@ function confirmName(){
   document.getElementById('top-nav').style.display='flex';
   document.getElementById('nav-user').textContent=name;
   showScreen('home-screen');
+  updateRoutineBanner();
 }
 
 // ════════════════════════════════════
@@ -748,11 +869,13 @@ function confirmName(){
 // ════════════════════════════════════
 function startTestFlow(type){
   currentTestType=type;selectedGroups.clear();allSelected=false;
-  const directTypes=['q','geo','history','physics','biology','earth'];
+  const directTypes=['q','can','geo','history','physics','biology','earth'];
   if(directTypes.includes(type)){
     const meta=TEST_META[type]||{};quizGroups=[meta.label||type];
     if(type==='q'){questions=shuffle(ALL_QUESTIONS).slice(0,20);}
-    else{questions=shuffle(SOCIAL_SCIENCE_DATA[type]||[]).slice(0,20).map(d=>({_type:'ss',question:d.q,answer:d.a,choices:d.choices,group:meta.label||type}));}
+    else if(type==='can'){
+      questions=shuffle(SOCIAL_SCIENCE_DATA[type]||[]).slice(0,20).map(d=>({_type:'ss',question:d.meaning,answer:d.answer,choices:d.choices,sentence:d.sentence,group:meta.label||type}));
+    }else{questions=shuffle(SOCIAL_SCIENCE_DATA[type]||[]).slice(0,20).map(d=>({_type:'ss',question:d.q,answer:d.a,choices:d.choices,group:meta.label||type}));}
     currentIndex=0;correctCount=0;wrongCount=0;missedVerbs=[];
     showScreen('quiz-screen');showQuestion();
   }else{buildCategoryGrid(type);showScreen('category-screen');}
@@ -856,7 +979,12 @@ function showQuestion(){
     const meta=TEST_META[currentTestType]||{};
     document.getElementById('question-label').textContent=meta.label||currentTestType;
     document.getElementById('q-jp').textContent=q.question;
-    document.getElementById('q-en').style.display='none';
+    if(currentTestType==='can'&&q.sentence){
+      document.getElementById('q-en').style.display='';
+      document.getElementById('q-en').innerHTML=q.sentence.replace('(   )','<span class="question-blank">___</span>');
+    }else{
+      document.getElementById('q-en').style.display='none';
+    }
     buildSSChoices(q);
     setTimeout(()=>speakJP(q.question),300);
   }
@@ -957,8 +1085,8 @@ function selectChoice(selectedBtn,isCorrect,correctAnswer,choices,allBtns){
 function nextQuestion(){
   clearTimer();
   currentIndex++;
-  if(currentIndex>=questions.length)showResult();
-  else showQuestion();
+  if(currentTestType==='_routine'){if(currentIndex>=questions.length)showRoutineResult();else showRoutineQuestion();}
+  else{if(currentIndex>=questions.length)showResult();else showQuestion();}
 }
 
 // ════════════════════════════════════
@@ -1207,7 +1335,7 @@ function showHistory(){
   list.innerHTML='';
   history.forEach(r=>{
     const pc=r.score>=80?'high':r.score>=60?'mid':'low';
-    const _tlmap={verb:'動詞126語',q:'疑問文',geo:'地理',history:'歴史',physics:'物理',biology:'生物',earth:'地学'};
+    const _tlmap={verb:'動詞126語',q:'疑問文',can:'Can構文',geo:'地理',history:'歴史',physics:'物理',biology:'生物',earth:'地学'};
     const testLabel=_tlmap[r.testType]||r.testType;
     const testClass=r.testType;
     const cats=(r.groups||[]).map(g=>`<span class="h-cat-tag">${g}</span>`).join('');
@@ -1319,8 +1447,8 @@ function showDayDetail(dateKey,rec,d){
   const _allRecs=[];ALL_TEST_TYPES.forEach(t=>{if(rec&&rec[t])_allRecs.push(...rec[t]);});
   _allRecs.sort((a,b)=>a.timestamp-b.timestamp).forEach(r=>{
     const pc=r.score>=80?'high':r.score>=60?'mid':'low';
-    const _dlmap={verb:'動詞126語テスト',q:'疑問文テスト',geo:'地理テスト',history:'歴史テスト',physics:'物理テスト',biology:'生物テスト',earth:'地学テスト'};
-    const _dimap={verb:'📝',q:'❓',geo:'🗾',history:'📜',physics:'💡',biology:'🌿',earth:'🌏'};
+    const _dlmap={verb:'動詞126語テスト',q:'疑問文テスト',can:'Can構文テスト',geo:'地理テスト',history:'歴史テスト',physics:'物理テスト',biology:'生物テスト',earth:'地学テスト'};
+    const _dimap={verb:'📝',q:'❓',can:'💪',geo:'🗾',history:'📜',physics:'💡',biology:'🌿',earth:'🌏'};
     const testLabel=_dlmap[r.testType]||r.testType;
     const testClass=r.testType;
     const time=r.date.split(' ')[1]||'';
@@ -1451,12 +1579,13 @@ const ALL_EARTH=[
 ];
 
 const SOCIAL_SCIENCE_DATA={
-  geo:ALL_GEO, history:ALL_HISTORY,
+  can:ALL_CAN, geo:ALL_GEO, history:ALL_HISTORY,
   physics:ALL_PHYSICS, biology:ALL_BIOLOGY, earth:ALL_EARTH
 };
 
 const TEST_META={
   verb:{label:'動詞126語テスト',icon:'📝',color:'var(--accent)'},
+  can:{label:'Can構文テスト',icon:'💪',color:'#fb923c'},
   q:{label:'疑問文テスト',icon:'❓',color:'var(--accent2)'},
   geo:{label:'地理テスト',icon:'🗾',color:'#4ade80'},
   history:{label:'歴史テスト',icon:'📜',color:'#fb923c'},
@@ -1464,7 +1593,7 @@ const TEST_META={
   biology:{label:'生物テスト',icon:'🌿',color:'#34d399'},
   earth:{label:'地学テスト',icon:'🌏',color:'#60a5fa'},
 };
-const ALL_TEST_TYPES=['verb','q','geo','history','physics','biology','earth'];
+const ALL_TEST_TYPES=['verb','q','can','geo','history','physics','biology','earth'];
 
 // 教科タブ切り替え
 function switchSubject(sub){
@@ -1474,6 +1603,462 @@ function switchSubject(sub){
     document.getElementById('test-cards-'+s).style.display=s===sub?'':'none';
   });
 }
+
+// ════════════════════════════════════
+// Can構文 問題データ（100問）
+// ════════════════════════════════════
+const ALL_CAN=[
+  // 肯定文
+  {answer:"can",    sentence:"I (   ) swim fast.",           meaning:"私は速く泳ぐことができます。",       choices:["can","do","am","will"]},
+  {answer:"can",    sentence:"She (   ) play the piano.",    meaning:"彼女はピアノを弾くことができます。", choices:["can","does","is","may"]},
+  {answer:"can",    sentence:"He (   ) run very fast.",      meaning:"彼はとても速く走ることができます。", choices:["can","does","has","will"]},
+  {answer:"can",    sentence:"We (   ) speak English.",      meaning:"私たちは英語を話すことができます。", choices:["can","do","are","have"]},
+  {answer:"can",    sentence:"They (   ) play soccer well.", meaning:"彼らは上手にサッカーができます。",   choices:["can","do","are","did"]},
+  {answer:"can",    sentence:"I (   ) ride a bike.",         meaning:"私は自転車に乗ることができます。",   choices:["can","do","am","have"]},
+  {answer:"can",    sentence:"My dog (   ) jump high.",      meaning:"私の犬は高く跳べます。",             choices:["can","does","is","has"]},
+  {answer:"can",    sentence:"You (   ) use this computer.", meaning:"あなたはこのコンピュータを使えます。",choices:["can","do","are","did"]},
+  {answer:"can",    sentence:"Tom (   ) cook dinner.",       meaning:"トムは夕食を作ることができます。",   choices:["can","does","is","will"]},
+  {answer:"can",    sentence:"Birds (   ) fly in the sky.",  meaning:"鳥は空を飛ぶことができます。",       choices:["can","do","are","have"]},
+  {answer:"can",    sentence:"I (   ) sing this song.",      meaning:"私はこの歌を歌えます。",             choices:["can","do","am","may"]},
+  {answer:"can",    sentence:"She (   ) draw pictures well.",meaning:"彼女は上手に絵を描けます。",         choices:["can","does","is","did"]},
+  {answer:"can",    sentence:"He (   ) read Chinese.",       meaning:"彼は中国語を読むことができます。",   choices:["can","does","has","will"]},
+  {answer:"can",    sentence:"We (   ) help you.",           meaning:"私たちはあなたを手伝えます。",       choices:["can","do","are","have"]},
+  {answer:"can",    sentence:"My sister (   ) dance well.",  meaning:"私の姉は上手に踊れます。",           choices:["can","does","is","did"]},
+  {answer:"can",    sentence:"I (   ) speak a little French.",meaning:"私は少しフランス語を話せます。",   choices:["can","do","am","was"]},
+  {answer:"can",    sentence:"Ken (   ) play the guitar.",   meaning:"ケンはギターを弾けます。",           choices:["can","does","is","has"]},
+  {answer:"can",    sentence:"The cat (   ) climb trees.",   meaning:"その猫は木に登れます。",             choices:["can","does","is","has"]},
+  {answer:"can",    sentence:"She (   ) write kanji well.",  meaning:"彼女は漢字を上手に書けます。",       choices:["can","does","is","did"]},
+  {answer:"can",    sentence:"My father (   ) drive well.",  meaning:"私の父は上手に運転できます。",       choices:["can","does","is","has"]},
+  {answer:"can",    sentence:"She (   ) make origami.",      meaning:"彼女は折り紙を作れます。",           choices:["can","does","is","did"]},
+  {answer:"can",    sentence:"I (   ) hear the music.",      meaning:"私は音楽が聞こえます。",             choices:["can","do","am","was"]},
+  {answer:"can",    sentence:"They (   ) solve this problem.",meaning:"彼らはこの問題を解けます。",       choices:["can","do","are","did"]},
+  {answer:"can",    sentence:"My brother (   ) run 10km.",   meaning:"私の兄は10km走れます。",             choices:["can","does","is","has"]},
+  {answer:"can",    sentence:"She (   ) speak three languages.",meaning:"彼女は3言語を話せます。",        choices:["can","does","is","did"]},
+  {answer:"can",    sentence:"I (   ) play basketball.",     meaning:"私はバスケットボールができます。",   choices:["can","do","am","have"]},
+  {answer:"can",    sentence:"He (   ) fix computers.",      meaning:"彼はコンピュータを直せます。",       choices:["can","does","has","will"]},
+  {answer:"can",    sentence:"You (   ) see Mt. Fuji here.", meaning:"ここから富士山が見えます。",         choices:["can","do","are","did"]},
+  {answer:"can",    sentence:"We (   ) start without him.",  meaning:"私たちは彼なしで始められます。",     choices:["can","do","are","have"]},
+  {answer:"can",    sentence:"I (   ) finish this by noon.", meaning:"私はこれを正午までに終えられます。", choices:["can","do","am","will"]},
+  {answer:"can",    sentence:"He (   ) lift heavy things.",  meaning:"彼は重いものを持ち上げられます。",   choices:["can","does","has","will"]},
+  {answer:"can",    sentence:"We (   ) win this game.",      meaning:"私たちはこの試合に勝てます。",       choices:["can","do","are","have"]},
+  {answer:"can",    sentence:"I (   ) understand this math.",meaning:"私はこの数学が理解できます。",       choices:["can","do","am","may"]},
+  // 疑問文
+  {answer:"Can",    sentence:"(   ) you swim?",              meaning:"あなたは泳げますか？",               choices:["Can","Do","Are","Will"]},
+  {answer:"Can",    sentence:"(   ) she play tennis?",       meaning:"彼女はテニスができますか？",         choices:["Can","Does","Is","Will"]},
+  {answer:"Can",    sentence:"(   ) he speak Japanese?",     meaning:"彼は日本語を話せますか？",           choices:["Can","Does","Is","Has"]},
+  {answer:"Can",    sentence:"(   ) you help me?",           meaning:"私を手伝ってもらえますか？",         choices:["Can","Do","Are","Did"]},
+  {answer:"Can",    sentence:"(   ) they come tomorrow?",    meaning:"彼らは明日来られますか？",           choices:["Can","Do","Are","Did"]},
+  {answer:"Can",    sentence:"(   ) I use your pen?",        meaning:"あなたのペンを使ってもいいですか？", choices:["Can","Do","Am","May"]},
+  {answer:"Can",    sentence:"(   ) your dog do tricks?",    meaning:"あなたの犬は芸ができますか？",       choices:["Can","Does","Is","Has"]},
+  {answer:"Can",    sentence:"(   ) we eat here?",           meaning:"ここで食べてもいいですか？",         choices:["Can","Do","Are","Did"]},
+  {answer:"Can",    sentence:"(   ) Tom play the drums?",    meaning:"トムはドラムを叩けますか？",         choices:["Can","Does","Is","Will"]},
+  {answer:"Can",    sentence:"(   ) you run fast?",          meaning:"あなたは速く走れますか？",           choices:["Can","Do","Are","Did"]},
+  {answer:"Can",    sentence:"(   ) she cook Italian food?", meaning:"彼女はイタリア料理を作れますか？",   choices:["Can","Does","Is","Did"]},
+  {answer:"Can",    sentence:"(   ) he lift this box?",      meaning:"彼はこの箱を持ち上げられますか？",   choices:["Can","Does","Has","Will"]},
+  {answer:"Can",    sentence:"(   ) you see the stars?",     meaning:"星が見えますか？",                   choices:["Can","Do","Are","Did"]},
+  {answer:"Can",    sentence:"(   ) I sit here?",            meaning:"ここに座ってもいいですか？",         choices:["Can","Do","Am","May"]},
+  {answer:"Can",    sentence:"(   ) they win the game?",     meaning:"彼らはその試合に勝てますか？",       choices:["Can","Do","Are","Did"]},
+  {answer:"Can",    sentence:"(   ) you read this sign?",    meaning:"この標識を読めますか？",             choices:["Can","Do","Are","Did"]},
+  {answer:"Can",    sentence:"(   ) she dance salsa?",       meaning:"彼女はサルサを踊れますか？",         choices:["Can","Does","Is","Did"]},
+  {answer:"Can",    sentence:"(   ) he drive a car?",        meaning:"彼は車を運転できますか？",           choices:["Can","Does","Has","Will"]},
+  {answer:"Can",    sentence:"(   ) you open this jar?",     meaning:"このビンを開けられますか？",         choices:["Can","Do","Are","Did"]},
+  {answer:"Can",    sentence:"(   ) we go now?",             meaning:"もう行ってもいいですか？",           choices:["Can","Do","Are","Did"]},
+  {answer:"Can",    sentence:"(   ) your cat swim?",         meaning:"あなたの猫は泳げますか？",           choices:["Can","Does","Is","Has"]},
+  {answer:"Can",    sentence:"(   ) I borrow your bike?",    meaning:"自転車を借りてもいいですか？",       choices:["Can","Do","Am","May"]},
+  {answer:"Can",    sentence:"(   ) they speak French?",     meaning:"彼らはフランス語を話せますか？",     choices:["Can","Do","Are","Did"]},
+  {answer:"Can",    sentence:"(   ) you play shogi?",        meaning:"あなたは将棋ができますか？",         choices:["Can","Do","Are","Did"]},
+  {answer:"Can",    sentence:"(   ) she solve this puzzle?", meaning:"彼女はこのパズルを解けますか？",     choices:["Can","Does","Is","Did"]},
+  {answer:"Can",    sentence:"(   ) he come to the party?",  meaning:"彼はパーティーに来られますか？",     choices:["Can","Does","Has","Will"]},
+  {answer:"Can",    sentence:"(   ) you hear me?",           meaning:"私の声が聞こえますか？",             choices:["Can","Do","Are","Did"]},
+  {answer:"Can",    sentence:"(   ) we visit you?",          meaning:"あなたを訪ねてもいいですか？",       choices:["Can","Do","Are","Did"]},
+  {answer:"Can",    sentence:"(   ) I ask you a question?",  meaning:"質問してもいいですか？",             choices:["Can","Do","Am","May"]},
+  {answer:"Can",    sentence:"(   ) your brother cook?",     meaning:"お兄さんは料理ができますか？",       choices:["Can","Does","Is","Has"]},
+  {answer:"Can",    sentence:"(   ) she remember names?",    meaning:"彼女は名前をよく覚えられますか？",   choices:["Can","Does","Is","Did"]},
+  {answer:"Can",    sentence:"(   ) he play volleyball?",    meaning:"彼はバレーボールができますか？",     choices:["Can","Does","Has","Will"]},
+  {answer:"Can",    sentence:"(   ) you stay a bit longer?", meaning:"もう少し長くいられますか？",         choices:["Can","Do","Are","Did"]},
+  // 否定文
+  {answer:"cannot", sentence:"I (   ) swim at all.",         meaning:"私は全く泳げません。",               choices:["cannot","do not","am not","will not"]},
+  {answer:"cannot", sentence:"She (   ) play the violin.",   meaning:"彼女はバイオリンを弾けません。",     choices:["cannot","does not","is not","did not"]},
+  {answer:"cannot", sentence:"He (   ) speak Spanish.",      meaning:"彼はスペイン語を話せません。",       choices:["cannot","does not","has not","will not"]},
+  {answer:"cannot", sentence:"We (   ) come today.",         meaning:"私たちは今日来られません。",         choices:["cannot","do not","are not","did not"]},
+  {answer:"cannot", sentence:"They (   ) win easily.",       meaning:"彼らは簡単には勝てません。",         choices:["cannot","do not","are not","did not"]},
+  {answer:"cannot", sentence:"I (   ) understand this.",     meaning:"私はこれが理解できません。",         choices:["cannot","do not","am not","may not"]},
+  {answer:"cannot", sentence:"My cat (   ) swim.",           meaning:"私の猫は泳げません。",               choices:["cannot","does not","is not","has not"]},
+  {answer:"cannot", sentence:"You (   ) park here.",         meaning:"ここに駐車できません。",             choices:["cannot","do not","are not","did not"]},
+  {answer:"cannot", sentence:"Tom (   ) run fast.",          meaning:"トムは速く走れません。",             choices:["cannot","does not","is not","will not"]},
+  {answer:"cannot", sentence:"I (   ) eat spicy food.",      meaning:"私は辛い食べ物が食べられません。",   choices:["cannot","do not","am not","did not"]},
+  {answer:"cannot", sentence:"She (   ) lift this box.",     meaning:"彼女はこの箱を持ち上げられません。", choices:["cannot","does not","is not","did not"]},
+  {answer:"cannot", sentence:"He (   ) come to the party.",  meaning:"彼はパーティーに来られません。",     choices:["cannot","does not","has not","will not"]},
+  {answer:"cannot", sentence:"We (   ) solve this problem.", meaning:"私たちはこの問題を解けません。",     choices:["cannot","do not","are not","did not"]},
+  {answer:"cannot", sentence:"I (   ) sleep without music.", meaning:"私は音楽なしでは眠れません。",       choices:["cannot","do not","am not","did not"]},
+  {answer:"cannot", sentence:"She (   ) drive yet.",         meaning:"彼女はまだ運転できません。",         choices:["cannot","does not","is not","did not"]},
+  {answer:"cannot", sentence:"He (   ) read this kanji.",    meaning:"彼はこの漢字が読めません。",         choices:["cannot","does not","has not","will not"]},
+  {answer:"cannot", sentence:"You (   ) take photos here.",  meaning:"ここで写真を撮れません。",           choices:["cannot","do not","are not","did not"]},
+  {answer:"cannot", sentence:"I (   ) play this game well.", meaning:"私はこのゲームが上手くできません。", choices:["cannot","do not","am not","may not"]},
+  {answer:"cannot", sentence:"They (   ) finish by Friday.", meaning:"彼らは金曜日までに終えられません。", choices:["cannot","do not","are not","did not"]},
+  {answer:"cannot", sentence:"My brother (   ) cook at all.",meaning:"私の兄は全く料理ができません。",     choices:["cannot","does not","is not","has not"]},
+  {answer:"cannot", sentence:"She (   ) remember his name.", meaning:"彼女は彼の名前を覚えられません。",   choices:["cannot","does not","is not","did not"]},
+  {answer:"cannot", sentence:"He (   ) swim in cold water.", meaning:"彼は冷たい水では泳げません。",       choices:["cannot","does not","has not","will not"]},
+  {answer:"cannot", sentence:"We (   ) hear you clearly.",   meaning:"あなたの声がはっきり聞こえません。", choices:["cannot","do not","are not","did not"]},
+  {answer:"cannot", sentence:"I (   ) open this bottle.",    meaning:"私はこのボトルを開けられません。",   choices:["cannot","do not","am not","did not"]},
+  {answer:"cannot", sentence:"She (   ) stay up late.",      meaning:"彼女は夜更かしができません。",       choices:["cannot","does not","is not","did not"]},
+  {answer:"cannot", sentence:"He (   ) find his key.",       meaning:"彼は鍵を見つけられません。",         choices:["cannot","does not","has not","will not"]},
+  {answer:"cannot", sentence:"You (   ) enter this room.",   meaning:"あなたはこの部屋に入れません。",     choices:["cannot","do not","are not","did not"]},
+  {answer:"cannot", sentence:"I (   ) run in this weather.", meaning:"この天気では走れません。",           choices:["cannot","do not","am not","may not"]},
+  {answer:"cannot", sentence:"They (   ) afford it.",        meaning:"彼らはそれを買う余裕がありません。", choices:["cannot","do not","are not","did not"]},
+  {answer:"cannot", sentence:"My dog (   ) climb stairs.",   meaning:"私の犬は階段を登れません。",         choices:["cannot","does not","is not","has not"]},
+  {answer:"cannot", sentence:"She (   ) reach the top shelf.",meaning:"彼女は一番上の棚に手が届きません。",choices:["cannot","does not","is not","did not"]},
+  {answer:"cannot", sentence:"He (   ) play any instrument.",meaning:"彼は楽器が何も弾けません。",         choices:["cannot","does not","has not","will not"]},
+  {answer:"cannot", sentence:"We (   ) wait any longer.",    meaning:"私たちはこれ以上待てません。",       choices:["cannot","do not","are not","did not"]},
+];
+
+
+// ════════════════════════════════════
+// ROUTINE SYSTEM
+// ════════════════════════════════════
+const TEACHER_PW = 'sensei2024';
+const ROUTINE_STORAGE_KEY = 'routine-settings';
+const ROUTINE_HIST_KEY_PREFIX = 'routine-hist:';
+
+// 先生が設定できる問題プール定義
+const ROUTINE_POOL = [
+  { id:'verb-g1', label:'動詞グループ1（agree〜clean）', type:'verb', group:'グループ1' },
+  { id:'verb-g2', label:'動詞グループ2（close〜fly）',   type:'verb', group:'グループ2' },
+  { id:'verb-g3', label:'動詞グループ3（forget〜keep）', type:'verb', group:'グループ3' },
+  { id:'verb-g4', label:'動詞グループ4（kill〜name）',   type:'verb', group:'グループ4' },
+  { id:'verb-g5', label:'動詞グループ5（need〜sell）',   type:'verb', group:'グループ5' },
+  { id:'verb-g6', label:'動詞グループ6（send〜swim）',   type:'verb', group:'グループ6' },
+  { id:'verb-g7', label:'動詞グループ7（take〜write）',  type:'verb', group:'グループ7' },
+  { id:'q-all',   label:'疑問文テスト（Do/Does/Are/Is）',type:'q',    group:'all' },
+  { id:'can-pos', label:'Can構文・肯定文',               type:'can',  group:'pos' },
+  { id:'can-que', label:'Can構文・疑問文',               type:'can',  group:'que' },
+  { id:'can-neg', label:'Can構文・否定文',               type:'can',  group:'neg' },
+];
+
+let routineQuestions = [];   // 今日のルーティーン問題
+let routineIndex = 0;
+let routineCorrect = 0;
+let routineWrong = 0;
+let routineMissed = [];
+let teacherSelectedDate = '';
+
+// ── 今日の日付キー ──
+function todayKey(){
+  const d = new Date();
+  return d.toLocaleDateString('ja-JP',{year:'numeric',month:'2-digit',day:'2-digit'});
+}
+
+// ── ルーティーン設定を取得 ──
+function getRoutineSettings(){
+  try{ const s=localStorage.getItem(ROUTINE_STORAGE_KEY); return s?JSON.parse(s):{}; }catch(e){return {};}
+}
+
+// ── 今日の問題リストを構築 ──
+function buildTodayRoutine(){
+  const settings = getRoutineSettings();
+  const key = todayKey();
+  const daySettings = settings[key]; // [{id, order}, ...]
+  if(!daySettings||daySettings.length===0) return [];
+  const ordered = [...daySettings].sort((a,b)=>a.order-b.order);
+  const questions = [];
+  ordered.forEach(item=>{
+    const pool = ROUTINE_POOL.find(p=>p.id===item.id);
+    if(!pool) return;
+    if(pool.type==='verb'){
+      const verbs = ALL_VERBS.filter(v=>v.group===pool.group);
+      verbs.forEach(v=>questions.push({_routineType:'verb', ...v}));
+    } else if(pool.type==='q'){
+      ALL_QUESTIONS.forEach(q=>questions.push({_routineType:'q', ...q}));
+    } else if(pool.type==='can'){
+      const typeMap = {pos:'can', que:'Can', neg:'cannot'};
+      const ans = typeMap[pool.group];
+      ALL_CAN.filter(q=>q.answer===ans).forEach(q=>questions.push({_routineType:'can', ...q}));
+    }
+  });
+  return questions;
+}
+
+// ── ホーム画面のバナー更新 ──
+function updateRoutineBanner(){
+  const banner = document.getElementById('routine-banner');
+  const sub    = document.getElementById('routine-banner-sub');
+  const btn    = document.getElementById('routine-start-btn');
+  const qs = buildTodayRoutine();
+  if(qs.length===0){
+    banner.style.display='none'; return;
+  }
+  banner.style.display='block';
+  sub.textContent = `全${qs.length}問 ／ ${todayKey()}`;
+  btn.disabled = false;
+}
+
+// ── ルーティーン開始 ──
+function startRoutine(){
+  const qs = buildTodayRoutine();
+  if(qs.length===0){ alert('今日のルーティーンが設定されていません。'); return; }
+  routineQuestions = qs;
+  routineIndex=0; routineCorrect=0; routineWrong=0; routineMissed=[];
+  // テスト画面を流用（currentTestTypeをroutineに）
+  currentTestType='_routine';
+  questions = routineQuestions;
+  currentIndex=0; correctCount=0; wrongCount=0; missedVerbs=[];
+  showScreen('quiz-screen');
+  showRoutineQuestion();
+}
+
+// ── ルーティーン問題表示（showQuestionを流用） ──
+function showRoutineQuestion(){
+  answered=false;
+  const q = questions[currentIndex];
+  const total = questions.length;
+  document.getElementById('progress-bar').style.width=(currentIndex/total*100)+'%';
+  document.getElementById('q-counter').textContent=(currentIndex+1)+' / '+total;
+  document.getElementById('score-c').textContent=correctCount;
+  document.getElementById('score-w').textContent=wrongCount;
+
+  if(q._routineType==='verb'){
+    document.getElementById('verb-card').style.display='';
+    document.getElementById('question-card').style.display='none';
+    document.getElementById('q-group').textContent=q.group;
+    document.getElementById('q-verb').textContent=q.verb;
+    document.getElementById('q-sentence').textContent=q.sentence;
+    buildVerbChoices(q);
+    setTimeout(()=>speakVerb(),300);
+  } else if(q._routineType==='q'){
+    document.getElementById('verb-card').style.display='none';
+    document.getElementById('question-card').style.display='';
+    document.getElementById('question-label').textContent='疑問文テスト';
+    document.getElementById('q-jp').textContent=q.jp;
+    document.getElementById('q-en').style.display='';
+    document.getElementById('q-en').innerHTML=q.en.replace('___','<span class="question-blank">___</span>');
+    buildQChoices(q);
+    setTimeout(()=>speakJP(q.jp),300);
+  } else {
+    document.getElementById('verb-card').style.display='none';
+    document.getElementById('question-card').style.display='';
+    document.getElementById('question-label').textContent='Can構文テスト';
+    document.getElementById('q-jp').textContent=q.meaning;
+    if(q.sentence){
+      document.getElementById('q-en').style.display='';
+      document.getElementById('q-en').innerHTML=q.sentence.replace('(   )','<span class="question-blank">___</span>');
+    } else {
+      document.getElementById('q-en').style.display='none';
+    }
+    buildSSChoices(q);
+    setTimeout(()=>speakJP(q.meaning),300);
+  }
+  document.getElementById('feedback').className='feedback';
+  document.getElementById('next-btn').className='next-btn';
+  startTimer();
+  setTimeout(()=>{document.querySelectorAll('.choice-btn').forEach(b=>b.blur());if(document.activeElement&&document.activeElement!==document.body)document.activeElement.blur();},150);
+}
+
+// ── ルーティーン結果表示 ──
+function showRoutineResult(){
+  showScreen('routine-result-screen');
+  const total=questions.length, pct=Math.round(correctCount/total*100);
+  let msg,sub;
+  if(pct===100){msg='🏆 パーフェクト！';sub='全問正解！すばらしい！';setTimeout(()=>playFanfare(),200);}
+  else if(pct>=80){msg='🎉 よくできました！';sub=`${pct}点！`;}
+  else if(pct>=60){msg='📖 がんばりました！';sub=`${pct}点。復習しよう！`;}
+  else{msg='💪 練習が必要！';sub=`${pct}点。もう一度！`;}
+  document.getElementById('routine-result-msg').textContent=msg;
+  document.getElementById('routine-result-pct').textContent=pct+'%';
+  document.getElementById('routine-result-fraction').textContent=correctCount+' / '+total+'問正解';
+  document.getElementById('routine-result-sub').textContent=sub;
+  document.getElementById('routine-r-c').textContent=correctCount;
+  document.getElementById('routine-r-w').textContent=wrongCount;
+
+  // 間違いセクション
+  const ms=document.getElementById('routine-missed-section');
+  if(missedVerbs.length>0){
+    let html='<div class="missed-title">間違えた問題</div>';
+    missedVerbs.forEach(v=>{
+      const key=v._routineType==='verb'?v.verb:(v._routineType==='q'?v.answer:v.answer);
+      const sub2=v._routineType==='verb'?v.meaning:(v._routineType==='q'?v.jp:v.meaning);
+      html+=`<div class="missed-item"><span class="missed-verb">${key}</span><span class="missed-meaning">${sub2}</span></div>`;
+    });
+    ms.innerHTML=html;
+  } else { ms.innerHTML=''; }
+
+  // 履歴保存
+  saveRoutineHistory(pct, total);
+  if(pct===100){ document.getElementById('routine-save-status').textContent='✅ 履歴を保存しました'; }
+}
+
+// ── ルーティーン履歴保存 ──
+function saveRoutineHistory(pct, total){
+  const now=new Date();
+  const dateKey=todayKey();
+  const dateStr=now.toLocaleDateString('ja-JP',{year:'numeric',month:'2-digit',day:'2-digit'})+' '+now.toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
+  const key=ROUTINE_HIST_KEY_PREFIX+currentUser;
+  let hist=[];
+  try{ const s=localStorage.getItem(key); if(s)hist=JSON.parse(s); }catch(e){}
+  // 同日内の回数をカウント
+  const todayCount=hist.filter(h=>h.dateKey===dateKey).length+1;
+  hist.unshift({date:dateStr,dateKey,tryNum:todayCount,total,correct:correctCount,score:pct,timestamp:now.getTime()});
+  if(hist.length>200)hist=hist.slice(0,200);
+  try{ localStorage.setItem(key,JSON.stringify(hist)); document.getElementById('routine-save-status').textContent='✅ 履歴を保存しました'; }
+  catch(e){ document.getElementById('routine-save-status').textContent='⚠️ 保存できませんでした'; }
+}
+
+// ── ルーティーン履歴画面 ──
+function showRoutineHistory(){
+  showScreen('routine-history-screen'); setNavActive('');
+  const key=ROUTINE_HIST_KEY_PREFIX+currentUser;
+  let hist=[];
+  try{ const s=localStorage.getItem(key); if(s)hist=JSON.parse(s); }catch(e){}
+  const list=document.getElementById('routine-history-list');
+  const summEl=document.getElementById('routine-history-summary');
+  summEl.style.display='none';
+  if(hist.length===0){list.innerHTML='<div class="history-empty">📭 まだ履歴がありません。</div>';return;}
+  const avg=Math.round(hist.reduce((s,r)=>s+r.score,0)/hist.length);
+  const best=Math.max(...hist.map(r=>r.score));
+  summEl.style.display='flex';
+  summEl.innerHTML=`<div class="summary-box"><div class="summary-num">${hist.length}</div><div class="summary-label">回実施</div></div><div class="summary-box"><div class="summary-num">${avg}%</div><div class="summary-label">平均</div></div><div class="summary-box"><div class="summary-num">${best}%</div><div class="summary-label">最高</div></div>`;
+  list.innerHTML='';
+  hist.forEach(r=>{
+    const pc=r.score>=80?'high':r.score>=60?'mid':'low';
+    const item=document.createElement('div');
+    item.className='routine-hist-item';
+    item.innerHTML=`<div class="rh-info"><div class="rh-date">📅 ${r.date}　<span style="color:var(--warn);font-family:'Space Mono',monospace;font-size:11px;">第${r.tryNum}回</span></div><div class="rh-detail">✓${r.correct} ✗${r.total-r.correct} / ${r.total}問</div></div><div class="rh-score ${pc}">${r.score}%</div>`;
+    list.appendChild(item);
+  });
+}
+
+// ── showResult をルーティーン対応に ──
+// nextQuestion をオーバーライド
+const _origNextQuestion = nextQuestion;
+
+
+// ════════════════════════════════════
+// TEACHER ADMIN
+// ════════════════════════════════════
+function showTeacherLogin(){
+  showScreen('teacher-login-screen');
+  document.getElementById('teacher-pw-input').value='';
+  document.getElementById('teacher-pw-error').textContent='';
+  document.getElementById('teacher-login-btn').disabled=true;
+}
+
+function teacherLogin(){
+  const pw=document.getElementById('teacher-pw-input').value;
+  if(pw===TEACHER_PW){
+    showScreen('teacher-screen');
+    buildTeacherUI();
+  } else {
+    document.getElementById('teacher-pw-error').textContent='❌ パスワードが違います。';
+  }
+}
+
+function buildTeacherUI(){
+  // 日付タブ（今日～6日後まで7日分）
+  const tabs=document.getElementById('teacher-date-tabs');
+  tabs.innerHTML='';
+  const dates=[];
+  for(let i=0;i<7;i++){
+    const d=new Date(); d.setDate(d.getDate()+i);
+    dates.push(d.toLocaleDateString('ja-JP',{year:'numeric',month:'2-digit',day:'2-digit'}));
+  }
+  teacherSelectedDate=dates[0];
+  dates.forEach((dt,i)=>{
+    const btn=document.createElement('button');
+    btn.className='date-tab'+(i===0?' active':'');
+    btn.textContent=i===0?`${dt}（今日）`:dt;
+    btn.onclick=()=>{
+      document.querySelectorAll('.date-tab').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      teacherSelectedDate=dt;
+      renderPoolForDate(dt);
+    };
+    tabs.appendChild(btn);
+  });
+  renderPoolForDate(teacherSelectedDate);
+}
+
+function renderPoolForDate(dateKey){
+  const settings=getRoutineSettings();
+  const daySettings=settings[dateKey]||[];
+  const pool=document.getElementById('question-pool');
+  pool.innerHTML='';
+  ROUTINE_POOL.forEach(item=>{
+    const existing=daySettings.find(s=>s.id===item.id);
+    const isSelected=!!existing;
+    const order=existing?existing.order:'';
+    const div=document.createElement('div');
+    div.className='pool-item'+(isSelected?' selected':'');
+    div.id='pool-item-'+item.id;
+    const typeLabel=item.type==='verb'?'動詞':item.type==='q'?'疑問文':'Can構文';
+    div.innerHTML=`
+      <input type="checkbox" style="accent-color:var(--warn);width:16px;height:16px;" ${isSelected?'checked':''}
+        onchange="togglePoolItem('${item.id}','${dateKey}',this.checked)">
+      <div class="pool-item-text">${item.label}</div>
+      <span class="pool-item-badge">${typeLabel}</span>
+      <input class="order-input" type="number" min="1" max="99" placeholder="順番"
+        value="${order}" id="order-${item.id}"
+        onchange="updateOrderItem('${item.id}','${dateKey}',this.value)"
+        ${isSelected?'':'disabled'} onclick="event.stopPropagation()">
+    `;
+    div.onclick=(e)=>{
+      if(e.target.tagName==='INPUT') return;
+      const cb=div.querySelector('input[type=checkbox]');
+      cb.checked=!cb.checked;
+      cb.dispatchEvent(new Event('change'));
+    };
+    pool.appendChild(div);
+  });
+}
+
+function togglePoolItem(id, dateKey, checked){
+  const settings=getRoutineSettings();
+  if(!settings[dateKey])settings[dateKey]=[];
+  const idx=settings[dateKey].findIndex(s=>s.id===id);
+  if(checked && idx===-1){
+    const maxOrder=settings[dateKey].reduce((m,s)=>Math.max(m,s.order),0);
+    settings[dateKey].push({id,order:maxOrder+1});
+    const orderInput=document.getElementById('order-'+id);
+    if(orderInput){orderInput.value=maxOrder+1;orderInput.disabled=false;}
+  } else if(!checked && idx!==-1){
+    settings[dateKey].splice(idx,1);
+    const orderInput=document.getElementById('order-'+id);
+    if(orderInput){orderInput.value='';orderInput.disabled=true;}
+  }
+  localStorage.setItem(ROUTINE_STORAGE_KEY,JSON.stringify(settings));
+  const item=document.getElementById('pool-item-'+id);
+  if(item)item.classList.toggle('selected',checked);
+}
+
+function updateOrderItem(id, dateKey, value){
+  const settings=getRoutineSettings();
+  if(!settings[dateKey])return;
+  const item=settings[dateKey].find(s=>s.id===id);
+  if(item)item.order=parseInt(value)||1;
+  localStorage.setItem(ROUTINE_STORAGE_KEY,JSON.stringify(settings));
+}
+
+function saveRoutineSettings(){
+  const status=document.getElementById('teacher-save-status');
+  status.textContent='✅ 保存しました！';
+  setTimeout(()=>status.textContent='',2000);
+  updateRoutineBanner();
+}
+
+// ── goHome時にルーティーンバナー更新 ──
+const _origGoHome=goHome;
+function goHome(){
+  clearTimer();
+  showScreen('home-screen');
+  setNavActive('');
+  updateRoutineBanner();
+}
+
+// ── showQuestion をルーティーン対応に ──
+const _origShowQ=showQuestion;
+function showQuestion(){
+  if(currentTestType==='_routine') showRoutineQuestion();
+  else _origShowQ();
+}
+
 </script>
 </body>
 </html>
