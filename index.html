@@ -489,7 +489,7 @@ h1 span{color:var(--accent);}
     <div class="field-label">パスワードを入力してください</div>
     <input class="text-input" id="teacher-pw-input" type="password" placeholder="パスワード" maxlength="20"
       onkeydown="if(event.key==='Enter')teacherLogin()"
-      oninput="document.getElementById('teacher-login-btn').disabled=!this.value.trim()">
+      oninput="document.getElementById('teacher-login-btn').disabled=this.value.trim().length===0">
     <div id="teacher-pw-error" style="color:var(--error);font-size:13px;margin-bottom:10px;min-height:18px;"></div>
     <button class="primary-btn" id="teacher-login-btn" onclick="teacherLogin()" disabled>ログイン</button>
   </div>
@@ -840,6 +840,7 @@ function goHome(){
   clearTimer();
   showScreen('home-screen');
   setNavActive('');
+  updateRoutineBanner();
 }
 
 function setNavActive(key){
@@ -948,6 +949,7 @@ function startQuiz(){
 // QUIZ
 // ════════════════════════════════════
 function showQuestion(){
+  if(currentTestType==='_routine'){showRoutineQuestion();return;}
   answered=false;
   const q=questions[currentIndex];
   const total=questions.length;
@@ -1579,7 +1581,7 @@ const ALL_EARTH=[
 ];
 
 const SOCIAL_SCIENCE_DATA={
-  can:ALL_CAN, geo:ALL_GEO, history:ALL_HISTORY,
+  geo:ALL_GEO, history:ALL_HISTORY,
   physics:ALL_PHYSICS, biology:ALL_BIOLOGY, earth:ALL_EARTH
 };
 
@@ -1712,6 +1714,8 @@ const ALL_CAN=[
   {answer:"cannot", sentence:"We (   ) wait any longer.",    meaning:"私たちはこれ以上待てません。",       choices:["cannot","do not","are not","did not"]},
 ];
 
+// ALL_CANが定義された後にSOCIAL_SCIENCE_DATAに追加
+SOCIAL_SCIENCE_DATA.can = ALL_CAN;
 
 // ════════════════════════════════════
 // ROUTINE SYSTEM
@@ -1926,32 +1930,38 @@ function showRoutineHistory(){
   });
 }
 
-// ── showResult をルーティーン対応に ──
-// nextQuestion をオーバーライド
-const _origNextQuestion = nextQuestion;
+
 
 
 // ════════════════════════════════════
 // TEACHER ADMIN
 // ════════════════════════════════════
 function showTeacherLogin(){
-  showScreen('teacher-login-screen');
-  document.getElementById('teacher-pw-input').value='';
-  document.getElementById('teacher-pw-error').textContent='';
-  document.getElementById('teacher-login-btn').disabled=true;
+  try{
+    showScreen('teacher-login-screen');
+    document.getElementById('teacher-pw-input').value='';
+    document.getElementById('teacher-pw-error').textContent='';
+    document.getElementById('teacher-login-btn').disabled=true;
+  }catch(e){alert('エラー:'+e.message);}
 }
 
 function teacherLogin(){
-  const pw=document.getElementById('teacher-pw-input').value;
-  if(pw===TEACHER_PW){
-    showScreen('teacher-screen');
-    buildTeacherUI();
-  } else {
-    document.getElementById('teacher-pw-error').textContent='❌ パスワードが違います。';
-  }
+  try{
+    const pw=(document.getElementById('teacher-pw-input').value||'').trim();
+    const errEl=document.getElementById('teacher-pw-error');
+    if(pw===TEACHER_PW){
+      errEl.textContent='';
+      showScreen('teacher-screen');
+      buildTeacherUI();
+    } else {
+      errEl.textContent='❌ パスワードが違います。';
+      document.getElementById('teacher-pw-input').value='';
+    }
+  }catch(e){alert('エラー:'+e.message);}
 }
 
 function buildTeacherUI(){
+  try{
   // 日付タブ（今日～6日後まで7日分）
   const tabs=document.getElementById('teacher-date-tabs');
   tabs.innerHTML='';
@@ -1974,6 +1984,7 @@ function buildTeacherUI(){
     tabs.appendChild(btn);
   });
   renderPoolForDate(teacherSelectedDate);
+  }catch(e){alert('設定画面エラー:'+e.message);}
 }
 
 function renderPoolForDate(dateKey){
@@ -1981,6 +1992,8 @@ function renderPoolForDate(dateKey){
   const daySettings=settings[dateKey]||[];
   const pool=document.getElementById('question-pool');
   pool.innerHTML='';
+  // dateKeyをdata属性に持たせてonchangeではgetCurrentDateKey()で取得
+  pool.dataset.datekey=dateKey;
   ROUTINE_POOL.forEach(item=>{
     const existing=daySettings.find(s=>s.id===item.id);
     const isSelected=!!existing;
@@ -1988,20 +2001,47 @@ function renderPoolForDate(dateKey){
     const div=document.createElement('div');
     div.className='pool-item'+(isSelected?' selected':'');
     div.id='pool-item-'+item.id;
+    div.dataset.itemid=item.id;
     const typeLabel=item.type==='verb'?'動詞':item.type==='q'?'疑問文':'Can構文';
-    div.innerHTML=`
-      <input type="checkbox" style="accent-color:var(--warn);width:16px;height:16px;" ${isSelected?'checked':''}
-        onchange="togglePoolItem('${item.id}','${dateKey}',this.checked)">
-      <div class="pool-item-text">${item.label}</div>
-      <span class="pool-item-badge">${typeLabel}</span>
-      <input class="order-input" type="number" min="1" max="99" placeholder="順番"
-        value="${order}" id="order-${item.id}"
-        onchange="updateOrderItem('${item.id}','${dateKey}',this.value)"
-        ${isSelected?'':'disabled'} onclick="event.stopPropagation()">
-    `;
+
+    const cb=document.createElement('input');
+    cb.type='checkbox'; cb.checked=isSelected;
+    cb.style.cssText='accent-color:var(--warn);width:16px;height:16px;';
+    cb.onchange=(e)=>{
+      e.stopPropagation();
+      const dk=document.getElementById('question-pool').dataset.datekey;
+      togglePoolItem(item.id, dk, cb.checked);
+    };
+
+    const labelDiv=document.createElement('div');
+    labelDiv.className='pool-item-text';
+    labelDiv.textContent=item.label;
+
+    const badge=document.createElement('span');
+    badge.className='pool-item-badge';
+    badge.textContent=typeLabel;
+
+    const numInput=document.createElement('input');
+    numInput.className='order-input';
+    numInput.type='number';numInput.min=1;numInput.max=99;
+    numInput.placeholder='順番';
+    numInput.value=order;
+    numInput.id='order-'+item.id;
+    numInput.disabled=!isSelected;
+    numInput.onclick=(e)=>e.stopPropagation();
+    numInput.onchange=(e)=>{
+      e.stopPropagation();
+      const dk=document.getElementById('question-pool').dataset.datekey;
+      updateOrderItem(item.id, dk, numInput.value);
+    };
+
+    div.appendChild(cb);
+    div.appendChild(labelDiv);
+    div.appendChild(badge);
+    div.appendChild(numInput);
+
     div.onclick=(e)=>{
       if(e.target.tagName==='INPUT') return;
-      const cb=div.querySelector('input[type=checkbox]');
       cb.checked=!cb.checked;
       cb.dispatchEvent(new Event('change'));
     };
@@ -2043,21 +2083,7 @@ function saveRoutineSettings(){
   updateRoutineBanner();
 }
 
-// ── goHome時にルーティーンバナー更新 ──
-const _origGoHome=goHome;
-function goHome(){
-  clearTimer();
-  showScreen('home-screen');
-  setNavActive('');
-  updateRoutineBanner();
-}
 
-// ── showQuestion をルーティーン対応に ──
-const _origShowQ=showQuestion;
-function showQuestion(){
-  if(currentTestType==='_routine') showRoutineQuestion();
-  else _origShowQ();
-}
 
 </script>
 </body>
