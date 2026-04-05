@@ -269,6 +269,29 @@ h1 span{color:var(--accent);}
 .h-test-tag.physics{background:rgba(167,139,250,.15);color:#a78bfa;}
 .h-test-tag.biology{background:rgba(52,211,153,.15);color:#34d399;}
 .h-test-tag.earth{background:rgba(96,165,250,.15);color:#60a5fa;}
+/* ===== QUIZ CONTROLS ===== */
+.quiz-controls{display:flex;gap:8px;margin-bottom:6px;flex-shrink:0;}
+.ctrl-btn{flex:1;border:none;border-radius:99px;padding:7px 12px;font-size:12px;font-weight:700;font-family:'Noto Sans JP',sans-serif;cursor:pointer;transition:all .18s;display:flex;align-items:center;justify-content:center;gap:5px;}
+.ctrl-btn.pause-btn{background:rgba(251,191,36,.15);color:var(--warn);border:1.5px solid rgba(251,191,36,.4);}
+.ctrl-btn.pause-btn:hover{background:rgba(251,191,36,.28);}
+.ctrl-btn.stop-btn{background:rgba(248,113,113,.13);color:var(--error);border:1.5px solid rgba(248,113,113,.35);}
+.ctrl-btn.stop-btn:hover{background:rgba(248,113,113,.25);}
+/* 一時停止オーバーレイ */
+.pause-overlay{display:none;position:fixed;inset:0;background:rgba(13,17,23,.92);z-index:999;flex-direction:column;align-items:center;justify-content:center;gap:24px;}
+.pause-overlay.active{display:flex;}
+.pause-title{font-size:28px;font-weight:900;color:var(--warn);}
+.pause-sub{font-size:14px;color:var(--text-muted);}
+.pause-resume-btn{background:var(--warn);color:#0d1117;border:none;border-radius:var(--radius);padding:16px 40px;font-size:18px;font-weight:900;font-family:'Noto Sans JP',sans-serif;cursor:pointer;}
+.pause-stop-btn{background:transparent;color:var(--error);border:1.5px solid var(--error);border-radius:var(--radius);padding:12px 32px;font-size:15px;font-weight:700;font-family:'Noto Sans JP',sans-serif;cursor:pointer;}
+/* 途中終了確認ダイアログ */
+.confirm-overlay{display:none;position:fixed;inset:0;background:rgba(13,17,23,.92);z-index:1000;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;}
+.confirm-overlay.active{display:flex;}
+.confirm-box{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px 24px;max-width:400px;width:100%;text-align:center;}
+.confirm-title{font-size:20px;font-weight:900;margin-bottom:10px;}
+.confirm-sub{font-size:14px;color:var(--text-muted);margin-bottom:24px;line-height:1.6;}
+.confirm-yes{width:100%;background:var(--error);color:#fff;border:none;border-radius:var(--radius);padding:14px;font-size:16px;font-weight:900;font-family:'Noto Sans JP',sans-serif;cursor:pointer;margin-bottom:10px;}
+.confirm-no{width:100%;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:var(--radius);padding:14px;font-size:15px;font-weight:700;font-family:'Noto Sans JP',sans-serif;cursor:pointer;}
+
 /* ===== ROUTINE ===== */
   .routine-banner{background:linear-gradient(135deg,rgba(251,191,36,.15),rgba(251,146,60,.10));border:2px solid rgba(251,191,36,.4);border-radius:16px;padding:18px 20px;margin-bottom:14px;cursor:pointer;transition:all .18s;}
   .routine-banner:hover{border-color:var(--warn);transform:translateY(-2px);box-shadow:0 8px 24px rgba(251,191,36,.2);}
@@ -343,7 +366,7 @@ h1 span{color:var(--accent);}
     <button class="ghost-btn" id="nav-ranking" onclick="showRanking()">🏅 苦手</button>
     <button class="ghost-btn" id="nav-calendar" onclick="showCalendar()">📅 カレンダー</button>
     <button class="ghost-btn" id="nav-routine-hist" onclick="showRoutineHistory()">🔄 ルーティーン履歴</button>
-    <button class="ghost-btn" onclick="showTeacherLogin()">👨‍🏫 先生</button>
+    <button class="ghost-btn" onclick="showTeacherAdmin()">👨‍🏫 先生</button>
   </div>
 </div>
 
@@ -423,6 +446,10 @@ h1 span{color:var(--accent);}
 
 <!-- Quiz Screen -->
 <div class="screen" id="quiz-screen">
+  <div class="quiz-controls">
+    <button class="ctrl-btn pause-btn" id="pause-btn" onclick="togglePause()">⏸ 一時停止</button>
+    <button class="ctrl-btn stop-btn" onclick="confirmStop()">⏹ 途中終了</button>
+  </div>
   <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar"></div></div>
   <div class="timer-count" id="timer-count">10</div>
   <div class="timer-wrap"><div class="timer-bar" id="timer-bar"></div></div>
@@ -476,22 +503,6 @@ h1 span{color:var(--accent);}
       <button class="retry-missed-btn" id="retry-missed-btn" onclick="retryQuiz(true)">間違いだけ</button>
     </div>
     <button class="back-home-btn" onclick="goHome()">ホームに戻る</button>
-  </div>
-</div>
-
-<!-- Teacher Login -->
-<div class="screen" id="teacher-login-screen">
-  <div class="history-header">
-    <h2>👨‍🏫 先生ログイン</h2>
-    <button class="ghost-btn" onclick="goHome()">✕ 閉じる</button>
-  </div>
-  <div class="card">
-    <div class="field-label">パスワードを入力してください</div>
-    <input class="text-input" id="teacher-pw-input" type="password" placeholder="パスワード" maxlength="20"
-      onkeydown="if(event.key==='Enter')teacherLogin()"
-      oninput="document.getElementById('teacher-login-btn').disabled=this.value.trim().length===0">
-    <div id="teacher-pw-error" style="color:var(--error);font-size:13px;margin-bottom:10px;min-height:18px;"></div>
-    <button class="primary-btn" id="teacher-login-btn" onclick="teacherLogin()" disabled>ログイン</button>
   </div>
 </div>
 
@@ -574,6 +585,24 @@ h1 span{color:var(--accent);}
 </div>
 
 </div><!-- /wrap -->
+
+<!-- 一時停止オーバーレイ -->
+<div class="pause-overlay" id="pause-overlay">
+  <div class="pause-title">⏸ 一時停止中</div>
+  <div class="pause-sub">問題の答えは表示されません</div>
+  <button class="pause-resume-btn" onclick="togglePause()">▶ 再開する</button>
+  <button class="pause-stop-btn" onclick="confirmStop()">⏹ 途中終了する</button>
+</div>
+
+<!-- 途中終了確認 -->
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-box">
+    <div class="confirm-title">⏹ 途中終了しますか？</div>
+    <div class="confirm-sub">ここまでの結果が記録されます。<br>（<span id="confirm-progress"></span>）</div>
+    <button class="confirm-yes" onclick="doStop()">終了して結果を見る</button>
+    <button class="confirm-no" onclick="cancelStop()">続ける</button>
+  </div>
+</div>
 
 <script>
 // ════════════════════════════════════
@@ -822,6 +851,7 @@ let questions=[],currentIndex=0,correctCount=0,wrongCount=0;
 let answered=false,missedVerbs=[],quizGroups=[];
 let timerInterval=null,timerRemaining=10;
 const TIMER_SEC=10;
+let isPaused=false;
 let calYear=new Date().getFullYear();
 let calMonth=new Date().getMonth();
 
@@ -838,6 +868,11 @@ function showScreen(id){
 
 function goHome(){
   clearTimer();
+  isPaused=false;
+  ['pause-overlay','confirm-overlay'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.classList.remove('active');
+  });
   showScreen('home-screen');
   setNavActive('');
   updateRoutineBanner();
@@ -1096,15 +1131,55 @@ function nextQuestion(){
 // ════════════════════════════════════
 function startTimer(){
   clearTimer();
+  isPaused=false;
+  const pb=document.getElementById('pause-btn');
+  if(pb){pb.textContent='⏸ 一時停止';}
   timerRemaining=TIMER_SEC;
   updateTimerUI(TIMER_SEC);
   timerInterval=setInterval(()=>{
+    if(isPaused)return;
     timerRemaining-=0.1;
     updateTimerUI(timerRemaining);
     if(timerRemaining<=0){clearTimer();timeUp();}
   },100);
 }
 function clearTimer(){if(timerInterval){clearInterval(timerInterval);timerInterval=null;}}
+
+function togglePause(){
+  if(answered)return;
+  isPaused=!isPaused;
+  const overlay=document.getElementById('pause-overlay');
+  const btn=document.getElementById('pause-btn');
+  if(isPaused){
+    overlay.classList.add('active');
+    if(btn)btn.textContent='▶ 再開';
+    if(window.speechSynthesis)window.speechSynthesis.cancel();
+  }else{
+    overlay.classList.remove('active');
+    if(btn)btn.textContent='⏸ 一時停止';
+  }
+}
+
+function confirmStop(){
+  isPaused=false;
+  document.getElementById('pause-overlay').classList.remove('active');
+  clearTimer();
+  document.getElementById('confirm-progress').textContent=
+    currentIndex+'問回答済み、正解'+correctCount+'問';
+  document.getElementById('confirm-overlay').classList.add('active');
+}
+
+function cancelStop(){
+  document.getElementById('confirm-overlay').classList.remove('active');
+  if(!answered)startTimer();
+}
+
+function doStop(){
+  document.getElementById('confirm-overlay').classList.remove('active');
+  clearTimer();
+  if(currentTestType==='_routine')showRoutineResult();
+  else showResult();
+}
 function updateTimerUI(sec){
   const bar=document.getElementById('timer-bar');
   const count=document.getElementById('timer-count');
@@ -1249,6 +1324,8 @@ function speakEN(text,callback){
 // RESULT
 // ════════════════════════════════════
 function showResult(){
+  document.getElementById('pause-overlay').classList.remove('active');
+  document.getElementById('confirm-overlay').classList.remove('active');
   showScreen('result-screen');
   const total=questions.length,pct=Math.round(correctCount/total*100);
   let msg,sub;
@@ -1720,7 +1797,6 @@ SOCIAL_SCIENCE_DATA.can = ALL_CAN;
 // ════════════════════════════════════
 // ROUTINE SYSTEM
 // ════════════════════════════════════
-const TEACHER_PW = 'sensei2024';
 const ROUTINE_STORAGE_KEY = 'routine-settings';
 const ROUTINE_HIST_KEY_PREFIX = 'routine-hist:';
 
@@ -1859,6 +1935,8 @@ function showRoutineQuestion(){
 
 // ── ルーティーン結果表示 ──
 function showRoutineResult(){
+  document.getElementById('pause-overlay').classList.remove('active');
+  document.getElementById('confirm-overlay').classList.remove('active');
   showScreen('routine-result-screen');
   const total=questions.length, pct=Math.round(correctCount/total*100);
   let msg,sub;
@@ -1936,28 +2014,9 @@ function showRoutineHistory(){
 // ════════════════════════════════════
 // TEACHER ADMIN
 // ════════════════════════════════════
-function showTeacherLogin(){
-  try{
-    showScreen('teacher-login-screen');
-    document.getElementById('teacher-pw-input').value='';
-    document.getElementById('teacher-pw-error').textContent='';
-    document.getElementById('teacher-login-btn').disabled=true;
-  }catch(e){alert('エラー:'+e.message);}
-}
-
-function teacherLogin(){
-  try{
-    const pw=(document.getElementById('teacher-pw-input').value||'').trim();
-    const errEl=document.getElementById('teacher-pw-error');
-    if(pw===TEACHER_PW){
-      errEl.textContent='';
-      showScreen('teacher-screen');
-      buildTeacherUI();
-    } else {
-      errEl.textContent='❌ パスワードが違います。';
-      document.getElementById('teacher-pw-input').value='';
-    }
-  }catch(e){alert('エラー:'+e.message);}
+function showTeacherAdmin(){
+  showScreen('teacher-screen');
+  buildTeacherUI();
 }
 
 function buildTeacherUI(){
