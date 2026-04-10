@@ -96,10 +96,12 @@ h1 span{color:var(--accent);}
 .verb-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px 20px 12px;margin-bottom:8px;text-align:center;flex-shrink:0;}
 .group-tag{display:inline-block;background:rgba(56,189,248,.15);color:var(--accent);border-radius:99px;padding:2px 10px;font-size:10px;font-family:'Space Mono',monospace;letter-spacing:1px;margin-bottom:6px;}
 .verb-display{font-family:'Space Mono',monospace;font-size:clamp(28px,7vw,44px);font-weight:700;color:var(--text);letter-spacing:2px;margin-bottom:6px;}
+.verb-sentence-box{background:rgba(56,189,248,.07);border:1px solid rgba(56,189,248,.2);border-radius:10px;padding:8px 14px;margin:6px 0 8px;text-align:left;}
+.verb-sentence{font-size:13px;color:var(--text);font-style:italic;line-height:1.6;}
 .speak-btn{display:inline-flex;align-items:center;gap:5px;background:rgba(56,189,248,.12);border:1.5px solid rgba(56,189,248,.35);border-radius:99px;padding:5px 14px;color:var(--accent);font-size:12px;font-family:'Noto Sans JP',sans-serif;font-weight:700;cursor:pointer;transition:all .18s;margin-bottom:6px;}
 .speak-btn:hover{background:rgba(56,189,248,.22);transform:scale(1.04);}
 .speak-btn.speaking{background:rgba(56,189,248,.28);animation:pulse .6s ease infinite alternate;}
-.verb-sentence{font-size:12px;color:var(--text-muted);font-style:italic;}
+/* verb-sentence は verb-sentence-box 内でスタイル適用 */
 
 /* question card (疑問文テスト) */
 .question-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px 20px 12px;margin-bottom:8px;flex-shrink:0;}
@@ -464,8 +466,10 @@ h1 span{color:var(--accent);}
   <div class="verb-card" id="verb-card">
     <div class="group-tag" id="q-group">グループ1</div>
     <div class="verb-display" id="q-verb">go</div>
-    <button class="speak-btn" id="speak-btn" onclick="speakVerb()">🔊 発音を聞く</button>
-    <div class="verb-sentence" id="q-sentence"></div>
+    <div class="verb-sentence-box" id="q-sentence-box">
+      <div class="verb-sentence" id="q-sentence"></div>
+    </div>
+    <button class="speak-btn" id="speak-btn" onclick="speakVerb()">🔊 例文を聞く</button>
   </div>
   <!-- question card -->
   <div class="question-card" id="question-card" style="display:none">
@@ -1290,13 +1294,16 @@ function playBuzzer(){
 }
 
 function speakVerb(){
-  const verb=document.getElementById('q-verb').textContent;
-  if(!verb||!window.speechSynthesis)return;
+  // 例文があれば例文を、なければ動詞単体を読み上げ
+  const sentence=document.getElementById('q-sentence').textContent.trim();
+  const verb=document.getElementById('q-verb').textContent.trim();
+  const text=sentence||verb;
+  if(!text||!window.speechSynthesis)return;
   window.speechSynthesis.cancel();
   const btn=document.getElementById('speak-btn');
   if(btn)btn.classList.add('speaking');
-  const utt=new SpeechSynthesisUtterance(verb);
-  utt.lang='en-US';utt.rate=0.85;utt.pitch=1;
+  const utt=new SpeechSynthesisUtterance(text);
+  utt.lang='en-US';utt.rate=0.82;utt.pitch=1;
   utt.onend=()=>{if(btn)btn.classList.remove('speaking');};
   utt.onerror=()=>{if(btn)btn.classList.remove('speaking');};
   window.speechSynthesis.speak(utt);
