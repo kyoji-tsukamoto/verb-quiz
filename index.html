@@ -405,6 +405,11 @@ h1 span{color:var(--accent);}
       <div class="test-card-title">Can構文テスト</div>
       <div class="test-card-sub">肯定文・疑問文・否定文の空欄にCan/cannotを4択で選ぼう</div>
     </div>
+    <div class="test-card" onclick="showIrregularVerbs()">
+      <div class="test-card-icon">🔀</div>
+      <div class="test-card-title">不規則動詞</div>
+      <div class="test-card-sub">グループ別に分類した不規則動詞を音声付きで確認しよう</div>
+    </div>
   </div>
   <div class="test-cards" id="test-cards-social" style="display:none">
     <div class="test-card" onclick="startTestFlow('geo')">
@@ -552,6 +557,50 @@ h1 span{color:var(--accent);}
   </div>
   <div id="routine-history-summary" class="history-summary" style="display:none"></div>
   <div id="routine-history-list"></div>
+</div>
+
+<!-- Irregular Verbs Screen -->
+<div class="screen" id="irregular-screen" style="padding-bottom:40px;">
+  <div class="history-header">
+    <h2>🔀 不規則動詞</h2>
+    <button class="ghost-btn" onclick="goHome()">✕ 閉じる</button>
+  </div>
+  <!-- グループタブ -->
+  <div id="irr-tabs" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;"></div>
+  <!-- グループコンテンツ -->
+  <div id="irr-content"></div>
+</div>
+
+<!-- 不規則動詞 音読モーダル -->
+<div id="irr-reader" style="display:none;position:fixed;inset:0;background:rgba(13,17,23,.96);z-index:300;flex-direction:column;align-items:center;justify-content:center;padding:24px;">
+  <div style="width:100%;max-width:500px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+      <div id="irr-reader-title" style="font-size:14px;font-weight:700;color:var(--warn);"></div>
+      <button onclick="closeIrrReader()" style="background:var(--surface);border:1px solid var(--border);border-radius:99px;padding:6px 14px;color:var(--text-muted);cursor:pointer;font-family:'Noto Sans JP',sans-serif;font-size:13px;">✕ 閉じる</button>
+    </div>
+    <!-- プログレス -->
+    <div style="background:var(--surface);border-radius:99px;height:4px;margin-bottom:8px;overflow:hidden;">
+      <div id="irr-reader-prog" style="height:100%;background:var(--warn);border-radius:99px;transition:width .4s ease;"></div>
+    </div>
+    <div id="irr-reader-count" style="font-family:'Space Mono',monospace;font-size:11px;color:var(--text-muted);text-align:right;margin-bottom:24px;"></div>
+    <!-- 単語カード -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px 24px;text-align:center;margin-bottom:20px;">
+      <div id="irr-reader-forms" style="font-family:'Space Mono',monospace;font-size:clamp(16px,4vw,22px);font-weight:700;color:var(--text);letter-spacing:1px;margin-bottom:10px;line-height:1.8;"></div>
+      <div id="irr-reader-jp" style="font-size:15px;color:var(--text-muted);margin-bottom:14px;"></div>
+      <button onclick="speakCurrentIrr()" style="display:inline-flex;align-items:center;gap:6px;background:rgba(56,189,248,.12);border:1.5px solid rgba(56,189,248,.3);border-radius:99px;padding:7px 18px;color:var(--accent);font-size:13px;font-family:'Noto Sans JP',sans-serif;font-weight:700;cursor:pointer;">🔊 もう一度聞く</button>
+    </div>
+    <!-- ナビ -->
+    <div style="display:flex;gap:10px;">
+      <button onclick="irrPrev()" id="irr-prev-btn" style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:13px;color:var(--text);font-size:15px;font-weight:700;font-family:'Noto Sans JP',sans-serif;cursor:pointer;">← 前へ</button>
+      <button onclick="irrNext()" id="irr-next-btn" style="flex:2;background:var(--accent);border:none;border-radius:14px;padding:13px;color:#0d1117;font-size:15px;font-weight:900;font-family:'Noto Sans JP',sans-serif;cursor:pointer;">次へ →</button>
+    </div>
+    <div style="margin-top:12px;text-align:center;">
+      <label style="display:flex;align-items:center;justify-content:center;gap:8px;font-size:13px;color:var(--text-muted);cursor:pointer;">
+        <input type="checkbox" id="irr-auto-check" style="accent-color:var(--warn);width:16px;height:16px;" checked>
+        自動で次に進む（5秒）
+      </label>
+    </div>
+  </div>
 </div>
 
 <!-- History Screen -->
@@ -2151,6 +2200,310 @@ function saveRoutineSettings(){
 
 
 
+
+// ════════════════════════════════════
+// 不規則動詞データ（マインドマップより）
+// ════════════════════════════════════
+const IRR_GROUPS = [
+  {
+    id: 'priority',
+    name: '⭐ 超重要',
+    desc: 'まず覚える',
+    color: '#38bdf8',
+    verbs: [
+      {base:'go',   past:'went',      pp:'gone',    jp:'行く'},
+      {base:'come', past:'came',      pp:'come',    jp:'来る'},
+      {base:'see',  past:'saw',       pp:'seen',    jp:'見える'},
+      {base:'take', past:'took',      pp:'taken',   jp:'取る'},
+      {base:'give', past:'gave',      pp:'given',   jp:'あげる'},
+      {base:'eat',  past:'ate',       pp:'eaten',   jp:'食べる'},
+      {base:'drink',past:'drank',     pp:'drunk',   jp:'飲む'},
+      {base:'run',  past:'ran',       pp:'run',     jp:'走る'},
+      {base:'write',past:'wrote',     pp:'written', jp:'書く'},
+      {base:'make', past:'made',      pp:'made',    jp:'作る'},
+    ]
+  },
+  {
+    id: 'school',
+    name: '🏫 学校でよく出る',
+    desc: '定期テスト頻出',
+    color: '#a78bfa',
+    verbs: [
+      {base:'say',        past:'said',      pp:'said',      jp:'言う'},
+      {base:'tell',       past:'told',      pp:'told',      jp:'伝える'},
+      {base:'know',       past:'knew',      pp:'known',     jp:'知っている'},
+      {base:'think',      past:'thought',   pp:'thought',   jp:'思う'},
+      {base:'find',       past:'found',     pp:'found',     jp:'見つける'},
+      {base:'meet',       past:'met',       pp:'met',       jp:'会う'},
+      {base:'send',       past:'sent',      pp:'sent',      jp:'送る'},
+      {base:'buy',        past:'bought',    pp:'bought',    jp:'買う'},
+      {base:'keep',       past:'kept',      pp:'kept',      jp:'続ける'},
+      {base:'sleep',      past:'slept',     pp:'slept',     jp:'眠る'},
+    ]
+  },
+  {
+    id: 'iau',
+    name: '🎵 i-a-u グループ',
+    desc: '母音がi→a→uと変化',
+    color: '#4ade80',
+    verbs: [
+      {base:'sing',  past:'sang',  pp:'sung',  jp:'歌う'},
+      {base:'drink', past:'drank', pp:'drunk', jp:'飲む'},
+      {base:'ring',  past:'rang',  pp:'rung',  jp:'鳴る'},
+      {base:'swim',  past:'swam',  pp:'swum',  jp:'泳ぐ'},
+    ]
+  },
+  {
+    id: 'owewown',
+    name: '🌊 ow-ew-own グループ',
+    desc: 'ow→ew→ownのパターン',
+    color: '#4ade80',
+    verbs: [
+      {base:'grow',  past:'grew',  pp:'grown',  jp:'育つ'},
+      {base:'know',  past:'knew',  pp:'known',  jp:'知っている'},
+      {base:'throw', past:'threw', pp:'thrown', jp:'投げる'},
+      {base:'blow',  past:'blew',  pp:'blown',  jp:'吹く'},
+      {base:'fly',   past:'flew',  pp:'flown',  jp:'飛ぶ'},
+    ]
+  },
+  {
+    id: 'ioen',
+    name: '🚗 i-o-en グループ',
+    desc: 'ドライブ系の変化',
+    color: '#fbbf24',
+    verbs: [
+      {base:'write', past:'wrote',  pp:'written', jp:'書く'},
+      {base:'drive', past:'drove',  pp:'driven',  jp:'運転する'},
+      {base:'ride',  past:'rode',   pp:'ridden',  jp:'乗る'},
+      {base:'rise',  past:'rose',   pp:'risen',   jp:'上がる'},
+    ]
+  },
+  {
+    id: 'eoen',
+    name: '💬 e-o-en グループ',
+    desc: 'e→o→enのパターン',
+    color: '#fbbf24',
+    verbs: [
+      {base:'break',  past:'broke',  pp:'broken',  jp:'壊す'},
+      {base:'speak',  past:'spoke',  pp:'spoken',  jp:'話す'},
+      {base:'choose', past:'chose',  pp:'chosen',  jp:'選ぶ'},
+      {base:'freeze', past:'froze',  pp:'frozen',  jp:'凍る'},
+    ]
+  },
+  {
+    id: 'aught',
+    name: '⚡ aught グループ',
+    desc: 'oughtに変化するパターン',
+    color: '#f87171',
+    verbs: [
+      {base:'buy',   past:'bought',  pp:'bought',  jp:'買う'},
+      {base:'bring', past:'brought', pp:'brought', jp:'持ってくる'},
+      {base:'teach', past:'taught',  pp:'taught',  jp:'教える'},
+      {base:'think', past:'thought', pp:'thought', jp:'思う'},
+      {base:'catch', past:'caught',  pp:'caught',  jp:'捕まえる'},
+    ]
+  },
+  {
+    id: 'aaa',
+    name: '🔄 変化しない（AAA）',
+    desc: '原形・過去形・過去分詞が同じ',
+    color: '#f472b6',
+    verbs: [
+      {base:'cut',  past:'cut',  pp:'cut',  jp:'切る'},
+      {base:'put',  past:'put',  pp:'put',  jp:'置く'},
+      {base:'hit',  past:'hit',  pp:'hit',  jp:'打つ'},
+      {base:'let',  past:'let',  pp:'let',  jp:'させる'},
+      {base:'read', past:'read', pp:'read', jp:'読む'},
+    ]
+  },
+];
+
+let irrCurrentGroup = null;
+let irrCurrentIdx = 0;
+let irrAutoTimer = null;
+
+// ── 不規則動詞画面を表示 ──
+function showIrregularVerbs(){
+  showScreen('irregular-screen');
+  buildIrrTabs();
+}
+
+function buildIrrTabs(){
+  const tabs = document.getElementById('irr-tabs');
+  const content = document.getElementById('irr-content');
+  tabs.innerHTML = '';
+  content.innerHTML = '';
+
+  IRR_GROUPS.forEach((g, i) => {
+    // タブ
+    const btn = document.createElement('button');
+    btn.className = 'ghost-btn';
+    btn.style.cssText = `border-color:rgba(255,255,255,.1);font-size:12px;`;
+    btn.textContent = g.name;
+    btn.onclick = () => {
+      document.querySelectorAll('#irr-tabs .ghost-btn').forEach(b => {
+        b.style.borderColor = 'rgba(255,255,255,.1)';
+        b.style.color = '';
+        b.style.background = '';
+      });
+      btn.style.borderColor = g.color;
+      btn.style.color = g.color;
+      btn.style.background = `rgba(${hexToRgb(g.color)},.1)`;
+      renderIrrGroup(g);
+    };
+    tabs.appendChild(btn);
+  });
+
+  // 初期表示：最初のグループ
+  tabs.firstChild.click();
+}
+
+function hexToRgb(hex){
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  return `${r},${g},${b}`;
+}
+
+function renderIrrGroup(g){
+  const content = document.getElementById('irr-content');
+  content.innerHTML = '';
+
+  // グループ説明
+  const desc = document.createElement('div');
+  desc.style.cssText = `background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 18px;margin-bottom:14px;`;
+  desc.innerHTML = `
+    <div style="font-size:12px;color:${g.color};font-weight:700;font-family:'Space Mono',monospace;letter-spacing:1px;margin-bottom:6px;">${g.name}</div>
+    <div style="font-size:13px;color:var(--text-muted);">${g.desc}</div>
+    <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">${g.verbs.length}語</div>`;
+  content.appendChild(desc);
+
+  // 「音読する」ボタン
+  const readBtn = document.createElement('button');
+  readBtn.style.cssText = `width:100%;background:${g.color};color:#0d1117;border:none;border-radius:14px;padding:14px;font-size:16px;font-weight:900;font-family:'Noto Sans JP',sans-serif;cursor:pointer;margin-bottom:14px;`;
+  readBtn.textContent = '🔊 このグループを音読する';
+  readBtn.onclick = () => openIrrReader(g);
+  content.appendChild(readBtn);
+
+  // 単語リスト（一覧表示）
+  const table = document.createElement('div');
+  table.style.cssText = `background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;`;
+
+  // ヘッダー
+  const header = document.createElement('div');
+  header.style.cssText = `display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0;background:var(--surface2);padding:8px 12px;`;
+  header.innerHTML = `
+    <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:1px;">原形</div>
+    <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:1px;">過去形</div>
+    <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:1px;">過去分詞</div>
+    <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:1px;">意味</div>`;
+  table.appendChild(header);
+
+  g.verbs.forEach((v, i) => {
+    const row = document.createElement('div');
+    row.style.cssText = `display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0;padding:10px 12px;border-top:1px solid var(--border);cursor:pointer;transition:background .15s;`;
+    row.innerHTML = `
+      <div style="font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:${g.color};">${v.base}</div>
+      <div style="font-family:'Space Mono',monospace;font-size:14px;color:var(--text);">${v.past}</div>
+      <div style="font-family:'Space Mono',monospace;font-size:14px;color:var(--text);">${v.pp}</div>
+      <div style="font-size:13px;color:var(--text-muted);">${v.jp}</div>`;
+    row.onmouseover = () => row.style.background = 'var(--surface2)';
+    row.onmouseout = () => row.style.background = '';
+    row.onclick = () => {
+      // 個別タップで音声再生
+      if(window.speechSynthesis){
+        window.speechSynthesis.cancel();
+        const t = `${v.base}. ${v.past}. ${v.pp}.`;
+        const u = new SpeechSynthesisUtterance(t);
+        u.lang='en-US'; u.rate=0.82;
+        window.speechSynthesis.speak(u);
+      }
+    };
+    table.appendChild(row);
+  });
+  content.appendChild(table);
+}
+
+// ── 音読モーダル ──
+function openIrrReader(g){
+  irrCurrentGroup = g;
+  irrCurrentIdx = 0;
+  document.getElementById('irr-reader-title').textContent = g.name + ' — 音読モード';
+  document.getElementById('irr-reader').style.display = 'flex';
+  showIrrCard();
+}
+
+function closeIrrReader(){
+  clearIrrTimer();
+  document.getElementById('irr-reader').style.display = 'none';
+}
+
+function showIrrCard(){
+  clearIrrTimer();
+  const g = irrCurrentGroup;
+  const v = g.verbs[irrCurrentIdx];
+  const total = g.verbs.length;
+
+  document.getElementById('irr-reader-prog').style.width = ((irrCurrentIdx+1)/total*100) + '%';
+  document.getElementById('irr-reader-count').textContent = (irrCurrentIdx+1) + ' / ' + total;
+  document.getElementById('irr-reader-forms').innerHTML =
+    `<span style="color:${g.color}">${v.base}</span>  —  ${v.past}  —  ${v.pp}`;
+  document.getElementById('irr-reader-jp').textContent = '（' + v.jp + '）';
+
+  // 前へ・次へボタン状態
+  document.getElementById('irr-prev-btn').disabled = irrCurrentIdx === 0;
+  document.getElementById('irr-prev-btn').style.opacity = irrCurrentIdx === 0 ? '0.3' : '1';
+  const isLast = irrCurrentIdx === total - 1;
+  document.getElementById('irr-next-btn').textContent = isLast ? '✅ 完了' : '次へ →';
+
+  // 読み上げ（完了後に自動進行）
+  speakCurrentIrr();
+}
+
+function speakCurrentIrr(){
+  clearIrrTimer();
+  const g = irrCurrentGroup;
+  const v = g.verbs[irrCurrentIdx];
+  if(!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  // 原形・過去形・過去分詞を間をあけて順に読む
+  const text = v.base + ' ... ' + v.past + ' ... ' + v.pp;
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.lang = 'en-US'; utt.rate = 0.75;
+  utt.onend = () => {
+    // 読み上げ完了後、1.5秒待ってから次へ（二重タイマーなし）
+    const autoCheck = document.getElementById('irr-auto-check');
+    const isLast = irrCurrentIdx === irrCurrentGroup.verbs.length - 1;
+    if(autoCheck && autoCheck.checked && !isLast){
+      irrAutoTimer = setTimeout(() => irrNext(), 1500);
+    }
+  };
+  utt.onerror = () => { /* エラー時はそのまま待機 */ };
+  window.speechSynthesis.speak(utt);
+}
+
+function irrNext(){
+  clearIrrTimer();
+  const total = irrCurrentGroup.verbs.length;
+  if(irrCurrentIdx >= total - 1){
+    closeIrrReader();
+    return;
+  }
+  irrCurrentIdx++;
+  showIrrCard();
+}
+
+function irrPrev(){
+  clearIrrTimer();
+  if(irrCurrentIdx > 0){
+    irrCurrentIdx--;
+    showIrrCard();
+  }
+}
+
+function clearIrrTimer(){
+  if(irrAutoTimer){ clearTimeout(irrAutoTimer); irrAutoTimer=null; }
+}
 </script>
 </body>
 </html>
