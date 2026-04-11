@@ -349,6 +349,58 @@ h1 span{color:var(--accent);}
 @keyframes pop{0%{transform:scale(.92);opacity:0;}100%{transform:scale(1);opacity:1;}}
 @keyframes pulse{from{opacity:.7;}to{opacity:1;}}
 </style>
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, setDoc, collection, query, where, orderBy, getDocs, limit } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBk6PcfExU9xCySiHpjzNtPp0Ugzkg5bUI",
+  authDomain: "verb-quiz-e87d1.firebaseapp.com",
+  projectId: "verb-quiz-e87d1",
+  storageBucket: "verb-quiz-e87d1.firebasestorage.app",
+  messagingSenderId: "189705252161",
+  appId: "1:189705252161:web:a61475168dc61b5fc045c0"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window.saveToFirestore = async function(userName, record) {
+  try {
+    const docId = userName.replace(/[^a-zA-Z0-9_぀-鿿]/g,'_') + '_' + record.timestamp;
+    await setDoc(doc(db, 'histories', docId), { userName, ...record });
+    return true;
+  } catch(e) {
+    console.error('Firestore save error:', e);
+    return false;
+  }
+};
+
+window.loadFromFirestore = async function(userName) {
+  try {
+    const q = query(collection(db,'histories'), where('userName','==',userName), orderBy('timestamp','desc'), limit(100));
+    const snap = await getDocs(q);
+    return snap.docs.map(d => d.data());
+  } catch(e) {
+    console.error('Firestore load error:', e);
+    return null;
+  }
+};
+
+window.loadAllFromFirestore = async function() {
+  try {
+    const q = query(collection(db,'histories'), orderBy('timestamp','desc'), limit(500));
+    const snap = await getDocs(q);
+    return snap.docs.map(d => d.data());
+  } catch(e) {
+    console.error('Firestore loadAll error:', e);
+    return null;
+  }
+};
+
+console.log('Firebase initialized ✅');
+</script>
 </head>
 <body>
 <div class="wrap" id="main-wrap">
