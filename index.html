@@ -255,6 +255,7 @@ h1 span{color:var(--accent);}
 .subject-tab:hover{border-color:var(--accent);color:var(--accent);}
 .subject-tab.active{border-color:var(--accent);background:rgba(56,189,248,.12);color:var(--accent);}
 .cal-dot.can{background:#fb923c;}
+.cal-dot.adj{background:#f472b6;}
 .cal-dot.geo{background:#4ade80;}
 .cal-dot.history{background:#fb923c;}
 .cal-dot.physics{background:#a78bfa;}
@@ -266,6 +267,7 @@ h1 span{color:var(--accent);}
 .day-record-test.biology{color:#34d399;}
 .day-record-test.earth{color:#60a5fa;}
 .h-test-tag.can{background:rgba(251,146,60,.15);color:#fb923c;}
+.h-test-tag.adj{background:rgba(244,114,182,.15);color:#f472b6;}
 .h-test-tag.geo{background:rgba(74,222,128,.15);color:#4ade80;}
 .h-test-tag.history{background:rgba(251,146,60,.15);color:#fb923c;}
 .h-test-tag.physics{background:rgba(167,139,250,.15);color:#a78bfa;}
@@ -409,6 +411,11 @@ h1 span{color:var(--accent);}
       <div class="test-card-icon">🔀</div>
       <div class="test-card-title">不規則動詞</div>
       <div class="test-card-sub">グループ別に分類した不規則動詞を音声付きで確認しよう</div>
+    </div>
+    <div class="test-card" onclick="startTestFlow('adj')">
+      <div class="test-card-icon">✨</div>
+      <div class="test-card-title">形容詞テスト</div>
+      <div class="test-card-sub">英単語を見て、正しい日本語の意味を4択で選ぼう</div>
     </div>
   </div>
   <div class="test-cards" id="test-cards-social" style="display:none">
@@ -958,10 +965,11 @@ function confirmName(){
 // ════════════════════════════════════
 function startTestFlow(type){
   currentTestType=type;selectedGroups.clear();allSelected=false;
-  const directTypes=['q','can','geo','history','physics','biology','earth'];
+  const directTypes=['q','can','adj','geo','history','physics','biology','earth'];
   if(directTypes.includes(type)){
     const meta=TEST_META[type]||{};quizGroups=[meta.label||type];
     if(type==='q'){questions=shuffle(ALL_QUESTIONS).slice(0,20);}
+    else if(type==='adj'){questions=shuffle(ALL_ADJ).slice(0,20).map(d=>({_type:'adj',verb:d.word,meaning:d.jp,sentence:d.sentence,group:meta.label||type}));}
     else if(type==='can'){
       questions=shuffle(SOCIAL_SCIENCE_DATA[type]||[]).slice(0,20).map(d=>({_type:'ss',question:d.meaning,answer:d.answer,choices:d.choices,sentence:d.sentence,group:meta.label||type}));
     }else{questions=shuffle(SOCIAL_SCIENCE_DATA[type]||[]).slice(0,20).map(d=>({_type:'ss',question:d.q,answer:d.a,choices:d.choices,group:meta.label||type}));}
@@ -1046,13 +1054,13 @@ function showQuestion(){
   document.getElementById('score-c').textContent=correctCount;
   document.getElementById('score-w').textContent=wrongCount;
 
-  if(currentTestType==='verb'){
+  if(currentTestType==='verb'||currentTestType==='adj'){
     document.getElementById('verb-card').style.display='';
     document.getElementById('question-card').style.display='none';
-    document.getElementById('q-group').textContent=q.group;
+    document.getElementById('q-group').textContent=q.group||'形容詞';
     document.getElementById('q-verb').textContent=q.verb;
-    document.getElementById('q-sentence').textContent=q.sentence;
-    buildVerbChoices(q);
+    document.getElementById('q-sentence').textContent=q.sentence||'';
+    if(currentTestType==='adj'){buildAdjChoices(q);}else{buildVerbChoices(q);}
     setTimeout(()=>speakVerb(),300);
   }else if(currentTestType==='q'){
     document.getElementById('verb-card').style.display='none';
@@ -1091,6 +1099,11 @@ function showQuestion(){
 
 function buildVerbChoices(q){
   const wrongs=shuffle(ALL_VERBS.filter(v=>v.verb!==q.verb)).slice(0,3).map(v=>v.meaning);
+  const choices=shuffle([{meaning:q.meaning,correct:true},...wrongs.map(m=>({meaning:m,correct:false}))]);
+  renderChoices(choices,q.meaning);
+}
+function buildAdjChoices(q){
+  const wrongs=shuffle(ALL_ADJ.filter(a=>a.word!==q.verb)).slice(0,3).map(a=>a.jp);
   const choices=shuffle([{meaning:q.meaning,correct:true},...wrongs.map(m=>({meaning:m,correct:false}))]);
   renderChoices(choices,q.meaning);
 }
@@ -1256,7 +1269,7 @@ function timeUp(){
   fb.className='feedback wrong show';
   playBuzzer();
   document.getElementById('fb-icon').textContent='⏱️';
-  const ans=currentTestType==='verb'?q.meaning:q.answer;
+  const ans=(currentTestType==='verb'||currentTestType==='adj')?q.meaning:q.answer;
   document.getElementById('fb-text').innerHTML=`時間切れ！正解：<span class="fb-correct">${ans}</span>`;
   document.getElementById('score-w').textContent=wrongCount;
   if(currentTestType==='q'){
@@ -1400,8 +1413,8 @@ function showResult(){
     const label=currentTestType==='verb'?'間違えた動詞':'間違えた問題';
     let html=`<div class="missed-title">${label}</div>`;
     missedVerbs.forEach(v=>{
-      const key=currentTestType==='verb'?v.verb:(v._type==='ss'?v.answer:v.answer);
-      const sub2=currentTestType==='verb'?v.meaning:(v._type==='ss'?v.question:v.jp);
+      const key=(currentTestType==='verb'||currentTestType==='adj')?v.verb:(v._type==='ss'?v.answer:v.answer);
+      const sub2=(currentTestType==='verb'||currentTestType==='adj')?v.meaning:(v._type==='ss'?v.question:v.jp);
       html+=`<div class="missed-item"><span class="missed-verb">${key}</span><span class="missed-meaning">${sub2}</span></div>`;
     });
     ms.innerHTML=html;
@@ -1434,20 +1447,26 @@ function getHistory(){
   }catch(e){return[];}
 }
 
-function saveHistory(pct,total){
+async function saveHistory(pct,total){
   const status=document.getElementById('save-status');
   const now=new Date();
   const dateStr=now.toLocaleDateString('ja-JP',{year:'numeric',month:'2-digit',day:'2-digit'})+' '+now.toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
   const dateKey=now.toLocaleDateString('ja-JP',{year:'numeric',month:'2-digit',day:'2-digit'});
-  const record={date:dateStr,dateKey,timestamp:now.getTime(),testType:currentTestType,groups:quizGroups,score:pct,correct:correctCount,total,missed:missedVerbs.map(v=>currentTestType==='verb'?v.verb:(v._type==='ss'?v.answer:v.answer))};
+  const record={date:dateStr,dateKey,timestamp:now.getTime(),testType:currentTestType,groups:quizGroups,score:pct,correct:correctCount,total,missed:missedVerbs.map(v=>(currentTestType==='verb'||currentTestType==='adj')?v.verb:(v._type==='ss'?v.answer:v.answer))};
   try{
     let history=getHistory();
     history.unshift(record);
     if(history.length>100)history=history.slice(0,100);
     localStorage.setItem('eng-history:'+currentUser,JSON.stringify(history));
     updateMissCount(history);
+  }catch(e){}
+  if(window.saveToFirestore){
+    status.textContent='⏳ 保存中...';
+    const ok=await window.saveToFirestore(currentUser,record);
+    status.textContent=ok?'✅ クラウドに保存しました':'⚠️ ローカルに保存しました';
+  }else{
     status.textContent='✅ 履歴を保存しました';
-  }catch(e){status.textContent='⚠️ 保存できませんでした';}
+  }
 }
 
 function updateMissCount(history){
@@ -1456,12 +1475,17 @@ function updateMissCount(history){
   try{localStorage.setItem('verb-misscounts:'+currentUser,JSON.stringify(counts));}catch(e){}
 }
 
-function showHistory(){
+async function showHistory(){
   showScreen('history-screen');setNavActive('history');
   const list=document.getElementById('history-list');
   const summEl=document.getElementById('history-summary');
   summEl.style.display='none';
-  const history=getHistory();
+  list.innerHTML='<div class="history-empty">📡 読み込み中...</div>';
+  let history=null;
+  if(window.loadFromFirestore){
+    history=await window.loadFromFirestore(currentUser);
+  }
+  if(!history||history.length===0) history=getHistory();
   if(history.length===0){list.innerHTML='<div class="history-empty">📭 まだ履歴がありません。</div>';return;}
   const avg=Math.round(history.reduce((s,r)=>s+r.score,0)/history.length);
   const best=Math.max(...history.map(r=>r.score));
@@ -1470,7 +1494,7 @@ function showHistory(){
   list.innerHTML='';
   history.forEach(r=>{
     const pc=r.score>=80?'high':r.score>=60?'mid':'low';
-    const _tlmap={verb:'動詞126語',q:'疑問文',can:'Can構文',geo:'地理',history:'歴史',physics:'物理',biology:'生物',earth:'地学'};
+    const _tlmap={verb:'動詞126語',q:'疑問文',can:'Can構文',adj:'形容詞',geo:'地理',history:'歴史',physics:'物理',biology:'生物',earth:'地学'};
     const testLabel=_tlmap[r.testType]||r.testType;
     const testClass=r.testType;
     const cats=(r.groups||[]).map(g=>`<span class="h-cat-tag">${g}</span>`).join('');
@@ -1582,8 +1606,8 @@ function showDayDetail(dateKey,rec,d){
   const _allRecs=[];ALL_TEST_TYPES.forEach(t=>{if(rec&&rec[t])_allRecs.push(...rec[t]);});
   _allRecs.sort((a,b)=>a.timestamp-b.timestamp).forEach(r=>{
     const pc=r.score>=80?'high':r.score>=60?'mid':'low';
-    const _dlmap={verb:'動詞126語テスト',q:'疑問文テスト',can:'Can構文テスト',geo:'地理テスト',history:'歴史テスト',physics:'物理テスト',biology:'生物テスト',earth:'地学テスト'};
-    const _dimap={verb:'📝',q:'❓',can:'💪',geo:'🗾',history:'📜',physics:'💡',biology:'🌿',earth:'🌏'};
+    const _dlmap={verb:'動詞126語テスト',q:'疑問文テスト',can:'Can構文テスト',adj:'形容詞テスト',geo:'地理テスト',history:'歴史テスト',physics:'物理テスト',biology:'生物テスト',earth:'地学テスト'};
+    const _dimap={verb:'📝',q:'❓',can:'💪',adj:'✨',geo:'🗾',history:'📜',physics:'💡',biology:'🌿',earth:'🌏'};
     const testLabel=_dlmap[r.testType]||r.testType;
     const testClass=r.testType;
     const time=r.date.split(' ')[1]||'';
@@ -1721,6 +1745,7 @@ const SOCIAL_SCIENCE_DATA={
 const TEST_META={
   verb:{label:'動詞126語テスト',icon:'📝',color:'var(--accent)'},
   can:{label:'Can構文テスト',icon:'💪',color:'#fb923c'},
+  adj:{label:'形容詞テスト',icon:'✨',color:'#f472b6'},
   q:{label:'疑問文テスト',icon:'❓',color:'var(--accent2)'},
   geo:{label:'地理テスト',icon:'🗾',color:'#4ade80'},
   history:{label:'歴史テスト',icon:'📜',color:'#fb923c'},
@@ -1728,7 +1753,7 @@ const TEST_META={
   biology:{label:'生物テスト',icon:'🌿',color:'#34d399'},
   earth:{label:'地学テスト',icon:'🌏',color:'#60a5fa'},
 };
-const ALL_TEST_TYPES=['verb','q','can','geo','history','physics','biology','earth'];
+const ALL_TEST_TYPES=['verb','q','can','adj','geo','history','physics','biology','earth'];
 
 // 教科タブ切り替え
 function switchSubject(sub){
@@ -2025,7 +2050,7 @@ function showRoutineResult(){
 }
 
 // ── ルーティーン履歴保存 ──
-function saveRoutineHistory(pct, total){
+async function saveRoutineHistory(pct, total){
   const now=new Date();
   const dateKey=todayKey();
   const dateStr=now.toLocaleDateString('ja-JP',{year:'numeric',month:'2-digit',day:'2-digit'})+' '+now.toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
@@ -2036,8 +2061,13 @@ function saveRoutineHistory(pct, total){
   const todayCount=hist.filter(h=>h.dateKey===dateKey).length+1;
   hist.unshift({date:dateStr,dateKey,tryNum:todayCount,total,correct:correctCount,score:pct,timestamp:now.getTime()});
   if(hist.length>200)hist=hist.slice(0,200);
-  try{ localStorage.setItem(key,JSON.stringify(hist)); document.getElementById('routine-save-status').textContent='✅ 履歴を保存しました'; }
-  catch(e){ document.getElementById('routine-save-status').textContent='⚠️ 保存できませんでした'; }
+  try{ localStorage.setItem(key,JSON.stringify(hist)); }catch(e){}
+  if(window.saveToFirestore){
+    const ok=await window.saveToFirestore('routine:'+currentUser,hist[0]);
+    document.getElementById('routine-save-status').textContent=ok?'✅ クラウドに保存しました':'✅ ローカルに保存しました';
+  }else{
+    document.getElementById('routine-save-status').textContent='✅ 履歴を保存しました';
+  }
 }
 
 // ── ルーティーン履歴画面 ──
@@ -2200,6 +2230,77 @@ function saveRoutineSettings(){
 
 
 
+
+// ════════════════════════════════════
+// 形容詞データ（中学1〜2年レベル）
+// ════════════════════════════════════
+const ALL_ADJ = [
+  // 基本的な形容詞
+  {word:'good',      jp:'よい・上手な',    sentence:'She is a good student.'},
+  {word:'bad',       jp:'悪い',            sentence:'That is a bad idea.'},
+  {word:'big',       jp:'大きい',          sentence:'He lives in a big house.'},
+  {word:'small',     jp:'小さい',          sentence:'I have a small dog.'},
+  {word:'large',     jp:'大きい・広い',    sentence:'This is a large room.'},
+  {word:'long',      jp:'長い',            sentence:'She has long hair.'},
+  {word:'short',     jp:'短い・低い',      sentence:'He is short.'},
+  {word:'tall',      jp:'背が高い',        sentence:'She is very tall.'},
+  {word:'new',       jp:'新しい',          sentence:'I want a new bike.'},
+  {word:'old',       jp:'古い・年老いた',  sentence:'This is an old book.'},
+  {word:'young',     jp:'若い',            sentence:'He is young.'},
+  {word:'hot',       jp:'暑い・熱い',      sentence:'It is very hot today.'},
+  {word:'cold',      jp:'寒い・冷たい',    sentence:'The water is cold.'},
+  {word:'warm',      jp:'暖かい',          sentence:'Spring is warm.'},
+  {word:'cool',      jp:'涼しい・かっこいい', sentence:'It is cool today.'},
+  {word:'fast',      jp:'速い',            sentence:'He is a fast runner.'},
+  {word:'slow',      jp:'遅い',            sentence:'The bus is slow.'},
+  {word:'easy',      jp:'簡単な',          sentence:'This question is easy.'},
+  {word:'hard',      jp:'難しい・固い',    sentence:'Math is hard for me.'},
+  {word:'difficult', jp:'難しい',          sentence:'This problem is difficult.'},
+  {word:'busy',      jp:'忙しい',          sentence:'She is busy today.'},
+  {word:'free',      jp:'暇な・無料の',    sentence:'Are you free tomorrow?'},
+  {word:'happy',     jp:'幸せな',          sentence:'I am very happy.'},
+  {word:'sad',       jp:'悲しい',          sentence:'He looks sad.'},
+  {word:'angry',     jp:'怒っている',      sentence:'She is angry.'},
+  {word:'tired',     jp:'疲れた',          sentence:'I am tired.'},
+  {word:'hungry',    jp:'空腹な',          sentence:'I am hungry.'},
+  {word:'thirsty',   jp:'のどが渇いた',    sentence:'Are you thirsty?'},
+  {word:'sick',      jp:'病気の・具合が悪い', sentence:'He is sick today.'},
+  {word:'fine',      jp:'元気な・よい',    sentence:'I am fine, thank you.'},
+  {word:'ready',     jp:'準備ができた',    sentence:'Are you ready?'},
+  {word:'right',     jp:'正しい・右の',    sentence:'Your answer is right.'},
+  {word:'wrong',     jp:'間違っている',    sentence:'That answer is wrong.'},
+  {word:'important', jp:'重要な',          sentence:'This is an important point.'},
+  {word:'interesting',jp:'おもしろい',     sentence:'This book is interesting.'},
+  {word:'boring',    jp:'退屈な',          sentence:'This class is boring.'},
+  {word:'beautiful', jp:'美しい',          sentence:'She is beautiful.'},
+  {word:'pretty',    jp:'かわいい',        sentence:'What a pretty flower!'},
+  {word:'cute',      jp:'かわいい',        sentence:'The cat is cute.'},
+  {word:'strong',    jp:'強い',            sentence:'He is very strong.'},
+  {word:'weak',      jp:'弱い',            sentence:'I feel weak today.'},
+  {word:'kind',      jp:'親切な',          sentence:'She is very kind.'},
+  {word:'nice',      jp:'すてきな・親切な', sentence:'What a nice day!'},
+  {word:'great',     jp:'すばらしい',      sentence:'That is a great idea.'},
+  {word:'wonderful', jp:'すばらしい',      sentence:'It was a wonderful day.'},
+  {word:'terrible',  jp:'ひどい・恐ろしい', sentence:'The weather is terrible.'},
+  {word:'popular',   jp:'人気がある',      sentence:'She is popular at school.'},
+  {word:'famous',    jp:'有名な',          sentence:'He is a famous singer.'},
+  {word:'lucky',     jp:'運がいい',        sentence:'You are lucky.'},
+  {word:'useful',    jp:'役立つ',          sentence:'This tool is useful.'},
+  {word:'special',   jp:'特別な',          sentence:'Today is a special day.'},
+  {word:'safe',      jp:'安全な',          sentence:'This area is safe.'},
+  {word:'dangerous', jp:'危険な',          sentence:'That road is dangerous.'},
+  {word:'quiet',     jp:'静かな',          sentence:'Please be quiet.'},
+  {word:'noisy',     jp:'うるさい',        sentence:'This place is noisy.'},
+  {word:'clean',     jp:'清潔な・きれいな', sentence:'Keep your room clean.'},
+  {word:'dirty',     jp:'汚い',            sentence:'My shoes are dirty.'},
+  {word:'heavy',     jp:'重い',            sentence:'This bag is heavy.'},
+  {word:'light',     jp:'軽い・明るい',    sentence:'The box is light.'},
+  {word:'full',      jp:'いっぱいの',      sentence:'I am full.'},
+  {word:'empty',     jp:'空の',            sentence:'The bottle is empty.'},
+];
+
+// SOCIAL_SCIENCE_DATA に adj を追加
+SOCIAL_SCIENCE_DATA.adj = ALL_ADJ;
 
 // ════════════════════════════════════
 // 不規則動詞データ（マインドマップより）
