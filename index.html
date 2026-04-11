@@ -352,7 +352,7 @@ h1 span{color:var(--accent);}
 <!-- Firebase SDK -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, doc, setDoc, collection, query, where, orderBy, getDocs, limit } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, collection, query, where, orderBy, getDocs, limit } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBk6PcfExU9xCySiHpjzNtPp0Ugzkg5bUI",
@@ -400,6 +400,29 @@ window.loadAllFromFirestore = async function() {
 };
 
 console.log('Firebase initialized ✅');
+
+// ── ルーティーン設定をFirestoreに保存 ──
+window.saveRoutineToFirestore = async function(settings) {
+  try {
+    await setDoc(doc(db, 'settings', 'routine'), { data: JSON.stringify(settings), updatedAt: Date.now() });
+    return true;
+  } catch(e) {
+    console.error('Routine save error:', e);
+    return false;
+  }
+};
+
+// ── ルーティーン設定をFirestoreから取得 ──
+window.loadRoutineFromFirestore = async function() {
+  try {
+    const snap = await getDoc(doc(db, 'settings', 'routine'));
+    if(snap.exists()) return JSON.parse(snap.data().data);
+    return null;
+  } catch(e) {
+    console.error('Routine load error:', e);
+    return null;
+  }
+};
 </script>
 </head>
 <body>
@@ -599,7 +622,7 @@ console.log('Firebase initialized ✅');
     <div class="date-tabs" id="teacher-date-tabs"></div>
     <div class="section-label">出題する問題を選んで順番を設定</div>
     <div class="question-pool" id="question-pool"></div>
-    <button class="teacher-save-btn" onclick="saveRoutineSettings()">💾 保存する</button>
+    <button class="teacher-save-btn" onclick="saveRoutineSettings()">☁️ クラウドに保存する</button>
     <div id="teacher-save-status" style="text-align:center;font-size:13px;color:var(--text-muted);min-height:18px;"></div>
   </div>
   <!-- 全生徒履歴タブ -->
@@ -2008,10 +2031,29 @@ function todayKey(){
 
 // ── ルーティーン設定を取得 ──
 function getRoutineSettings(){
+  // localStorageキャッシュから取得（同期版・描画用）
   try{ const s=localStorage.getItem(ROUTINE_STORAGE_KEY); return s?JSON.parse(s):{}; }catch(e){return {};}
+}
+async function getRoutineSettingsAsync(){
+  // Firestoreから取得して最新設定をキャッシュ
+  if(window.loadRoutineFromFirestore){
+    const data = await window.loadRoutineFromFirestore();
+    if(data){
+      try{ localStorage.setItem(ROUTINE_STORAGE_KEY, JSON.stringify(data)); }catch(e){}
+      return data;
+    }
+  }
+  return getRoutineSettings();
 }
 
 // ── 今日の問題リストを構築 ──
+async function buildTodayRoutineAsync(){
+  const settings = await getRoutineSettingsAsync();
+  const key = todayKey();
+  const daySettings = settings[key];
+  if(!daySettings||daySettings.length===0) return [];
+  return buildTodayRoutineFromSettings(settings);
+}
 function buildTodayRoutine(){
   const settings = getRoutineSettings();
   const key = todayKey();
@@ -2037,17 +2079,33 @@ function buildTodayRoutine(){
 }
 
 // ── ホーム画面のバナー更新 ──
-function updateRoutineBanner(){
+async function updateRoutineBanner(){
   const banner = document.getElementById('routine-banner');
   const sub    = document.getElementById('routine-banner-sub');
   const btn    = document.getElementById('routine-start-btn');
-  const qs = buildTodayRoutine();
-  if(qs.length===0){
-    banner.style.display='none'; return;
+  // まずlocalStorageで即時表示
+  const qsLocal = buildTodayRoutine();
+  if(qsLocal.length>0){
+    banner.style.display='block';
+    sub.textContent = `全${qsLocal.length}問 ／ ${todayKey()}`;
+    btn.disabled = false;
   }
-  banner.style.display='block';
-  sub.textContent = `全${qs.length}問 ／ ${todayKey()}`;
-  btn.disabled = false;
+  // Firestoreから最新設定を取得して更新
+  if(window.loadRoutineFromFirestore){
+    const data = await window.loadRoutineFromFirestore();
+    if(data){
+      try{ localStorage.setItem('routine-settings', JSON.stringify(data)); }catch(e){}
+      const qs = buildTodayRoutine();
+      if(qs.length===0){ banner.style.display='none'; return; }
+      banner.style.display='block';
+      sub.textContent = `全${qs.length}問 ／ ${todayKey()}`;
+      btn.disabled = false;
+    } else if(qsLocal.length===0){
+      banner.style.display='none';
+    }
+  } else if(qsLocal.length===0){
+    banner.style.display='none';
+  }
 }
 
 // ── ルーティーン開始 ──
@@ -2202,8 +2260,13 @@ function showTeacherAdmin(){
   buildTeacherUI();
 }
 
-function buildTeacherUI(){
+async function buildTeacherUI(){
   try{
+  // Firestoreから最新設定を取得
+  if(window.loadRoutineFromFirestore){
+    const data = await window.loadRoutineFromFirestore();
+    if(data){ try{ localStorage.setItem('routine-settings', JSON.stringify(data)); }catch(e){} }
+  }
   // 日付タブ（今日～6日後まで7日分）
   const tabs=document.getElementById('teacher-date-tabs');
   tabs.innerHTML='';
@@ -2318,10 +2381,19 @@ function updateOrderItem(id, dateKey, value){
   localStorage.setItem(ROUTINE_STORAGE_KEY,JSON.stringify(settings));
 }
 
-function saveRoutineSettings(){
+async function saveRoutineSettings(){
   const status=document.getElementById('teacher-save-status');
-  status.textContent='✅ 保存しました！';
-  setTimeout(()=>status.textContent='',2000);
+  status.textContent='⏳ 保存中...';
+  const settings=getRoutineSettings();
+  // localStorageはtogglePoolItem/updateOrderItemで既に更新済み
+  // Firestoreにも保存
+  if(window.saveRoutineToFirestore){
+    const ok = await window.saveRoutineToFirestore(settings);
+    status.textContent = ok ? '✅ クラウドに保存しました！全生徒に反映されます' : '⚠️ ローカルにのみ保存しました';
+  } else {
+    status.textContent='✅ 保存しました！';
+  }
+  setTimeout(()=>status.textContent='',3000);
   updateRoutineBanner();
 }
 
