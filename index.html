@@ -480,6 +480,11 @@ window.loadRoutineFromFirestore = async function() {
       <div class="test-card-title">動詞 126語テスト</div>
       <div class="test-card-sub">英単語を見て、正しい日本語の意味を4択で選ぼう</div>
     </div>
+    <div class="test-card" onclick="startTypingFlow()">
+      <div class="test-card-icon">⌨️</div>
+      <div class="test-card-title">動詞 126語 タイピングテスト</div>
+      <div class="test-card-sub">日本語の意味を見て、英単語のスペルを入力しよう</div>
+    </div>
     <div class="test-card" onclick="startTestFlow('q')">
       <div class="test-card-icon">❓</div>
       <div class="test-card-title">疑問文テスト</div>
@@ -697,6 +702,85 @@ window.loadRoutineFromFirestore = async function() {
   </div>
   <div id="routine-history-summary" class="history-summary" style="display:none"></div>
   <div id="routine-history-list"></div>
+</div>
+
+<!-- Typing Category Screen -->
+<div class="screen" id="typing-category-screen">
+  <div class="back-link" onclick="goHome()">← ホームに戻る</div>
+  <div class="section-label">グループを選ぶ</div>
+  <button class="all-btn" id="typing-btn-all" onclick="toggleTypingAll()"><span>🌟</span> <span>全126語まとめて</span></button>
+  <div class="cat-grid" id="typing-cat-grid"></div>
+  <button class="start-btn" id="typing-start-btn" onclick="startTypingTest()" disabled>タイピングテストを始める →</button>
+</div>
+
+<!-- Typing Test Screen -->
+<div class="screen" id="typing-screen" style="padding-bottom:40px;">
+  <div class="quiz-controls">
+    <button class="ctrl-btn pause-btn" id="typing-pause-btn" onclick="toggleTypingPause()">⏸ 一時停止</button>
+    <button class="ctrl-btn stop-btn" onclick="confirmTypingStop()">⏹ 途中終了</button>
+  </div>
+  <div class="prog-wrap" style="height:5px;background:var(--surface);border-radius:99px;margin-bottom:8px;overflow:hidden;flex-shrink:0;">
+    <div class="prog-bar" id="typing-prog-bar"></div>
+  </div>
+  <div class="quiz-meta">
+    <div class="q-counter" id="typing-counter">1 / 20</div>
+    <div class="score-badge">
+      <span class="c">✓ <span id="typing-sc">0</span></span>
+      <span class="w">✗ <span id="typing-sw">0</span></span>
+    </div>
+  </div>
+  <!-- 問題カード -->
+  <div class="verb-card" style="text-align:center;">
+    <div class="group-tag" id="typing-group">グループ1</div>
+    <!-- 日本語の意味（大きく表示） -->
+    <div style="font-size:clamp(22px,5vw,32px);font-weight:900;color:var(--text);margin:10px 0 4px;" id="typing-meaning"></div>
+    <!-- 例文 -->
+    <div class="verb-sentence-box" id="typing-sentence-box">
+      <div class="verb-sentence" id="typing-sentence"></div>
+    </div>
+    <button class="speak-btn" onclick="speakTypingSentence()">🔊 例文を聞く</button>
+  </div>
+  <!-- 入力エリア -->
+  <div style="margin:10px 0 8px;">
+    <div style="font-size:11px;color:var(--text-muted);font-family:'Space Mono',monospace;letter-spacing:1px;margin-bottom:8px;text-align:center;">英単語のスペルを入力してください</div>
+    <div style="position:relative;">
+      <input type="text" id="typing-input"
+        style="width:100%;background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:14px 50px 14px 18px;color:var(--text);font-size:22px;font-family:'Space Mono',monospace;outline:none;transition:border-color .2s;letter-spacing:2px;"
+        placeholder="enter verb..."
+        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+        onkeydown="if(event.key==='Enter')submitTyping()">
+      <button onclick="submitTyping()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:var(--accent);border:none;border-radius:8px;padding:6px 12px;color:#0d1117;font-weight:900;font-size:14px;cursor:pointer;">→</button>
+    </div>
+    <!-- ヒント表示 -->
+    <div id="typing-hint" style="font-family:'Space Mono',monospace;font-size:16px;letter-spacing:4px;color:var(--text-muted);text-align:center;margin-top:8px;min-height:24px;"></div>
+  </div>
+  <!-- フィードバック -->
+  <div class="bottom-row">
+    <div class="feedback" id="typing-feedback">
+      <div class="fb-icon" id="typing-fb-icon"></div>
+      <div class="fb-text" id="typing-fb-text"></div>
+    </div>
+    <button class="next-btn" id="typing-next-btn" onclick="nextTypingQ()" style="display:none!important;">次へ →</button>
+  </div>
+</div>
+
+<!-- Typing Result Screen -->
+<div class="screen" id="typing-result-screen" style="text-align:center;padding-bottom:40px;">
+  <div class="result-msg" id="typing-result-msg"></div>
+  <div class="result-circle">
+    <div class="result-pct" id="typing-result-pct"></div>
+    <div class="result-fraction" id="typing-result-fraction"></div>
+  </div>
+  <div class="result-sub" id="typing-result-sub"></div>
+  <div class="result-stats">
+    <div class="stat-box"><div class="stat-num c" id="typing-rc">0</div><div class="stat-label">正解</div></div>
+    <div class="stat-box"><div class="stat-num w" id="typing-rw">0</div><div class="stat-label">不正解</div></div>
+  </div>
+  <div class="missed-section" id="typing-missed"></div>
+  <div class="btn-row" style="margin-top:16px;">
+    <button class="retry-btn" onclick="startTypingTest()">もう一度</button>
+    <button class="back-home-btn" onclick="goHome()">ホームに戻る</button>
+  </div>
 </div>
 
 <!-- Irregular Verbs Screen -->
@@ -3056,6 +3140,319 @@ function renderChart(){
     legendEl.appendChild(d);
   });
 }
+
+// ════════════════════════════════════
+// タイピングテスト
+// ════════════════════════════════════
+let typingQuestions=[], typingIdx=0, typingCorrect=0, typingWrong=0;
+let typingMissed=[], typingAnswered=false, typingPaused=false;
+let typingHintLevel=0; // 0=なし 1=文字数 2=頭文字 3=半分
+
+// 動詞の活用形一覧を返す（例文中のブランク置換用）
+function getVerbForms(verb){
+  const forms=[verb];
+  const v=verb.toLowerCase();
+  // be動詞の特別処理
+  if(v==='be') return ['be','am','is','are','was','were','been'];
+  // 三単現 -s / -es
+  if(v.endsWith('ch')||v.endsWith('sh')||v.endsWith('x')||v.endsWith('o')){
+    forms.push(v+'es');
+  } else if(v.endsWith('y')&&!'aeiou'.includes(v[v.length-2])){
+    forms.push(v.slice(0,-1)+'ies');
+  } else {
+    forms.push(v+'s');
+  }
+  // -ing形
+  if(v.endsWith('e')&&v.length>2) forms.push(v.slice(0,-1)+'ing');
+  else if(v.length>=3&&!'aeiou'.includes(v[v.length-1])&&'aeiou'.includes(v[v.length-2])&&!'aeiou'.includes(v[v.length-3])){
+    forms.push(v+v[v.length-1]+'ing');
+  } else forms.push(v+'ing');
+  // -ed形
+  if(v.endsWith('e')) forms.push(v+'d');
+  else if(v.endsWith('y')&&!'aeiou'.includes(v[v.length-2])) forms.push(v.slice(0,-1)+'ied');
+  else if(v.length>=3&&!'aeiou'.includes(v[v.length-1])&&'aeiou'.includes(v[v.length-2])&&!'aeiou'.includes(v[v.length-3])){
+    forms.push(v+v[v.length-1]+'ed');
+  } else forms.push(v+'ed');
+  return [...new Set(forms)];
+}
+
+// タイピング用選択グループ
+let typingSelectedGroups = new Set();
+let typingAllSelected = false;
+
+function startTypingFlow(){
+  currentTestType='_typing';
+  typingSelectedGroups.clear();
+  typingAllSelected=false;
+  // グループ選択画面を構築
+  const grid=document.getElementById('typing-cat-grid');
+  grid.innerHTML='';
+  document.getElementById('typing-btn-all').classList.remove('selected');
+  document.getElementById('typing-start-btn').disabled=true;
+  VERB_GROUPS.forEach(g=>{
+    const count=ALL_VERBS.filter(v=>v.group===g.name).length;
+    const btn=document.createElement('button');
+    btn.className='cat-btn';
+    btn.id='typing-cat-'+g.name;
+    btn.innerHTML=`<span class="icon">${g.icon}</span><div class="info"><div class="cat-name">${g.name}</div><div class="cat-count">${count}語 全問</div></div>`;
+    btn.onclick=()=>toggleTypingGroup(g.name);
+    grid.appendChild(btn);
+  });
+  showScreen('typing-category-screen');
+}
+
+function toggleTypingAll(){
+  typingAllSelected=!typingAllSelected;
+  document.getElementById('typing-btn-all').classList.toggle('selected',typingAllSelected);
+  if(typingAllSelected){
+    typingSelectedGroups=new Set(VERB_GROUPS.map(g=>g.name));
+    VERB_GROUPS.forEach(g=>document.getElementById('typing-cat-'+g.name).classList.add('selected'));
+  }else{
+    typingSelectedGroups.clear();
+    VERB_GROUPS.forEach(g=>document.getElementById('typing-cat-'+g.name).classList.remove('selected'));
+  }
+  document.getElementById('typing-start-btn').disabled=typingSelectedGroups.size===0;
+}
+
+function toggleTypingGroup(name){
+  const btn=document.getElementById('typing-cat-'+name);
+  if(typingSelectedGroups.has(name)){
+    typingSelectedGroups.delete(name);
+    btn.classList.remove('selected');
+  }else{
+    typingSelectedGroups.add(name);
+    btn.classList.add('selected');
+  }
+  typingAllSelected=typingSelectedGroups.size===VERB_GROUPS.length;
+  document.getElementById('typing-btn-all').classList.toggle('selected',typingAllSelected);
+  document.getElementById('typing-start-btn').disabled=typingSelectedGroups.size===0;
+}
+
+function startTypingTest(){
+  // 選択グループの全語を順番通りに出題（シャッフルなし）
+  typingQuestions=ALL_VERBS.filter(v=>typingSelectedGroups.has(v.group));
+  typingIdx=0; typingCorrect=0; typingWrong=0;
+  typingMissed=[]; typingAnswered=false; typingPaused=false;
+  showScreen('typing-screen');
+  showTypingQ();
+}
+
+function showTypingQ(){
+  typingAnswered=false;
+  typingHintLevel=0;
+  const q=typingQuestions[typingIdx];
+  const total=typingQuestions.length;
+
+  document.getElementById('typing-prog-bar').style.width=(typingIdx/total*100)+'%';
+  document.getElementById('typing-counter').textContent=(typingIdx+1)+' / '+total;
+  document.getElementById('typing-sc').textContent=typingCorrect;
+  document.getElementById('typing-sw').textContent=typingWrong;
+  document.getElementById('typing-group').textContent=q.group;
+  document.getElementById('typing-meaning').textContent=q.meaning;
+  // 例文中の動詞（活用形含む）を_____に置き換え
+  const verbForms = getVerbForms(q.verb);
+  let blankSentence = q.sentence || '';
+  // 長い形から順に置き換え（部分一致を防ぐ）
+  verbForms.sort((a,b)=>b.length-a.length).forEach(form=>{
+    blankSentence = blankSentence.replace(
+      new RegExp('\\b'+form+'\\b','gi'),
+      '_'.repeat(form.length)
+    );
+  });
+  document.getElementById('typing-sentence').textContent=blankSentence;
+
+  // 入力欄リセット
+  const inp=document.getElementById('typing-input');
+  inp.value='';
+  inp.style.borderColor='var(--border)';
+  inp.disabled=false;
+
+  document.getElementById('typing-hint').textContent='';
+  document.getElementById('typing-feedback').className='feedback';
+  document.getElementById('typing-next-btn').style.display='none!important';
+
+  // 例文を自動読み上げ
+  setTimeout(()=>speakTypingSentence(), 300);
+
+  // フォーカス（少し遅らせて）
+  setTimeout(()=>inp.focus(), 400);
+}
+
+function speakTypingSentence(){
+  const q=typingQuestions[typingIdx];
+  // 読み上げはブランクなしの元の例文を使う
+  const text=(q&&q.sentence)||(q&&q.verb)||'';
+  if(!text||!window.speechSynthesis)return;
+  window.speechSynthesis.cancel();
+  const utt=new SpeechSynthesisUtterance(text);
+  utt.lang='en-US'; utt.rate=0.82;
+  window.speechSynthesis.speak(utt);
+}
+
+function submitTyping(){
+  if(typingAnswered||typingPaused)return;
+  const inp=document.getElementById('typing-input');
+  const input=inp.value.trim().toLowerCase();
+  if(!input) return;
+
+  const q=typingQuestions[typingIdx];
+  const correct=q.verb.toLowerCase();
+  const isCorrect=input===correct;
+
+  typingAnswered=true;
+  inp.disabled=true;
+
+  const fb=document.getElementById('typing-feedback');
+  const fbIcon=document.getElementById('typing-fb-icon');
+  const fbText=document.getElementById('typing-fb-text');
+
+  if(isCorrect){
+    typingCorrect++;
+    inp.style.borderColor='var(--ok)';
+    fb.className='feedback show ok-feedback';
+    fbIcon.textContent='✅';
+    fbText.innerHTML=`<span style="color:var(--ok);font-weight:700;">${q.verb}</span>　正解！`;
+    playPinpon();
+    // 正解の単語を読み上げ
+    setTimeout(()=>speakEn(q.verb), 400);
+  } else {
+    typingWrong++;
+    inp.style.borderColor='var(--error)';
+    fb.className='feedback show ng-feedback';
+    fbIcon.textContent='❌';
+    fbText.innerHTML=`正解：<span style="color:var(--ok);font-weight:700;font-family:'Space Mono',monospace;">${q.verb}</span>`;
+    typingMissed.push(q);
+    playBuzzer();
+    // 正解の単語を読み上げ
+    setTimeout(()=>speakEn(q.verb), 500);
+  }
+
+  document.getElementById('typing-sc').textContent=typingCorrect;
+  document.getElementById('typing-sw').textContent=typingWrong;
+  document.getElementById('typing-hint').textContent='';
+
+  setTimeout(()=>nextTypingQ(), 1600);
+}
+
+function speakEn(text){
+  if(!text||!window.speechSynthesis)return;
+  window.speechSynthesis.cancel();
+  const utt=new SpeechSynthesisUtterance(text);
+  utt.lang='en-US'; utt.rate=0.82;
+  window.speechSynthesis.speak(utt);
+}
+
+function nextTypingQ(){
+  typingIdx++;
+  if(typingIdx>=typingQuestions.length) showTypingResult();
+  else showTypingQ();
+}
+
+// ── ヒント機能（入力欄の下に表示） ──
+document.addEventListener('keydown', e=>{
+  if(document.getElementById('typing-screen').classList.contains('active')&&
+     !typingAnswered && e.key==='Tab'){
+    e.preventDefault();
+    showTypingHint();
+  }
+});
+
+function showTypingHint(){
+  if(typingAnswered)return;
+  const q=typingQuestions[typingIdx];
+  const verb=q.verb;
+  typingHintLevel=Math.min(typingHintLevel+1,3);
+  const hintEl=document.getElementById('typing-hint');
+  if(typingHintLevel===1){
+    // 文字数ヒント
+    hintEl.textContent='＿'.repeat(verb.length)+'　（'+verb.length+'文字）';
+  } else if(typingHintLevel===2){
+    // 頭文字ヒント
+    hintEl.textContent=verb[0]+'＿'.repeat(verb.length-1);
+  } else {
+    // 前半ヒント
+    const half=Math.ceil(verb.length/2);
+    hintEl.textContent=verb.slice(0,half)+'＿'.repeat(verb.length-half);
+  }
+}
+
+// ── 一時停止・途中終了 ──
+function toggleTypingPause(){
+  if(typingAnswered)return;
+  typingPaused=!typingPaused;
+  const btn=document.getElementById('typing-pause-btn');
+  const inp=document.getElementById('typing-input');
+  if(typingPaused){
+    document.getElementById('pause-overlay').classList.add('active');
+    btn.textContent='▶ 再開';
+    inp.blur();
+    if(window.speechSynthesis)window.speechSynthesis.cancel();
+  } else {
+    document.getElementById('pause-overlay').classList.remove('active');
+    btn.textContent='⏸ 一時停止';
+    setTimeout(()=>inp.focus(),100);
+  }
+}
+
+function confirmTypingStop(){
+  typingPaused=false;
+  document.getElementById('pause-overlay').classList.remove('active');
+  document.getElementById('confirm-progress').textContent=
+    typingIdx+'問回答済み、正解'+typingCorrect+'問';
+  document.getElementById('confirm-overlay').classList.add('active');
+  // 途中終了時はタイピング結果を表示
+  document.getElementById('confirm-overlay').dataset.mode='typing';
+}
+
+// doStopをタイピング対応に（既存のdoStopを拡張）
+const _origDoStop=doStop;
+function doStop(){
+  const mode=document.getElementById('confirm-overlay').dataset.mode;
+  document.getElementById('confirm-overlay').classList.remove('active');
+  document.getElementById('confirm-overlay').dataset.mode='';
+  if(mode==='typing') showTypingResult();
+  else _origDoStop ? _origDoStop() : (clearTimer(), currentTestType==='_routine'?showRoutineResult():showResult());
+}
+
+function showTypingResult(){
+  document.getElementById('pause-overlay').classList.remove('active');
+  document.getElementById('confirm-overlay').classList.remove('active');
+  showScreen('typing-result-screen');
+
+  const total=typingIdx||(typingCorrect+typingWrong);
+  const pct=total>0?Math.round(typingCorrect/total*100):0;
+  let msg,sub;
+  if(pct===100){msg='🏆 パーフェクト！';sub='全問正解！すばらしい！';setTimeout(()=>playFanfare(),200);}
+  else if(pct>=80){msg='🎉 よくできました！';sub=`${pct}点！`;}
+  else if(pct>=60){msg='📖 がんばりました！';sub=`${pct}点。復習しよう！`;}
+  else{msg='⌨️ 練習あるのみ！';sub=`${pct}点。スペルを確認しよう！`;}
+
+  document.getElementById('typing-result-msg').textContent=msg;
+  document.getElementById('typing-result-pct').textContent=pct+'%';
+  document.getElementById('typing-result-fraction').textContent=typingCorrect+' / '+total+'問正解';
+  document.getElementById('typing-result-sub').textContent=sub;
+  document.getElementById('typing-rc').textContent=typingCorrect;
+  document.getElementById('typing-rw').textContent=typingWrong;
+
+  const ms=document.getElementById('typing-missed');
+  if(typingMissed.length>0){
+    let html='<div class="missed-title">間違えた単語</div>';
+    typingMissed.forEach(v=>{
+      html+=`<div class="missed-item"><span class="missed-verb">${v.verb}</span><span class="missed-meaning">${v.meaning}</span></div>`;
+    });
+    ms.innerHTML=html;
+  } else { ms.innerHTML=''; }
+}
+
+// フィードバックのCSS追加
+(()=>{
+  const style=document.createElement('style');
+  style.textContent=`
+    .ok-feedback{background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.3);display:flex;align-items:center;gap:10px;}
+    .ng-feedback{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);display:flex;align-items:center;gap:10px;}
+  `;
+  document.head.appendChild(style);
+})();
 </script>
 </body>
 </html>
