@@ -652,6 +652,19 @@ window.loadRoutineFromFirestore = async function() {
     <!-- サマリー -->
     <div id="teacher-students-summary" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:14px;"></div>
     <!-- 履歴リスト -->
+    <!-- グラフエリア -->
+    <div id="teacher-chart-wrap" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div style="font-size:12px;font-weight:700;color:var(--text-muted);font-family:'Space Mono',monospace;letter-spacing:1px;">得点推移グラフ</div>
+        <select id="teacher-chart-user" onchange="renderChart()" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:5px 10px;color:var(--text);font-size:12px;font-family:'Noto Sans JP',sans-serif;">
+          <option value="">全生徒（平均）</option>
+        </select>
+      </div>
+      <div style="position:relative;overflow-x:auto;">
+        <canvas id="teacher-chart" style="width:100%;min-height:200px;display:block;"></canvas>
+      </div>
+      <div style="display:flex;gap:12px;margin-top:10px;flex-wrap:wrap;" id="chart-legend"></div>
+    </div>
     <div id="teacher-students-list"></div>
   </div>
 </div>
@@ -2832,13 +2845,19 @@ function filterStudentHistory(){
   renderStudentHistory(filtered);
 }
 
+// グラフ用データ保持
+let chartData = [];
+const CHART_COLORS = ['#38bdf8','#4ade80','#f472b6','#fbbf24','#a78bfa','#fb923c','#34d399','#f87171'];
+
 function renderStudentHistory(data){
   const listEl = document.getElementById('teacher-students-list');
   const summEl = document.getElementById('teacher-students-summary');
+  const chartWrap = document.getElementById('teacher-chart-wrap');
 
   if(data.length===0){
     listEl.innerHTML='<div class="history-empty">📭 該当するデータがありません</div>';
     summEl.style.display='none';
+    chartWrap.style.display='none';
     return;
   }
 
@@ -2868,6 +2887,18 @@ function renderStudentHistory(data){
       </div>
     </div>`;
 
+  // グラフ用ユーザーセレクト更新
+  chartData = data;
+  chartWrap.style.display = 'block';
+  const chartSel = document.getElementById('teacher-chart-user');
+  chartSel.innerHTML = '<option value="">全生徒（平均）</option>';
+  users.forEach(u=>{
+    const opt=document.createElement('option');
+    opt.value=u; opt.textContent=u;
+    chartSel.appendChild(opt);
+  });
+  renderChart();
+
   // 履歴リスト（新しい順）
   const sorted = [...data].sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
   listEl.innerHTML = '';
@@ -2892,6 +2923,137 @@ function renderStudentHistory(data){
         ${missed ? `<span style="color:var(--error);">❌${missed}</span>` : ''}
       </div>`;
     listEl.appendChild(item);
+  });
+}
+
+function renderChart(){
+  const canvas = document.getElementById('teacher-chart');
+  const legendEl = document.getElementById('chart-legend');
+  const selectedUser = document.getElementById('teacher-chart-user').value;
+  if(!canvas||!chartData.length) return;
+
+  const sorted = [...chartData].sort((a,b)=>(a.timestamp||0)-(b.timestamp||0));
+  const users = selectedUser
+    ? [selectedUser]
+    : [...new Set(sorted.map(d=>d.userName).filter(Boolean))].slice(0,8);
+
+  // Canvas サイズ設定
+  const W = canvas.parentElement.clientWidth || 500;
+  const H = 220;
+  canvas.width = Math.max(W, users.length*40+100);
+  canvas.height = H;
+  canvas.style.height = H+'px';
+
+  const ctx2 = canvas.getContext('2d');
+  ctx2.clearRect(0,0,canvas.width,H);
+
+  // 背景
+  ctx2.fillStyle = '#1e2438';
+  ctx2.fillRect(0,0,canvas.width,H);
+
+  // グリッド線（0, 25, 50, 75, 100）
+  const PAD_L=44, PAD_R=16, PAD_T=16, PAD_B=48;
+  const GW = canvas.width-PAD_L-PAD_R;
+  const GH = H-PAD_T-PAD_B;
+  [0,25,50,75,100].forEach(v=>{
+    const y = PAD_T + GH - (v/100)*GH;
+    ctx2.strokeStyle = v===0?'#3a4060':'#252d44';
+    ctx2.lineWidth = v===0?1.5:1;
+    ctx2.setLineDash([4,4]);
+    ctx2.beginPath();
+    ctx2.moveTo(PAD_L, y);
+    ctx2.lineTo(PAD_L+GW, y);
+    ctx2.stroke();
+    ctx2.setLineDash([]);
+    // Y軸ラベル
+    ctx2.fillStyle = '#6b7399';
+    ctx2.font = '10px Space Mono, monospace';
+    ctx2.textAlign = 'right';
+    ctx2.fillText(v+'%', PAD_L-6, y+4);
+  });
+
+  // 各生徒または全体平均のデータをプロット
+  if(selectedUser){
+    // 特定生徒の時系列棒グラフ
+    const userRecs = sorted.filter(d=>d.userName===selectedUser);
+    if(userRecs.length===0) return;
+    const bw = Math.min(Math.floor(GW/userRecs.length)-6, 40);
+    userRecs.forEach((d,i)=>{
+      const x = PAD_L + (i/(Math.max(userRecs.length,1)))*(GW) + (GW/userRecs.length-bw)/2;
+      const barH = ((d.score||0)/100)*GH;
+      const y = PAD_T+GH-barH;
+      const pct=d.score||0;
+      const col = pct>=80?'#4ade80':pct>=60?'#fbbf24':'#f87171';
+      ctx2.fillStyle = col+'99';
+      ctx2.beginPath();
+      ctx2.roundRect(x,y,bw,barH,4);
+      ctx2.fill();
+      ctx2.fillStyle = col;
+      ctx2.fillRect(x,y,bw,2);
+      // スコアラベル
+      ctx2.fillStyle = '#eef0f8';
+      ctx2.font = 'bold 10px Space Mono, monospace';
+      ctx2.textAlign = 'center';
+      if(barH>16) ctx2.fillText(pct+'%', x+bw/2, y+barH/2+4);
+      // 日付ラベル
+      const dateShort=(d.date||'').slice(5,10);
+      ctx2.fillStyle='#6b7399';
+      ctx2.font='9px monospace';
+      ctx2.save();
+      ctx2.translate(x+bw/2, PAD_T+GH+6);
+      ctx2.rotate(-Math.PI/4);
+      ctx2.fillText(dateShort,0,0);
+      ctx2.restore();
+    });
+  } else {
+    // 全生徒の日付別平均折れ線＋各生徒棒
+    const dateMap = {};
+    sorted.forEach(d=>{
+      const dk=d.dateKey||'';
+      if(!dateMap[dk]) dateMap[dk]={sum:0,count:0,date:d.date||''};
+      dateMap[dk].sum+=(d.score||0);
+      dateMap[dk].count++;
+    });
+    const dates=Object.keys(dateMap).sort();
+    if(dates.length===0) return;
+    const bw=Math.min(Math.floor(GW/dates.length)-6,36);
+    dates.forEach((dk,i)=>{
+      const avg2=Math.round(dateMap[dk].sum/dateMap[dk].count);
+      const x=PAD_L+(i/Math.max(dates.length,1))*GW+(GW/dates.length-bw)/2;
+      const barH=(avg2/100)*GH;
+      const y=PAD_T+GH-barH;
+      const col=avg2>=80?'#4ade80':avg2>=60?'#fbbf24':'#f87171';
+      ctx2.fillStyle=col+'88';
+      ctx2.beginPath();
+      ctx2.roundRect(x,y,bw,barH,4);
+      ctx2.fill();
+      ctx2.fillStyle=col;
+      ctx2.fillRect(x,y,bw,2);
+      ctx2.fillStyle='#eef0f8';
+      ctx2.font='bold 10px Space Mono,monospace';
+      ctx2.textAlign='center';
+      if(barH>16) ctx2.fillText(avg2+'%',x+bw/2,y+barH/2+4);
+      const ds=(dateMap[dk].date||dk).slice(5,10);
+      ctx2.fillStyle='#6b7399';
+      ctx2.font='9px monospace';
+      ctx2.save();
+      ctx2.translate(x+bw/2,PAD_T+GH+6);
+      ctx2.rotate(-Math.PI/4);
+      ctx2.fillText(ds,0,0);
+      ctx2.restore();
+    });
+  }
+
+  // 凡例
+  legendEl.innerHTML='';
+  const legendItems = selectedUser
+    ? [{label:selectedUser+' の得点推移',color:'#38bdf8'}]
+    : [{label:'全生徒 日付別平均',color:'#38bdf8'},{label:'80点以上',color:'#4ade80'},{label:'60〜79点',color:'#fbbf24'},{label:'60点未満',color:'#f87171'}];
+  legendItems.forEach(it=>{
+    const d=document.createElement('div');
+    d.style.cssText='display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-muted);';
+    d.innerHTML=`<span style="width:10px;height:10px;border-radius:2px;background:${it.color};flex-shrink:0;display:inline-block;"></span>${it.label}`;
+    legendEl.appendChild(d);
   });
 }
 </script>
