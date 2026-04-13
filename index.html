@@ -1630,8 +1630,8 @@ function showResult(){
     const label=currentTestType==='verb'?'間違えた動詞':'間違えた問題';
     let html=`<div class="missed-title">${label}</div>`;
     missedVerbs.forEach(v=>{
-      const key=(currentTestType==='verb'||currentTestType==='adj')?v.verb:(v._type==='ss'?v.answer:v.answer);
-      const sub2=(currentTestType==='verb'||currentTestType==='adj')?v.meaning:(v._type==='ss'?v.question:v.jp);
+      const key=(currentTestType==='verb'||currentTestType==='adj'||v._routineType==='typing'||v._routineType==='verb')?v.verb:(v._type==='ss'?v.answer:v.answer);
+      const sub2=(currentTestType==='verb'||currentTestType==='adj'||v._routineType==='typing'||v._routineType==='verb')?v.meaning:(v._type==='ss'?v.question:v.jp);
       html+=`<div class="missed-item"><span class="missed-verb">${key}</span><span class="missed-meaning">${sub2}</span></div>`;
     });
     ms.innerHTML=html;
@@ -2100,17 +2100,27 @@ const ROUTINE_HIST_KEY_PREFIX = 'routine-hist:';
 
 // 先生が設定できる問題プール定義
 const ROUTINE_POOL = [
-  { id:'verb-g1', label:'動詞グループ1（agree〜clean）', type:'verb', group:'グループ1' },
-  { id:'verb-g2', label:'動詞グループ2（close〜fly）',   type:'verb', group:'グループ2' },
-  { id:'verb-g3', label:'動詞グループ3（forget〜keep）', type:'verb', group:'グループ3' },
-  { id:'verb-g4', label:'動詞グループ4（kill〜name）',   type:'verb', group:'グループ4' },
-  { id:'verb-g5', label:'動詞グループ5（need〜sell）',   type:'verb', group:'グループ5' },
-  { id:'verb-g6', label:'動詞グループ6（send〜swim）',   type:'verb', group:'グループ6' },
-  { id:'verb-g7', label:'動詞グループ7（take〜write）',  type:'verb', group:'グループ7' },
-  { id:'q-all',   label:'疑問文テスト（Do/Does/Are/Is）',type:'q',    group:'all' },
-  { id:'can-pos', label:'Can構文・肯定文',               type:'can',  group:'pos' },
-  { id:'can-que', label:'Can構文・疑問文',               type:'can',  group:'que' },
-  { id:'can-neg', label:'Can構文・否定文',               type:'can',  group:'neg' },
+  // 4択テスト（動詞）
+  { id:'verb-g1',    label:'【4択】動詞グループ1（agree〜clean）', type:'verb',   group:'グループ1', badge:'4択' },
+  { id:'verb-g2',    label:'【4択】動詞グループ2（close〜fly）',   type:'verb',   group:'グループ2', badge:'4択' },
+  { id:'verb-g3',    label:'【4択】動詞グループ3（forget〜keep）', type:'verb',   group:'グループ3', badge:'4択' },
+  { id:'verb-g4',    label:'【4択】動詞グループ4（kill〜name）',   type:'verb',   group:'グループ4', badge:'4択' },
+  { id:'verb-g5',    label:'【4択】動詞グループ5（need〜sell）',   type:'verb',   group:'グループ5', badge:'4択' },
+  { id:'verb-g6',    label:'【4択】動詞グループ6（send〜swim）',   type:'verb',   group:'グループ6', badge:'4択' },
+  { id:'verb-g7',    label:'【4択】動詞グループ7（take〜write）',  type:'verb',   group:'グループ7', badge:'4択' },
+  // タイピングテスト（動詞）
+  { id:'type-g1',    label:'【入力】動詞グループ1（agree〜clean）', type:'typing', group:'グループ1', badge:'入力' },
+  { id:'type-g2',    label:'【入力】動詞グループ2（close〜fly）',   type:'typing', group:'グループ2', badge:'入力' },
+  { id:'type-g3',    label:'【入力】動詞グループ3（forget〜keep）', type:'typing', group:'グループ3', badge:'入力' },
+  { id:'type-g4',    label:'【入力】動詞グループ4（kill〜name）',   type:'typing', group:'グループ4', badge:'入力' },
+  { id:'type-g5',    label:'【入力】動詞グループ5（need〜sell）',   type:'typing', group:'グループ5', badge:'入力' },
+  { id:'type-g6',    label:'【入力】動詞グループ6（send〜swim）',   type:'typing', group:'グループ6', badge:'入力' },
+  { id:'type-g7',    label:'【入力】動詞グループ7（take〜write）',  type:'typing', group:'グループ7', badge:'入力' },
+  // 疑問文・Can構文
+  { id:'q-all',      label:'【4択】疑問文テスト（Do/Does/Are/Is）', type:'q',     group:'all',      badge:'4択' },
+  { id:'can-pos',    label:'【4択】Can構文・肯定文',                type:'can',   group:'pos',      badge:'4択' },
+  { id:'can-que',    label:'【4択】Can構文・疑問文',                type:'can',   group:'que',      badge:'4択' },
+  { id:'can-neg',    label:'【4択】Can構文・否定文',                type:'can',   group:'neg',      badge:'4択' },
 ];
 
 let routineQuestions = [];   // 今日のルーティーン問題
@@ -2164,6 +2174,9 @@ function buildTodayRoutine(){
     if(pool.type==='verb'){
       const verbs = ALL_VERBS.filter(v=>v.group===pool.group);
       verbs.forEach(v=>questions.push({_routineType:'verb', ...v}));
+    } else if(pool.type==='typing'){
+      const verbs = ALL_VERBS.filter(v=>v.group===pool.group);
+      verbs.forEach(v=>questions.push({_routineType:'typing', ...v}));
     } else if(pool.type==='q'){
       ALL_QUESTIONS.forEach(q=>questions.push({_routineType:'q', ...q}));
     } else if(pool.type==='can'){
@@ -2229,7 +2242,33 @@ function showRoutineQuestion(){
   document.getElementById('score-c').textContent=correctCount;
   document.getElementById('score-w').textContent=wrongCount;
 
-  if(q._routineType==='verb'){
+  if(q._routineType==='typing'){
+    // ルーティーン内のタイピング問題：typing-screen風の出題
+    document.getElementById('verb-card').style.display='none';
+    document.getElementById('question-card').style.display='';
+    document.getElementById('question-label').textContent='タイピングテスト';
+    // 日本語の意味を大きく表示
+    document.getElementById('q-jp').innerHTML=
+      `<span style="font-size:1.3em;font-weight:900;">${q.meaning}</span>`;
+    // 例文のブランク処理
+    const verbForms2=getVerbForms(q.verb);
+    let blankS=q.sentence||'';
+    verbForms2.sort((a,b)=>b.length-a.length).forEach(f=>{
+      blankS=blankS.replace(new RegExp('\b'+f+'\b','gi'),'_'.repeat(f.length));
+    });
+    document.getElementById('q-en').style.display='';
+    document.getElementById('q-en').textContent=blankS;
+    // 入力欄を動的に挿入
+    buildRoutineTypingInput(q);
+    setTimeout(()=>{
+      if(window.speechSynthesis){
+        window.speechSynthesis.cancel();
+        const utt=new SpeechSynthesisUtterance(q.sentence||q.verb);
+        utt.lang='en-US';utt.rate=0.82;
+        window.speechSynthesis.speak(utt);
+      }
+    },300);
+  } else if(q._routineType==='verb'){
     document.getElementById('verb-card').style.display='';
     document.getElementById('question-card').style.display='none';
     document.getElementById('q-group').textContent=q.group;
@@ -2404,7 +2443,7 @@ function renderPoolForDate(dateKey){
     div.className='pool-item'+(isSelected?' selected':'');
     div.id='pool-item-'+item.id;
     div.dataset.itemid=item.id;
-    const typeLabel=item.type==='verb'?'動詞':item.type==='q'?'疑問文':'Can構文';
+    const typeLabel=item.badge||(item.type==='verb'?'4択動詞':item.type==='typing'?'入力動詞':item.type==='q'?'疑問文':'Can構文');
 
     const cb=document.createElement('input');
     cb.type='checkbox'; cb.checked=isSelected;
@@ -3453,6 +3492,67 @@ function showTypingResult(){
   `;
   document.head.appendChild(style);
 })();
+
+// ── ルーティーン内タイピング入力欄 ──
+function buildRoutineTypingInput(q){
+  // choicesエリアをタイピング入力欄に差し替え
+  const choices=document.getElementById('choices');
+  choices.innerHTML=`
+    <div style="grid-column:1/-1;display:flex;flex-direction:column;gap:10px;">
+      <div style="position:relative;">
+        <input type="text" id="routine-typing-input"
+          style="width:100%;background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:14px 50px 14px 18px;color:var(--text);font-size:22px;font-family:'Space Mono',monospace;outline:none;transition:border-color .2s;letter-spacing:2px;"
+          placeholder="enter verb..."
+          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+          onkeydown="if(event.key==='Enter')submitRoutineTyping()">
+        <button onclick="submitRoutineTyping()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:var(--accent);border:none;border-radius:8px;padding:6px 12px;color:#0d1117;font-weight:900;font-size:14px;cursor:pointer;">→</button>
+      </div>
+      <div id="routine-typing-hint" style="font-family:'Space Mono',monospace;font-size:15px;letter-spacing:4px;color:var(--text-muted);text-align:center;min-height:22px;"></div>
+    </div>`;
+  setTimeout(()=>{
+    const inp=document.getElementById('routine-typing-input');
+    if(inp)inp.focus();
+  },400);
+}
+
+function submitRoutineTyping(){
+  if(answered)return;
+  const inp=document.getElementById('routine-typing-input');
+  if(!inp)return;
+  const input=inp.value.trim().toLowerCase();
+  if(!input)return;
+  const q=questions[currentIndex];
+  const correct=q.verb.toLowerCase();
+  const isCorrect=input===correct;
+  inp.disabled=true;
+  inp.style.borderColor=isCorrect?'var(--ok)':'var(--error)';
+  // 通常のrenderChoicesの正解・不正解処理に合わせる
+  const fb=document.getElementById('feedback');
+  const fbIcon=document.getElementById('fb-icon');
+  const fbText=document.getElementById('fb-text');
+  if(isCorrect){
+    correctCount++;
+    fb.className='feedback show';
+    fb.style.cssText='background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.3);display:flex;align-items:center;gap:10px;border-radius:var(--radius);padding:10px 14px;';
+    fbIcon.textContent='✅';
+    fbText.innerHTML=`<span style="color:var(--ok);font-weight:700;">${q.verb}</span>　正解！`;
+    playPinpon();
+    setTimeout(()=>{if(window.speechSynthesis){window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(q.verb);u.lang='en-US';u.rate=0.82;window.speechSynthesis.speak(u);}},400);
+  }else{
+    wrongCount++;
+    fb.className='feedback show';
+    fb.style.cssText='background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);display:flex;align-items:center;gap:10px;border-radius:var(--radius);padding:10px 14px;';
+    fbIcon.textContent='❌';
+    fbText.innerHTML=`正解：<span style="color:var(--ok);font-weight:700;font-family:'Space Mono',monospace;">${q.verb}</span>`;
+    missedVerbs.push(q);
+    playBuzzer();
+    setTimeout(()=>{if(window.speechSynthesis){window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(q.verb);u.lang='en-US';u.rate=0.82;window.speechSynthesis.speak(u);}},500);
+  }
+  document.getElementById('score-c').textContent=correctCount;
+  document.getElementById('score-w').textContent=wrongCount;
+  answered=true;
+  setTimeout(()=>nextQuestion(),1600);
+}
 </script>
 </body>
 </html>
