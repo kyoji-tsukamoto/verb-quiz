@@ -256,6 +256,7 @@ h1 span{color:var(--accent);}
 .subject-tab.active{border-color:var(--accent);background:rgba(56,189,248,.12);color:var(--accent);}
 .cal-dot.can{background:#fb923c;}
 .cal-dot.adj{background:#f472b6;}
+.cal-dot.cmp{background:#34d399;}
 .cal-dot.geo{background:#4ade80;}
 .cal-dot.history{background:#fb923c;}
 .cal-dot.physics{background:#a78bfa;}
@@ -268,6 +269,7 @@ h1 span{color:var(--accent);}
 .day-record-test.earth{color:#60a5fa;}
 .h-test-tag.can{background:rgba(251,146,60,.15);color:#fb923c;}
 .h-test-tag.adj{background:rgba(244,114,182,.15);color:#f472b6;}
+.h-test-tag.cmp{background:rgba(52,211,153,.15);color:#34d399;}
 .h-test-tag.geo{background:rgba(74,222,128,.15);color:#4ade80;}
 .h-test-tag.history{background:rgba(251,146,60,.15);color:#fb923c;}
 .h-test-tag.physics{background:rgba(167,139,250,.15);color:#a78bfa;}
@@ -504,6 +506,11 @@ window.loadRoutineFromFirestore = async function() {
       <div class="test-card-icon">✨</div>
       <div class="test-card-title">形容詞テスト</div>
       <div class="test-card-sub">英単語を見て、正しい日本語の意味を4択で選ぼう</div>
+    </div>
+    <div class="test-card" onclick="startTestFlow('cmp')">
+      <div class="test-card-icon">📊</div>
+      <div class="test-card-title">比較級・最上級テスト</div>
+      <div class="test-card-sub">原級を見て正しい比較級・最上級を4択で選ぼう。不規則変化も出題！</div>
     </div>
   </div>
   <div class="test-cards" id="test-cards-social" style="display:none">
@@ -1182,11 +1189,12 @@ function confirmName(){
 // ════════════════════════════════════
 function startTestFlow(type){
   currentTestType=type;selectedGroups.clear();allSelected=false;
-  const directTypes=['q','can','adj','geo','history','physics','biology','earth'];
+  const directTypes=['q','can','adj','cmp','geo','history','physics','biology','earth'];
   if(directTypes.includes(type)){
     const meta=TEST_META[type]||{};quizGroups=[meta.label||type];
     if(type==='q'){questions=shuffle(ALL_QUESTIONS).slice(0,20);}
     else if(type==='adj'){questions=shuffle(ALL_ADJ).slice(0,20).map(d=>({_type:'adj',verb:d.word,meaning:d.jp,sentence:d.sentence,group:meta.label||type}));}
+    else if(type==='cmp'){questions=shuffle(ALL_CMP).slice(0,20).map(d=>({_type:'cmp',verb:d.word,meaning:d.question,sentence:d.question,_cmpAnswer:d.answer,_cmpType:d.type,_cmpBase:d._base,group:meta.label||type}));}
     else if(type==='can'){
       questions=shuffle(SOCIAL_SCIENCE_DATA[type]||[]).slice(0,20).map(d=>({_type:'ss',question:d.meaning,answer:d.answer,choices:d.choices,sentence:d.sentence,group:meta.label||type}));
     }else{questions=shuffle(SOCIAL_SCIENCE_DATA[type]||[]).slice(0,20).map(d=>({_type:'ss',question:d.q,answer:d.a,choices:d.choices,group:meta.label||type}));}
@@ -1271,13 +1279,22 @@ function showQuestion(){
   document.getElementById('score-c').textContent=correctCount;
   document.getElementById('score-w').textContent=wrongCount;
 
-  if(currentTestType==='verb'||currentTestType==='adj'){
+  if(currentTestType==='verb'||currentTestType==='adj'||currentTestType==='cmp'){
     document.getElementById('verb-card').style.display='';
     document.getElementById('question-card').style.display='none';
-    document.getElementById('q-group').textContent=q.group||'形容詞';
+    document.getElementById('q-group').textContent=q.group||(currentTestType==='cmp'?'比較級・最上級':'形容詞');
     document.getElementById('q-verb').textContent=q.verb;
-    document.getElementById('q-sentence').textContent=q.sentence||'';
-    if(currentTestType==='adj'){buildAdjChoices(q);}else{buildVerbChoices(q);}
+    // cmpの場合：例文欄に「〜の比較級は？」を表示
+    if(currentTestType==='cmp'){
+      document.getElementById('q-sentence').textContent=q._cmpType==='comp'?'比較級（-er / more〜）を選ぼう':'最上級（-est / most〜）を選ぼう';
+      buildCmpChoices(q);
+    }else if(currentTestType==='adj'){
+      document.getElementById('q-sentence').textContent=q.sentence||'';
+      buildAdjChoices(q);
+    }else{
+      document.getElementById('q-sentence').textContent=q.sentence||'';
+      buildVerbChoices(q);
+    }
     setTimeout(()=>speakVerb(),300);
   }else if(currentTestType==='q'){
     document.getElementById('verb-card').style.display='none';
@@ -1323,6 +1340,20 @@ function buildAdjChoices(q){
   const wrongs=shuffle(ALL_ADJ.filter(a=>a.word!==q.verb)).slice(0,3).map(a=>a.jp);
   const choices=shuffle([{meaning:q.meaning,correct:true},...wrongs.map(m=>({meaning:m,correct:false}))]);
   renderChoices(choices,q.meaning);
+}
+function buildCmpChoices(q){
+  const correct=q._cmpAnswer;
+  const isComp=q._cmpType==='comp';
+  // 同じタイプの不正解候補を生成
+  const wrongs=shuffle(ALL_CMP_BASE.filter(b=>b.word!==q.verb))
+    .slice(0,3)
+    .map(b=>isComp?b.comp:b.sup);
+  // 重複排除
+  const uniqueWrongs=[...new Set(wrongs)].filter(w=>w!==correct).slice(0,3);
+  // 足りない場合は補充
+  while(uniqueWrongs.length<3){uniqueWrongs.push(isComp?'more '+q.verb:'most '+q.verb+String(uniqueWrongs.length));}
+  const choices=shuffle([{meaning:correct,correct:true},...uniqueWrongs.slice(0,3).map(m=>({meaning:m,correct:false}))]);
+  renderChoices(choices,correct);
 }
 
 function buildQChoices(q){
@@ -1486,7 +1517,7 @@ function timeUp(){
   fb.className='feedback wrong show';
   playBuzzer();
   document.getElementById('fb-icon').textContent='⏱️';
-  const ans=(currentTestType==='verb'||currentTestType==='adj')?q.meaning:q.answer;
+  const ans=(currentTestType==='verb'||currentTestType==='adj')?q.meaning:currentTestType==='cmp'?q._cmpAnswer:q.answer;
   document.getElementById('fb-text').innerHTML=`時間切れ！正解：<span class="fb-correct">${ans}</span>`;
   document.getElementById('score-w').textContent=wrongCount;
   if(currentTestType==='q'){
@@ -1630,8 +1661,8 @@ function showResult(){
     const label=currentTestType==='verb'?'間違えた動詞':'間違えた問題';
     let html=`<div class="missed-title">${label}</div>`;
     missedVerbs.forEach(v=>{
-      const key=(currentTestType==='verb'||currentTestType==='adj'||v._routineType==='typing'||v._routineType==='verb')?v.verb:(v._type==='ss'?v.answer:v.answer);
-      const sub2=(currentTestType==='verb'||currentTestType==='adj'||v._routineType==='typing'||v._routineType==='verb')?v.meaning:(v._type==='ss'?v.question:v.jp);
+      const key=(currentTestType==='verb'||currentTestType==='adj'||currentTestType==='cmp'||v._routineType==='typing'||v._routineType==='verb')?v.verb:(v._type==='ss'?v.answer:v.answer);
+      const sub2=(currentTestType==='verb'||currentTestType==='adj'||currentTestType==='cmp'||v._routineType==='typing'||v._routineType==='verb')?v.meaning:(v._type==='ss'?v.question:v.jp);
       html+=`<div class="missed-item"><span class="missed-verb">${key}</span><span class="missed-meaning">${sub2}</span></div>`;
     });
     ms.innerHTML=html;
@@ -1669,7 +1700,7 @@ async function saveHistory(pct,total){
   const now=new Date();
   const dateStr=now.toLocaleDateString('ja-JP',{year:'numeric',month:'2-digit',day:'2-digit'})+' '+now.toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
   const dateKey=now.toLocaleDateString('ja-JP',{year:'numeric',month:'2-digit',day:'2-digit'});
-  const record={date:dateStr,dateKey,timestamp:now.getTime(),testType:currentTestType,groups:quizGroups,score:pct,correct:correctCount,total,missed:missedVerbs.map(v=>(currentTestType==='verb'||currentTestType==='adj')?v.verb:(v._type==='ss'?v.answer:v.answer))};
+  const record={date:dateStr,dateKey,timestamp:now.getTime(),testType:currentTestType,groups:quizGroups,score:pct,correct:correctCount,total,missed:missedVerbs.map(v=>(currentTestType==='verb'||currentTestType==='adj'||currentTestType==='cmp')?v.verb:(v._type==='ss'?v.answer:v.answer))};
   try{
     let history=getHistory();
     history.unshift(record);
@@ -1711,7 +1742,7 @@ async function showHistory(){
   list.innerHTML='';
   history.forEach(r=>{
     const pc=r.score>=80?'high':r.score>=60?'mid':'low';
-    const _tlmap={verb:'動詞126語',q:'疑問文',can:'Can構文',adj:'形容詞',geo:'地理',history:'歴史',physics:'物理',biology:'生物',earth:'地学'};
+    const _tlmap={verb:'動詞126語',q:'疑問文',can:'Can構文',adj:'形容詞',cmp:'比較級・最上級',geo:'地理',history:'歴史',physics:'物理',biology:'生物',earth:'地学'};
     const testLabel=_tlmap[r.testType]||r.testType;
     const testClass=r.testType;
     const cats=(r.groups||[]).map(g=>`<span class="h-cat-tag">${g}</span>`).join('');
@@ -1823,8 +1854,8 @@ function showDayDetail(dateKey,rec,d){
   const _allRecs=[];ALL_TEST_TYPES.forEach(t=>{if(rec&&rec[t])_allRecs.push(...rec[t]);});
   _allRecs.sort((a,b)=>a.timestamp-b.timestamp).forEach(r=>{
     const pc=r.score>=80?'high':r.score>=60?'mid':'low';
-    const _dlmap={verb:'動詞126語テスト',q:'疑問文テスト',can:'Can構文テスト',adj:'形容詞テスト',geo:'地理テスト',history:'歴史テスト',physics:'物理テスト',biology:'生物テスト',earth:'地学テスト'};
-    const _dimap={verb:'📝',q:'❓',can:'💪',adj:'✨',geo:'🗾',history:'📜',physics:'💡',biology:'🌿',earth:'🌏'};
+    const _dlmap={verb:'動詞126語テスト',q:'疑問文テスト',can:'Can構文テスト',adj:'形容詞テスト',cmp:'比較級・最上級テスト',geo:'地理テスト',history:'歴史テスト',physics:'物理テスト',biology:'生物テスト',earth:'地学テスト'};
+    const _dimap={verb:'📝',q:'❓',can:'💪',adj:'✨',cmp:'📊',geo:'🗾',history:'📜',physics:'💡',biology:'🌿',earth:'🌏'};
     const testLabel=_dlmap[r.testType]||r.testType;
     const testClass=r.testType;
     const time=r.date.split(' ')[1]||'';
@@ -1963,6 +1994,7 @@ const TEST_META={
   verb:{label:'動詞126語テスト',icon:'📝',color:'var(--accent)'},
   can:{label:'Can構文テスト',icon:'💪',color:'#fb923c'},
   adj:{label:'形容詞テスト',icon:'✨',color:'#f472b6'},
+  cmp:{label:'比較級・最上級テスト',icon:'📊',color:'#34d399'},
   q:{label:'疑問文テスト',icon:'❓',color:'var(--accent2)'},
   geo:{label:'地理テスト',icon:'🗾',color:'#4ade80'},
   history:{label:'歴史テスト',icon:'📜',color:'#fb923c'},
@@ -1970,7 +2002,7 @@ const TEST_META={
   biology:{label:'生物テスト',icon:'🌿',color:'#34d399'},
   earth:{label:'地学テスト',icon:'🌏',color:'#60a5fa'},
 };
-const ALL_TEST_TYPES=['verb','q','can','adj','geo','history','physics','biology','earth'];
+const ALL_TEST_TYPES=['verb','q','can','adj','cmp','geo','history','physics','biology','earth'];
 
 // 教科タブ切り替え
 function switchSubject(sub){
@@ -2606,6 +2638,83 @@ const ALL_ADJ = [
 
 // SOCIAL_SCIENCE_DATA に adj を追加
 SOCIAL_SCIENCE_DATA.adj = ALL_ADJ;
+
+// ════════════════════════════════════
+// 比較級・最上級データ
+// ════════════════════════════════════
+// 形式: {word:原級, meaning:日本語, comp:比較級, sup:最上級, type:'comp'|'sup'|'both'}
+// 出題: 原級を表示して「比較級は？」または「最上級は？」を4択で選ぶ
+const ALL_CMP_BASE = [
+  // 🥇最優先（不規則変化）
+  {word:'good',  meaning:'よい',    comp:'better',  sup:'best'},
+  {word:'bad',   meaning:'悪い',    comp:'worse',   sup:'worst'},
+  {word:'many',  meaning:'多い',    comp:'more',    sup:'most'},
+  {word:'much',  meaning:'多い（量）', comp:'more',  sup:'most'},
+  {word:'little',meaning:'少ない',  comp:'less',    sup:'least'},
+  {word:'far',   meaning:'遠い',    comp:'farther', sup:'farthest'},
+  // 規則変化（-er/-est）
+  {word:'big',   meaning:'大きい',  comp:'bigger',  sup:'biggest'},
+  {word:'small', meaning:'小さい',  comp:'smaller', sup:'smallest'},
+  {word:'long',  meaning:'長い',    comp:'longer',  sup:'longest'},
+  {word:'short', meaning:'短い',    comp:'shorter', sup:'shortest'},
+  {word:'tall',  meaning:'背が高い', comp:'taller', sup:'tallest'},
+  {word:'old',   meaning:'古い・年老いた', comp:'older', sup:'oldest'},
+  {word:'new',   meaning:'新しい',  comp:'newer',   sup:'newest'},
+  {word:'fast',  meaning:'速い',    comp:'faster',  sup:'fastest'},
+  {word:'slow',  meaning:'遅い',    comp:'slower',  sup:'slowest'},
+  {word:'hot',   meaning:'暑い・熱い', comp:'hotter', sup:'hottest'},
+  {word:'cold',  meaning:'寒い・冷たい', comp:'colder', sup:'coldest'},
+  {word:'hard',  meaning:'難しい・固い', comp:'harder', sup:'hardest'},
+  {word:'strong',meaning:'強い',    comp:'stronger', sup:'strongest'},
+  {word:'weak',  meaning:'弱い',    comp:'weaker',  sup:'weakest'},
+  {word:'kind',  meaning:'親切な',  comp:'kinder',  sup:'kindest'},
+  {word:'young', meaning:'若い',    comp:'younger', sup:'youngest'},
+  {word:'high',  meaning:'高い',    comp:'higher',  sup:'highest'},
+  {word:'low',   meaning:'低い',    comp:'lower',   sup:'lowest'},
+  {word:'rich',  meaning:'豊かな',  comp:'richer',  sup:'richest'},
+  {word:'poor',  meaning:'貧しい',  comp:'poorer',  sup:'poorest'},
+  {word:'clean', meaning:'清潔な',  comp:'cleaner', sup:'cleanest'},
+  {word:'dark',  meaning:'暗い',    comp:'darker',  sup:'darkest'},
+  {word:'bright',meaning:'明るい',  comp:'brighter', sup:'brightest'},
+  {word:'cheap', meaning:'安い',    comp:'cheaper', sup:'cheapest'},
+  // more/most型（長い形容詞）
+  {word:'beautiful', meaning:'美しい', comp:'more beautiful', sup:'most beautiful'},
+  {word:'difficult', meaning:'難しい', comp:'more difficult', sup:'most difficult'},
+  {word:'important', meaning:'重要な', comp:'more important', sup:'most important'},
+  {word:'popular',   meaning:'人気がある', comp:'more popular', sup:'most popular'},
+  {word:'useful',    meaning:'役立つ', comp:'more useful', sup:'most useful'},
+  {word:'interesting',meaning:'おもしろい',comp:'more interesting',sup:'most interesting'},
+  {word:'exciting',  meaning:'わくわくする', comp:'more exciting', sup:'most exciting'},
+  {word:'careful',   meaning:'注意深い', comp:'more careful', sup:'most careful'},
+  {word:'dangerous', meaning:'危険な', comp:'more dangerous', sup:'most dangerous'},
+  {word:'wonderful', meaning:'すばらしい', comp:'more wonderful', sup:'most wonderful'},
+];
+
+// 出題形式を展開：「〜の比較級は？」「〜の最上級は？」の2問に分解
+const ALL_CMP = [];
+ALL_CMP_BASE.forEach(b=>{
+  // 比較級問題
+  ALL_CMP.push({
+    word: b.word,
+    meaning: b.meaning,
+    question: `「${b.word}」の比較級は？`,
+    answer: b.comp,
+    type: 'comp',
+    // 不正解選択肢用
+    _base: b,
+  });
+  // 最上級問題
+  ALL_CMP.push({
+    word: b.word,
+    meaning: b.meaning,
+    question: `「${b.word}」の最上級は？`,
+    answer: b.sup,
+    type: 'sup',
+    _base: b,
+  });
+});
+
+SOCIAL_SCIENCE_DATA.cmp = ALL_CMP;
 
 // ════════════════════════════════════
 // 不規則動詞データ（マインドマップより）
