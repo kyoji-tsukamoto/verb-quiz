@@ -934,7 +934,7 @@ window.loadRoutineFromFirestore = async function() {
     <!-- 間違えた問題 -->
     <div class="detail-section" id="detail-missed-section">
       <div class="detail-section-title">間違えた問題</div>
-      <div class="detail-missed-grid" id="detail-missed-grid"></div>
+      <div id="detail-missed-grid"></div>
     </div>
 
     <!-- 同生徒の履歴推移 -->
@@ -3785,13 +3785,16 @@ function openDetailModal(d, allData){
   // 間違えた問題
   const missedSection = document.getElementById('detail-missed-section');
   const missedGrid = document.getElementById('detail-missed-grid');
+  missedSection.style.display = 'block';
   if(d.missed && d.missed.length > 0){
-    missedSection.style.display = 'block';
-    missedGrid.innerHTML = d.missed.map(m=>
-      `<div class="detail-missed-tag">${m}</div>`
-    ).join('');
+    missedGrid.innerHTML =
+      `<div style="display:flex;flex-wrap:wrap;gap:6px;">` +
+      d.missed.map(m=>
+        `<div style="background:rgba(248,113,113,.15);border:1.5px solid rgba(248,113,113,.4);border-radius:8px;padding:6px 12px;font-size:14px;font-weight:700;color:var(--error);font-family:'Space Mono',monospace;">${m}</div>`
+      ).join('') +
+      `</div>`;
   } else {
-    missedSection.style.display = 'none';
+    missedGrid.innerHTML = `<div style="font-size:13px;color:var(--ok);font-weight:700;">✅ 間違いなし！全問正解です</div>`;
   }
 
   // 同生徒の過去成績（同じテスト種別）
