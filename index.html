@@ -335,6 +335,26 @@ h1 span{color:var(--accent);}
 .student-name-badge{font-size:13px;font-weight:700;color:var(--accent);}
 .student-hist-score{font-family:'Space Mono',monospace;font-size:20px;font-weight:700;}
 .student-hist-score.high{color:var(--ok);} .student-hist-score.mid{color:var(--warn);} .student-hist-score.low{color:var(--error);}
+.student-hist-item{cursor:pointer;transition:all .15s;}
+.student-hist-item:hover{border-color:var(--accent);background:var(--surface2);}
+.student-hist-item .expand-hint{font-size:10px;color:var(--text-muted);font-family:'Space Mono',monospace;margin-top:4px;}
+/* 詳細モーダル */
+.detail-modal-overlay{display:none;position:fixed;inset:0;background:rgba(13,17,23,.92);z-index:500;align-items:flex-end;justify-content:center;}
+.detail-modal-overlay.on{display:flex;}
+.detail-modal{background:var(--surface);border:1px solid var(--border);border-radius:20px 20px 0 0;width:100%;max-width:600px;max-height:85vh;overflow-y:auto;padding:24px 20px 40px;}
+.detail-modal-handle{width:40px;height:4px;background:var(--border);border-radius:99px;margin:0 auto 20px;}
+.detail-modal-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;}
+.detail-modal-name{font-size:18px;font-weight:900;}
+.detail-modal-close{background:var(--surface2);border:none;border-radius:99px;padding:6px 14px;color:var(--text-muted);cursor:pointer;font-size:13px;font-family:'Noto Sans JP',sans-serif;}
+.detail-section{margin-bottom:18px;}
+.detail-section-title{font-size:11px;font-weight:700;color:var(--text-muted);font-family:'Space Mono',monospace;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;}
+.detail-score-circle{width:80px;height:80px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;border:3px solid;}
+.detail-missed-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:6px;}
+.detail-missed-tag{background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.3);border-radius:8px;padding:6px 10px;font-size:13px;font-weight:700;color:var(--error);font-family:'Space Mono',monospace;text-align:center;}
+.detail-stat-row{display:flex;gap:10px;margin-bottom:12px;}
+.detail-stat-box{flex:1;background:var(--surface2);border-radius:12px;padding:12px;text-align:center;}
+.detail-stat-num{font-family:'Space Mono',monospace;font-size:20px;font-weight:700;}
+.detail-stat-lbl{font-size:11px;color:var(--text-muted);margin-top:3px;}
 .student-hist-detail{font-size:12px;color:var(--text-muted);display:flex;gap:10px;flex-wrap:wrap;}
 .teacher-save-btn{width:100%;background:var(--warn);color:#0d1117;border:none;border-radius:var(--radius);padding:14px;font-size:16px;font-weight:900;font-family:'Noto Sans JP',sans-serif;cursor:pointer;transition:all .18s;margin-bottom:10px;}
   .teacher-save-btn:hover{opacity:.85;}
@@ -869,6 +889,61 @@ window.loadRoutineFromFirestore = async function() {
 </div>
 
 </div><!-- /wrap -->
+
+<!-- 生徒詳細モーダル -->
+<div class="detail-modal-overlay" id="detail-modal-overlay" onclick="closeDetailModal(event)">
+  <div class="detail-modal" id="detail-modal">
+    <div class="detail-modal-handle"></div>
+    <div class="detail-modal-header">
+      <div>
+        <div class="detail-modal-name" id="detail-name"></div>
+        <div id="detail-subtitle" style="font-size:12px;color:var(--text-muted);margin-top:3px;"></div>
+      </div>
+      <button class="detail-modal-close" onclick="closeDetailModal()">✕ 閉じる</button>
+    </div>
+
+    <!-- スコア・統計 -->
+    <div class="detail-section">
+      <div class="detail-section-title">テスト結果</div>
+      <div class="detail-stat-row">
+        <div class="detail-stat-box">
+          <div class="detail-stat-num" id="detail-score" style="color:var(--accent);"></div>
+          <div class="detail-stat-lbl">得点</div>
+        </div>
+        <div class="detail-stat-box">
+          <div class="detail-stat-num" style="color:var(--ok);" id="detail-correct"></div>
+          <div class="detail-stat-lbl">正解</div>
+        </div>
+        <div class="detail-stat-box">
+          <div class="detail-stat-num" style="color:var(--error);" id="detail-wrong"></div>
+          <div class="detail-stat-lbl">不正解</div>
+        </div>
+        <div class="detail-stat-box">
+          <div class="detail-stat-num" id="detail-total"></div>
+          <div class="detail-stat-lbl">問題数</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- テスト情報 -->
+    <div class="detail-section">
+      <div class="detail-section-title">テスト情報</div>
+      <div style="background:var(--surface2);border-radius:12px;padding:12px 16px;display:flex;flex-direction:column;gap:8px;" id="detail-info"></div>
+    </div>
+
+    <!-- 間違えた問題 -->
+    <div class="detail-section" id="detail-missed-section">
+      <div class="detail-section-title">間違えた問題</div>
+      <div class="detail-missed-grid" id="detail-missed-grid"></div>
+    </div>
+
+    <!-- 同生徒の履歴推移 -->
+    <div class="detail-section" id="detail-history-section">
+      <div class="detail-section-title">この生徒の過去の成績</div>
+      <div id="detail-history-list" style="display:flex;flex-direction:column;gap:6px;"></div>
+    </div>
+  </div>
+</div>
 
 <!-- 一時停止オーバーレイ -->
 <div class="pause-overlay" id="pause-overlay">
@@ -3147,13 +3222,18 @@ function renderStudentHistory(data){
           <span class="student-name-badge">👤 ${d.userName||'不明'}</span>
           <span style="margin-left:8px;font-size:11px;background:rgba(56,189,248,.12);color:var(--accent);border-radius:99px;padding:2px 8px;font-family:'Space Mono',monospace;">${typeLabel}</span>
         </div>
-        <div class="student-hist-score ${pc}">${pct}%</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="student-hist-score ${pc}">${pct}%</div>
+          <span style="font-size:14px;color:var(--text-muted);">›</span>
+        </div>
       </div>
       <div class="student-hist-detail">
         <span>📅 ${d.date||''}</span>
         <span>✓${d.correct||0} ✗${(d.total||0)-(d.correct||0)} / ${d.total||0}問</span>
-        ${missed ? `<span style="color:var(--error);">❌${missed}</span>` : ''}
-      </div>`;
+        ${d.missed&&d.missed.length>0?`<span style="color:var(--error);">❌ ${d.missed.length}問間違い</span>`:'<span style="color:var(--ok);">✅ 全問正解</span>'}
+      </div>
+      <div class="expand-hint">タップで詳細を見る</div>`;
+    item.onclick = () => openDetailModal(d, allStudentsData);
     listEl.appendChild(item);
   });
 }
@@ -3661,6 +3741,95 @@ function submitRoutineTyping(){
   document.getElementById('score-w').textContent=wrongCount;
   answered=true;
   setTimeout(()=>nextQuestion(),1600);
+}
+
+// ════════════════════════════════════
+// 生徒詳細モーダル
+// ════════════════════════════════════
+function openDetailModal(d, allData){
+  const overlay = document.getElementById('detail-modal-overlay');
+  const pct = d.score||0;
+  const correct = d.correct||0;
+  const total = d.total||0;
+  const wrong = total - correct;
+  const typeLabel = TYPE_LABELS[d.testType]||d.testType||'テスト';
+
+  // ヘッダー
+  document.getElementById('detail-name').textContent = '👤 ' + (d.userName||'不明');
+  document.getElementById('detail-subtitle').textContent = typeLabel + '　' + (d.date||'');
+
+  // スコア
+  const scoreEl = document.getElementById('detail-score');
+  scoreEl.textContent = pct + '%';
+  scoreEl.style.color = pct>=80?'var(--ok)':pct>=60?'var(--warn)':'var(--error)';
+  document.getElementById('detail-correct').textContent = correct;
+  document.getElementById('detail-wrong').textContent = wrong;
+  document.getElementById('detail-total').textContent = total;
+
+  // テスト情報
+  const infoEl = document.getElementById('detail-info');
+  infoEl.innerHTML = `
+    <div style="display:flex;justify-content:space-between;font-size:13px;">
+      <span style="color:var(--text-muted);">テスト種別</span>
+      <span style="font-weight:700;">${typeLabel}</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:13px;">
+      <span style="color:var(--text-muted);">実施日時</span>
+      <span style="font-weight:700;">${d.date||'不明'}</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:13px;">
+      <span style="color:var(--text-muted);">正答率</span>
+      <span style="font-weight:700;color:${pct>=80?'var(--ok)':pct>=60?'var(--warn)':'var(--error)'};">${correct} / ${total}問 (${pct}%)</span>
+    </div>`;
+
+  // 間違えた問題
+  const missedSection = document.getElementById('detail-missed-section');
+  const missedGrid = document.getElementById('detail-missed-grid');
+  if(d.missed && d.missed.length > 0){
+    missedSection.style.display = 'block';
+    missedGrid.innerHTML = d.missed.map(m=>
+      `<div class="detail-missed-tag">${m}</div>`
+    ).join('');
+  } else {
+    missedSection.style.display = 'none';
+  }
+
+  // 同生徒の過去成績（同じテスト種別）
+  const histSection = document.getElementById('detail-history-section');
+  const histList = document.getElementById('detail-history-list');
+  const sameUserData = (allData||[])
+    .filter(r => r.userName===d.userName && r.testType===d.testType && r.timestamp!==d.timestamp)
+    .sort((a,b)=>(b.timestamp||0)-(a.timestamp||0))
+    .slice(0, 10);
+
+  if(sameUserData.length > 0){
+    histSection.style.display = 'block';
+    histList.innerHTML = sameUserData.map(r=>{
+      const rp = r.score||0;
+      const rpc = rp>=80?'var(--ok)':rp>=60?'var(--warn)':'var(--error)';
+      const trend = rp > pct ? '↑' : rp < pct ? '↓' : '→';
+      const trendCol = rp > pct ? 'var(--ok)' : rp < pct ? 'var(--error)' : 'var(--text-muted)';
+      return `<div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border-radius:10px;padding:8px 14px;">
+        <span style="font-size:12px;color:var(--text-muted);">${r.date||''}</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:13px;color:var(--text-muted);">✓${r.correct||0}/${r.total||0}</span>
+          <span style="font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:${rpc};">${rp}%</span>
+          <span style="font-size:12px;color:${trendCol};">${trend}</span>
+        </div>
+      </div>`;
+    }).join('');
+  } else {
+    histSection.style.display = 'none';
+  }
+
+  overlay.classList.add('on');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDetailModal(e){
+  if(e && e.target !== document.getElementById('detail-modal-overlay')) return;
+  document.getElementById('detail-modal-overlay').classList.remove('on');
+  document.body.style.overflow = '';
 }
 </script>
 </body>
